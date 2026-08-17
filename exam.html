@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5.15 Typical Electronic/Digital Aircraft Systems — ข้อสอบทบทวน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#f4f6f8;
+    --bezel:#dde3e9;
+    --hairline:#d7dde3;
+    --text-hi:#12161b;
+    --text-dim:#5a6672;
+    --text-faint:#8b95a1;
+    --green:#0e8a4b;
+    --green-dim:#e2f7ea;
+    --amber:#b8710a;
+    --amber-dim:#fdf1de;
+    --red:#c73d3d;
+    --red-dim:#fceaea;
+    --cyan:#0a7fa3;
+    --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    --sans: 'IBM Plex Sans Thai', 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#ffffff;
+    color:var(--text-hi);
+    font-family:var(--sans);
+    line-height:1.5;
+    padding-bottom:110px;
+    min-height:100vh;
+  }
+  ::selection{background:var(--green-dim);color:var(--green);}
+
+  /* ---------- Top display bar (EICAS-style header) ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:#ffffff;
+    border-bottom:1px solid var(--hairline);
+    padding:14px 18px 12px;
+  }
+  .topbar-inner{max-width:760px;margin:0 auto;}
+  .callsign{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    color:var(--text-faint);
+    display:flex; justify-content:space-between;
+    margin-bottom:6px;
+  }
+  .callsign b{color:var(--amber); font-weight:600;}
+  h1{
+    font-size:17px;
+    margin:0 0 10px;
+    font-weight:600;
+    letter-spacing:.01em;
+    color:var(--text-hi);
+  }
+  h1 .sub{display:block;font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.12em;margin-top:2px;}
+
+  .gauge-row{display:flex; align-items:center; gap:12px;}
+  .gauge-track{
+    flex:1; height:8px; border-radius:5px;
+    background:var(--panel-2); border:1px solid var(--hairline);
+    overflow:hidden; position:relative;
+  }
+  .gauge-fill{
+    height:100%; width:0%;
+    background:linear-gradient(90deg, var(--amber), var(--green));
+    transition:width .25s ease;
+  }
+  .gauge-label{
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+    white-space:nowrap; min-width:74px; text-align:right;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:760px; margin:0 auto; padding:20px 16px 0;}
+  .intro{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-left:3px solid var(--amber);
+    border-radius:6px;
+    padding:14px 16px;
+    font-size:13.5px;
+    color:var(--text-dim);
+    margin-bottom:22px;
+  }
+  .intro b{color:var(--text-hi);}
+
+  /* ---------- Question card (MCDU line-select style) ---------- */
+  .qcard{
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:8px;
+    margin-bottom:14px;
+    overflow:hidden;
+    transition:border-color .2s;
+    box-shadow:0 1px 3px rgba(20,25,30,.05);
+  }
+  .qcard.unanswered{border-left:3px solid var(--bezel);}
+  .qcard.answered{border-left:3px solid var(--cyan);}
+  .qcard.correct{border-left:3px solid var(--green);}
+  .qcard.incorrect{border-left:3px solid var(--red);}
+
+  .qhead{
+    display:flex; gap:10px; align-items:baseline;
+    padding:14px 16px 10px;
+  }
+  .qnum{
+    font-family:var(--mono); font-size:12px; color:var(--text-faint);
+    background:var(--panel-2); border:1px solid var(--hairline);
+    border-radius:4px; padding:2px 7px; flex-shrink:0;
+    letter-spacing:.05em;
+  }
+  .qtext{font-size:14.5px; color:var(--text-hi); font-weight:500;}
+
+  .options{padding:0 10px 12px;}
+  .opt{
+    display:flex; align-items:center; gap:10px;
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--hairline);
+    border-radius:6px;
+    padding:10px 12px;
+    margin:6px 0;
+    cursor:pointer;
+    text-align:left;
+    font-family:var(--sans);
+    font-size:13.5px;
+    color:var(--text-hi);
+    transition:border-color .15s, background .15s;
+  }
+  .opt:hover{border-color:var(--cyan);}
+  .opt-key{
+    font-family:var(--mono); font-size:11px; color:var(--text-faint);
+    border:1px solid var(--hairline); border-radius:3px;
+    width:20px; height:20px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .opt.selected{border-color:var(--cyan); background:#e6f5fa;}
+  .opt.selected .opt-key{color:var(--cyan); border-color:var(--cyan);}
+
+  /* review states */
+  .opt.opt-correct{border-color:var(--green); background:var(--green-dim);}
+  .opt.opt-correct .opt-key{color:var(--green); border-color:var(--green);}
+  .opt.opt-wrong{border-color:var(--red); background:var(--red-dim);}
+  .opt.opt-wrong .opt-key{color:var(--red); border-color:var(--red);}
+  .opt.locked{cursor:default;}
+  .opt.locked:hover{border-color:inherit;}
+
+  .explain{
+    display:none;
+    margin:4px 10px 12px;
+    padding:10px 12px;
+    background:#fbfbfc;
+    border:1px dashed var(--hairline);
+    border-radius:6px;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .explain.show{display:block;}
+  .explain b{color:var(--text-hi); font-family:var(--mono); font-size:11px; letter-spacing:.05em;}
+
+  /* ---------- Sticky footer control bar ---------- */
+  .footerbar{
+    position:fixed; bottom:0; left:0; right:0; z-index:60;
+    background:linear-gradient(0deg,#ffffff 60%, rgba(255,255,255,0));
+    padding:18px 16px 16px;
+  }
+  .footer-inner{
+    max-width:760px; margin:0 auto;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:12px 14px;
+    display:flex; align-items:center; gap:12px;
+    box-shadow:0 8px 24px rgba(20,25,30,.12);
+  }
+  .footer-status{font-family:var(--mono); font-size:12px; color:var(--text-dim); flex:1;}
+  .footer-status b{color:var(--amber);}
+  btn, .btn{
+    font-family:var(--sans); font-weight:600; font-size:13.5px;
+    border:none; border-radius:6px; padding:10px 18px;
+    cursor:pointer; color:#ffffff;
+    background:var(--green);
+    transition:filter .15s, transform .1s;
+  }
+  .btn:hover{filter:brightness(1.1);}
+  .btn:active{transform:scale(.97);}
+  .btn:disabled{background:var(--bezel); color:var(--text-faint); cursor:not-allowed;}
+  .btn.secondary{background:var(--panel-2); color:var(--text-hi); border:1px solid var(--hairline);}
+
+  /* ---------- Results panel (ECAM STATUS style) ---------- */
+  .results{
+    display:none;
+    background:var(--panel);
+    border:1px solid var(--hairline);
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:22px;
+  }
+  .results.show{display:block;}
+  .results-title{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    color:var(--text-faint); margin-bottom:14px;
+  }
+  .score-row{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:14px;}
+  .score-big{font-family:var(--mono); font-size:44px; font-weight:700;}
+  .score-big.pass{color:var(--green);}
+  .score-big.warn{color:var(--amber);}
+  .score-big.fail{color:var(--red);}
+  .score-sub{font-size:13px; color:var(--text-dim);}
+  .score-bar-track{height:10px; border-radius:5px; background:var(--panel-2); border:1px solid var(--hairline); overflow:hidden; margin-bottom:16px;}
+  .score-bar-fill{height:100%;}
+  .filters{display:flex; gap:8px; flex-wrap:wrap;}
+  .filter-btn{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.04em;
+    background:var(--panel-2); border:1px solid var(--hairline); color:var(--text-dim);
+    border-radius:5px; padding:7px 12px; cursor:pointer;
+  }
+  .filter-btn.active{border-color:var(--cyan); color:var(--cyan);}
+
+  .hidden{display:none !important;}
+
+  @media (max-width:480px){
+    .score-big{font-size:34px;}
+    h1{font-size:15px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="callsign"><span>CAAT 147 · MODULE 05</span><b id="phaseLabel">TEST — IN PROGRESS</b></div>
+    <h1>Digital Techniques &amp; Electronic Instrument Systems<span class="sub" id="qCountSub">แบบทดสอบทบทวน · — ข้อ</span></h1>
+    <div class="gauge-row">
+      <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+      <div class="gauge-label" id="gaugeLabel">0 / —</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="intro" id="introBox">
+    ตอบให้ครบทุกข้อแล้วกด <b>ส่งคำตอบ</b> ด้านล่าง ระบบจะสุ่มลำดับคำถามและตัวเลือกใหม่ทุกครั้งที่เริ่มทำข้อสอบ
+    หลังส่งคำตอบสามารถกลับมาดูข้อที่ตอบผิดพร้อมคำอธิบายได้
+  </div>
+
+  <div class="results" id="resultsPanel">
+    <div class="results-title">RESULT — TEST SUMMARY</div>
+    <div class="score-row">
+      <div class="score-big" id="scoreBig">0%</div>
+      <div class="score-sub" id="scoreSub">ตอบถูก 0 จาก — ข้อ</div>
+    </div>
+    <div class="score-bar-track"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">ทั้งหมด (<span id="allCount">—</span>)</button>
+      <button class="filter-btn" data-filter="wrong">ตอบผิด (<span id="wrongCount">0</span>)</button>
+      <button class="filter-btn" data-filter="correct">ตอบถูก (<span id="correctCount">0</span>)</button>
+    </div>
+  </div>
+
+  <div id="quizList"></div>
+</div>
+
+<div class="footerbar">
+  <div class="footer-inner">
+    <div class="footer-status" id="footerStatus">ตอบแล้ว <b>0</b> / — ข้อ</div>
+    <button class="btn secondary hidden" id="retakeBtn">ทำใหม่</button>
+    <button class="btn" id="submitBtn">ส่งคำตอบ</button>
+  </div>
+</div>
+
+<script>
+</script>
+<script>
+const QUESTIONS_DATA = [{"q":"An FMS system, besides controlling navigation, thrust and auto-nav, also provides.","options":["GPWS warnings.","dedicated status and warnings.","take-off and landing warnings."],"answer":"dedicated status and warnings.","explanation":"The FMS is not used for Take Off or Landing The GPWS warnings come from the GPWS Computer."},{"q":"The minimum standards for aircraft instrumentation is set by.","options":["CAA.","ICAO.","JAA."],"answer":"JAA.","explanation":"NIL."},{"q":"EADI sky and ground display is provided by.","options":["raster scan.","stroke pulse.","synthetic TV signals."],"answer":"raster scan.","explanation":"Pallett - Aircraft Instruments Page 302 Fig. 12.5."},{"q":"HSI heading is valid if the heading flag is.","options":["in view.","green.","out of view."],"answer":"out of view.","explanation":"Warning flags 'in view' indicate failure. Normally the only coloured flag used is RED, indicating failure."},{"q":"MFD is the abbreviation for.","options":["Multi function display.","Mandatory flight display.","Master flight display."],"answer":"Multi function display.","explanation":"NIL."},{"q":"A TCAS uses the radar mile definition in its calculations, which is.","options":["12.36 microsecond.","6.18 microsecond.","24.72 microsecond."],"answer":"12.36 microsecond.","explanation":"NIL.    http://www.atis.org/tg2k/_radar_mile.html"},{"q":"GPS navigation uses a constellation of satellites that is made up of.","options":["21 active and 3 spare.","28 active and 7 spare.","23 active and 5 spare."],"answer":"21 active and 3 spare.","explanation":"NIL."},{"q":"An IRS is only certifed for alingment up to.","options":["+88.45 and -88.45 degrees.","+78.25 and -78.25 degrees.","+60 and -60 degrees."],"answer":"+78.25 and -78.25 degrees.","explanation":"NIL."},{"q":"The command bars on an ADI relate to.","options":["roll indications.","path being followed.","path required."],"answer":"path required.","explanation":"Pallett - Aircraft Instruments Page 212."},{"q":"ECAM has at its heart.","options":["a multi function symbol generator.","a central maintenance computer.","ACARS."],"answer":"a multi function symbol generator.","explanation":"NIL."},{"q":"The recording medium in an FDR is.","options":["copper foil coated with ferrite.","a high density floppy disc.","magnetic tape coated with ferrite."],"answer":"magnetic tape coated with ferrite.","explanation":"NIL."},{"q":"An FMS databank memory is updated.","options":["every 365 days.","every 28 days.","every 32 days."],"answer":"every 28 days.","explanation":"NIL."},{"q":"What does the CADC feed?.","options":["cabin pressure controller sensor / machmeter / altimeter.","Altimeter / FMS / secondary radar.","standby altimeter / machmeter."],"answer":"cabin pressure controller sensor / machmeter / altimeter.","explanation":"Pallett - Aircraft Instruments Page 179 Fig. 7.12."},{"q":"In a Flight Management System (FMS), data is input manually to the computing system through the.","options":["Data Acquisition Unit.","Electronic Centralised Aircraft Monitoring control panel.","Control and Display Unit."],"answer":"Control and Display Unit.","explanation":"NIL."},{"q":"In a Global Positioning System (GPS), the number of satellites required to achieve a 3 dimensional fix is.","options":["2.","3.","4."],"answer":"4.","explanation":"NIL."},{"q":"In a Global Positioning System (GPS), each satellite transmission identifies the satellite using a.","options":["different channel frequency.","pseudo random code.","whisper shout method."],"answer":"pseudo random code.","explanation":"NIL."},{"q":"In a Global Positioning System (GPS) satellites below the Mask Angle are ignored as these may cause.","options":["range errors.","clock errors.","ephemeris errors."],"answer":"range errors.","explanation":"NIL."},{"q":"Information required by a Flight Management System (FMS) to function correctly is indicated on the display by.","options":["dashes.","a flashing cursor.","boxes."],"answer":"boxes.","explanation":"NIL."},{"q":"A flight data recorder can obtain information from aircraft instruments.","options":["provided there is adequate damping.","provided there is adequate isolation.","by direct connection to the instruments."],"answer":"provided there is adequate isolation.","explanation":"NIL."},{"q":"The inputs and outputs of a CADC are.","options":["pitot and static in; altitude, attitude, CAS and VS out.","pitot and static in; altitude, CAS, mach and VS out.","pitot in; static, altitude, mach, CAS and VS out."],"answer":"pitot and static in; altitude, CAS, mach and VS out.","explanation":"NIL."},{"q":"EICAS provides the following:.","options":["Engine parameters and engine warnings only.","Engine parameters and system warnings only.","Engine parameters only."],"answer":"Engine parameters and system warnings only.","explanation":"Pallett - Aircraft Instruments Page 179 Fig. 7.12."},{"q":"A central maintenance computer provides.","options":["ground and flight monitoring and testing on an on-board computer.","ground and BITE testing using a portable control panel.","display of system warnings and cautions."],"answer":"ground and flight monitoring and testing on an on-board computer.","explanation":"NIL."},{"q":"The rising runway is positioned from information derived from.","options":["barometric height.","radio altimeter.","vertical speed."],"answer":"radio altimeter.","explanation":"Boeing Maintenance Training notes for B757."},{"q":"Where are the Digital Flight Data Recorder outputs supplied to?.","options":["The recording unit.","There are no outputs.","Flight instruments."],"answer":"There are no outputs.","explanation":"Information recorded in the DFDR is only accessable in the shop."},{"q":"FMS failure and warnings are.","options":["EFIS warnings only.","displayed on EICAS.","engine warnings only."],"answer":"displayed on EICAS.","explanation":"FMS warnings are displayed on EICAS and EFIS, but the answers given are 'EICAS' or 'EFIS only' so for the purposes of this question the correct answer is EICAS."},{"q":"Flight director command bars are moved to the correct  position by.","options":["calibration.","position feedback.","amplifier gain."],"answer":"position feedback.","explanation":"NIL."},{"q":"What information is required before completion of the alignment of an Inertial Navigation System?.","options":["Aircraft present position.","Heading and attitude.","Aircraft present position and heading."],"answer":"Aircraft present position.","explanation":"NIL."},{"q":"IRS accelerometers are mounted.","options":["90° to each other.","45° to each other.","60° to each other."],"answer":"90° to each other.","explanation":"NIL."},{"q":"An FMS navigation database is updated.","options":["once a month.","every 28 days.","at the operators request."],"answer":"every 28 days.","explanation":"NIL."},{"q":"A single failure of a fly-by-wire system.","options":["will reduce operational heights and speeds.","will limit the flight profile.","has no effect on aircraft operation."],"answer":"has no effect on aircraft operation.","explanation":"Redundant FBW systems will continue to fly the aircraft."},{"q":"Fly-by-wire load alleviation function in turbulent conditions will result in.","options":["spoilers moving symmetrically upwards.","ailerons moving symmetrically upwards.","ailerons and spoilers moving symmetrically upwards."],"answer":"ailerons and spoilers moving symmetrically upwards.","explanation":"NIL."},{"q":"Fly-by-wire roll control is achieved by.","options":["spoilers and ailerons.","ailerons.","spoilers."],"answer":"spoilers and ailerons.","explanation":"Automatic Flight Control, Pallett and Coyle Page 296."},{"q":"The movement of fly-by-wire control surfaces are.","options":["hydraulically controlled and electrically actuated.","both electrically controlled and electrically actuated.","electrically controlled and hydraulically actuated."],"answer":"electrically controlled and hydraulically actuated.","explanation":"NIL."},{"q":"An FMS system, besides controlling navigation, thrust and auto-nav, also provides.","options":["dedicated status warnings.","take-off and landing warnings.","GPWS warnings."],"answer":"dedicated status warnings.","explanation":"NIL."},{"q":"If an EFIS has 3 symbol generators. What is the purpose of the 3rd symbol generator?.","options":["Comparison with No.1 symbol generator.","Parity function.","Standby."],"answer":"Standby.","explanation":"NIL."},{"q":"FMS operational program is updated every.","options":["90 days.","28 days.","7 days."],"answer":"28 days.","explanation":"NIL."},{"q":"An FDR fitted to a helicopter begins recording.","options":["when power is applied to the aircraft.","on take-off.","on engine start-up."],"answer":"on engine start-up.","explanation":"See ANO Art 53 para.1."},{"q":"The FMS databases consist of.","options":["one navigation and one performance database.","one performance and two navigation databases.","two performance and one navigation database."],"answer":"one performance and two navigation databases.","explanation":"Normally we consider the FMS as having 2 databases (1 navigational and 1 performance). (Jeppesen Avionics Fundamentals Page 385). However, the Navigational database is split in two.  1 is for Jeppesen data, uploaded on the ground, the other is for pilot input data (additional waypoints etc.). See http://www.b737.org.uk/fmc.htm for more."},{"q":"The FMS can update the IRS position outputs by using information from either.","options":["VOR and DME only.","GPS, DME, LOC and VOR.","DME and GPS only."],"answer":"GPS, DME, LOC and VOR.","explanation":"NIL."},{"q":"The accepted error from INS/IRS is.","options":["3 miles / hour + 3 miles.","2 miles per hour + 3 miles.","1 mile/hour+3 miles."],"answer":"3 miles / hour + 3 miles.","explanation":"NIL."},{"q":"Before an IRS can complete the alignment sequence.","options":["the current present position must be entered.","either the last or current position must be entered.","the shutdown present position must be entered."],"answer":"the current present position must be entered.","explanation":"NIL."},{"q":"What warnings can an FMS provide?.","options":["Discrete warnings.","Spurious faults.","Ground faults only."],"answer":"Discrete warnings.","explanation":"This means it can warn of inoperative equipment, but not when equipment is providing incorrect data."},{"q":"Electronic Centralised Aircraft Monitoring System.","options":["performs in-flight and ground tests of aircraft systems by carrying out a BITE interrogation.","performs in-flight BITE interrogation only.","give red warnings and amber cautions to display system status."],"answer":"give red warnings and amber cautions to display system status.","explanation":"NIL."},{"q":"The control of the speed or rate that the flight director command bars move can be controlled by.","options":["position feedback.","rate or velocity feedback.","amplifier gain."],"answer":"rate or velocity feedback.","explanation":"NIL."},{"q":"The Centralised Aircraft Monitoring System uses the maintenance mode of operation.","options":["on the ground only.","in the air only.","either in the air or on the ground."],"answer":"on the ground only.","explanation":"Aircraft Electricity and Electronics, Eismin, 5th Edition Page 359."},{"q":"The third EFIS Symbol Generator is operated.","options":["in an emergency.","with EICAS.","as a standby to the No1 and No2 system."],"answer":"as a standby to the No1 and No2 system.","explanation":"NIL."},{"q":"EFIS displays of the right hand and left hand displays are compared by comparators in the.","options":["FMS.","EICAS.","Symbol Generators."],"answer":"Symbol Generators.","explanation":"NIL."},{"q":"What is the approximate earth rate?.","options":["10°/hour.","5°/hour.","15°/hour."],"answer":"15°/hour.","explanation":"Aircraft Instruments and Integrated Systems. Pallett Page 102."},{"q":"An IRS has.","options":["two or three accelerometers depending on the system.","three accelerometers.","two accelerometers."],"answer":"three accelerometers.","explanation":"Jeppesen Avionics Fundamentals Page 137."},{"q":"IRS Laser Ring Gyros provide.","options":["rate of movement about an axis.","displacement about an axis.","both rate and displacement about an axis."],"answer":"rate of movement about an axis.","explanation":"Jeppesen Avionics Fundamentals Page 137."},{"q":"What are the outputs of a Digital ADC?.","options":["TAS, MACH, Altitude and TAT.","TAS, MACH, Altitude, TAT and SAT.","TAS, MACH and Altitude."],"answer":"TAS, MACH, Altitude, TAT and SAT.","explanation":"Both Static and Total Air Temperatures are outputs of a digital ADC."},{"q":"Fly By Wire systems in the fully active mode, the actuators will.","options":["both be active.","both be in damping mode, awaiting control inputs.","one in active mode, one in damping mode."],"answer":"both be active.","explanation":"Ref to B777 and A330 manuals, the term active mode will always be associated with fully operational of redundancy of all actuators or servo controls. This means, each primary flight control surfaces' actuators (either 2 or 3 actuators configuration designed to provide fully-powered controls that suit the size and purpose of surfaces) are actually active on all phases. If any failure occurs, the failed actuator will then revert to 'damping' mode, becoming slave to remaining active actuators."},{"q":"On a Fly By Wire system, what controls the stab trim?.","options":["ELAC and SEC.","SEC.","ELAC."],"answer":"ELAC and SEC.","explanation":"ELAC = Elevator Aileron Computer, SEC = Spoilers Elevator Computer and FAC = Flight Augmentation Computers (rudder)."},{"q":"The minimum requirement for a cockpit voice recorder to begin operating is.","options":["on engine start-up.","on commencing the takeoff roll.","once established in the en-route climb."],"answer":"on engine start-up.","explanation":"JAR Ops states that the CVR must begin when the aircraft is capable of moving under its own power."},{"q":"Aircraft Communications Addressing and Reporting Systems is used to.","options":["download aircraft status reports.","make telephone calls.","allow the pilot of an aircraft to talk to base."],"answer":"download aircraft status reports.","explanation":"NIL."},{"q":"B-RNAV system must be capable of.","options":["holding six waypoints.","displaying distance and bearing to waypoint.","reversing the waypoints for."],"answer":"displaying distance and bearing to waypoint.","explanation":"NIL."},{"q":"The basic principle of radar is based upon.","options":["the amount of power in the signal returned.","the time delay between outward and returning pulse.","ultrasonic wave propagation."],"answer":"the time delay between outward and returning pulse.","explanation":"NIL."},{"q":"What systems does the ADC feed?.","options":["Altimeter / FMS / secondary radar.","Cabin pressure controller sensor / machmeter / Altimeter.","Standby altimeter/machmeter."],"answer":"Cabin pressure controller sensor / machmeter / Altimeter.","explanation":"NIL."},{"q":"Which systems does a modern ADC give information to?.","options":["EFIS.","EICAS.","Flight control computer, Air Data Instrument, Engine systems."],"answer":"Flight control computer, Air Data Instrument, Engine systems.","explanation":"NIL."},{"q":"Where do the outputs from a DADC go?.","options":["EHSI.","EADI.","IRMP: Inertial Reference Mode Panel."],"answer":"EADI.","explanation":"Aircraft Instruments and Integrated Systems by EHJ Pallett page 179."},{"q":"How many satellite signals are required to achieve precise 3D positioning?.","options":["4.","5.","6."],"answer":"4.","explanation":"NIL."},{"q":"The minimum requirement for an aeroplane CVR is.","options":["from power on.","from engine start.","from beginning of take off roll."],"answer":"from engine start.","explanation":"JAR OPS Para 1.700 (c) OR answer c by CAP 393 Section I Para 53."},{"q":"An Inertial Navigation System (INS/IRS) computes distance from acceleration by.","options":["two successive integrations.","a simple integration.","a differentiation followed by an integration."],"answer":"two successive integrations.","explanation":"NIL."},{"q":"Before the aircraft is moved from the loading pier the pilot must.","options":["insert the longitude and latitude of the first waypoint into the INS.","set the altitude to be fed into the INS.","insert the latitude and longitude of the pier into the IRS."],"answer":"insert the latitude and longitude of the pier into the IRS.","explanation":"NIL."},{"q":"An IRS has.","options":["accelerometers and gyros fixed to a the airframe.","accelerometers fixed to the airframe and gyros on a stable platform.","accelerometers on a stable platform and gyros fixed to the airframe."],"answer":"accelerometers and gyros fixed to a the airframe.","explanation":"NIL."},{"q":"An IRS system requires data for wind computation from.","options":["Doppler System.","satellites.","central Air Data Computer."],"answer":"central Air Data Computer.","explanation":"NIL."},{"q":"The FMS carries out a Rho/Theta navigation function, the purpose of this is to.","options":["update the IRS system with an accurate position fix of latitude and longitude.","to update the VOR and DME systems with an accurate position fix.","to update the EMS with the new lateral flight profile for the flight plan."],"answer":"update the IRS system with an accurate position fix of latitude and longitude.","explanation":"NIL."},{"q":"The FMS is updated.","options":["automatically by update data from the ACARS.","by an aircraft engineer updating the system either by a magnetic tape or floppy disc.","by the aircrew by reference to the Tech Log."],"answer":"by an aircraft engineer updating the system either by a magnetic tape or floppy disc.","explanation":"NIL."},{"q":"Pitch Control of a fly by wire system is achieved by.","options":["stabilizer only.","elevators only.","stabilizer and elevator."],"answer":"stabilizer and elevator.","explanation":"NIL."},{"q":"In a fly by wire system, if the pilot control input is derived from a side stick controller:.","options":["there is no control surface feedback to the side stick.","control surface feedback is fed to the side stick.","there will be only control surface feedback to the side stick after a computer failure."],"answer":"there is no control surface feedback to the side stick.","explanation":"NIL."},{"q":"A basic IRS platform has.","options":["3 accelerometers and 2 laser gyros.","2 Accelerometers and 3 laser gyros.","3 accelerometers and 3 laser gyros."],"answer":"3 accelerometers and 3 laser gyros.","explanation":"Jeppesen Avionics Fundamentals Page 137."},{"q":"What must be entered into the IRS before the aircraft can be moved?.","options":["Flight plan.","Present position.","Cruise height."],"answer":"Present position.","explanation":"NIL."},{"q":"The FMS Operational Database is.","options":["updated once a month.","is fed with information on aircraft weight, cruise altitude and cost index before take off.","needs no update information."],"answer":"is fed with information on aircraft weight, cruise altitude and cost index before take off.","explanation":"NIL."},{"q":"Control surface feedback is fed back to.","options":["the Flight Control Computer only.","the side stick controller only.","the Flight Control Computer and side stick controller."],"answer":"the Flight Control Computer only.","explanation":"NIL."},{"q":"The accelerometer output in an INS/IRS is.","options":["integrated once to give distance.","integrated twice to give velocity.","integrated twice to give distance."],"answer":"integrated twice to give distance.","explanation":"NIL."},{"q":"An INS/IRS Battery Unit provides.","options":["standby power only whilst in flight.","standby power when airborne and on the ground.","standby power only on the ground."],"answer":"standby power when airborne and on the ground.","explanation":"Aircraft Instruments and Integrated Systems. Pallett Page 247 & 248."},{"q":"If a fly by wire actuator loses hydraulic power the control surface will.","options":["automatically move back to the neutral position.","remain rigid in the failure position.","remain in the failure position but may move due to aerodynamic pressure."],"answer":"remain in the failure position but may move due to aerodynamic pressure.","explanation":"NIL."},{"q":"IRS alignment.","options":["takes up to 10 minutes and the present position can be entered at any time during alignment.","takes up to 10 minutes and present position must be entered before alignment.","takes up to 10 minutes and the previous flight shut down present position is used for the alignment."],"answer":"takes up to 10 minutes and the present position can be entered at any time during alignment.","explanation":"NIL."},{"q":"A fault light appears on the IRS Mode Selector Unit during the alignment sequence. The correct action is.","options":["immediately switch off and select the standby system.","select HDG/STS on the Inertial System Display Unit (ISDU), observe the action code in the right alpha/numeric display.","refer to the warning display on the EICAS/ECAM system."],"answer":"select HDG/STS on the Inertial System Display Unit (ISDU), observe the action code in the right alpha/numeric display.","explanation":"NIL."},{"q":"A FMS has a total of how many Databases.","options":["2.","4.","1."],"answer":"2.","explanation":"NIL."},{"q":"Fly by wire High Speed protection is.","options":["to prevent tuck under.","to increase the pitch angle as speed increases.","to prevent high speed stall."],"answer":"to prevent tuck under.","explanation":"NIL."},{"q":"An IRS Laser gyro provides.","options":["detection of the rate of movement about an aircraft axis.","detection of the earths gravitational force to establish true north.","detection of the earths rotation to establish true north."],"answer":"detection of the rate of movement about an aircraft axis.","explanation":"Jeppesen Avionics Fundamentals Page 137."},{"q":"The left and right cockpit displays.","options":["are supplied from separate Symbol Generators at all times.","are supplied from the same Symbol Generator.","will only be supplied from the same symbol generator when all other symbol generators have failed."],"answer":"will only be supplied from the same symbol generator when all other symbol generators have failed.","explanation":"NIL."},{"q":"A single failure of a fly by wire control surface computer will.","options":["cause the system to revert to an alternate law of operation.","not have any operational effect on the system.","cause the system to revert to a direct law of operation."],"answer":"not have any operational effect on the system.","explanation":"NIL."},{"q":"What are the outputs from digital clocks used for?.","options":["Flight data acquisition unit, Flight management computer and Voice recorder.","VOR, ILS and DME.","Weather radar, TCAS and ACARS."],"answer":"Flight data acquisition unit, Flight management computer and Voice recorder.","explanation":"Only these require real time reference."},{"q":"A full operation system BITE check will carry out a internal system test that ensures the system meets design requirements and is operational.","options":["but will not move the controls.","as well as checking full system and will move the controls to their stops.","as well as checking full system but will not move the controls to their stops."],"answer":"as well as checking full system but will not move the controls to their stops.","explanation":"Digital Avionic Systems - Cary Spitzer. Page 109, Arinc report 604 guidance for design and use of built in test equipment states... 'BITE should exercise the hardware sufficiently to determine if it meets the performance requirements but should not drive it against mechanical stops.'."},{"q":"If on a flight deck EFIS system all the displays were missing one bit of information. This is most likely to be.","options":["the input sensor bus and display controller.","the symbol generator and display.","the display controller and symbol generator."],"answer":"the display controller and symbol generator.","explanation":"By elimination, a fault in the display would be more general, and a fault with the sensor would  still display, but an erroneous value."},{"q":"A centralised monitoring computer system is used.","options":["to test system during flight and for BITE test of  systems on the ground using a carry on control unit.","to test systems in flight and on the ground using a centralised on board control unit.","testing systems on the ground only."],"answer":"to test systems in flight and on the ground using a centralised on board control unit.","explanation":"Aircraft Electricity and Electronics Eismin 5th Edition Page 270."},{"q":"In an EFIS display, the lines, scales, indicator and  synoptic are generated by.","options":["raster scan.","synoptic scan.","stroke pulse."],"answer":"stroke pulse.","explanation":"757 MM 34-22-00 page 40 (p) and 737 MM 34-22-00 page 47, 4(b)."},{"q":"The method of producing (white) lines for aircraft symbols, V/S scale etc. on an EADI is by.","options":["raster scan.","trapezoidal input.","stroke pulse."],"answer":"stroke pulse.","explanation":"MM 737-300/400/500, 34-22-00 page 47 4b or MM 757 34-22-00 page 40 (p). 'The special symbols, characters, letters, vectors and arcs are displayed using the stroke method. The EADI  sky/ground ball or EHSI weather radar are displayed using the raster method."},{"q":"In modern aircraft, the output from the clock is used.","options":["to synchronise the signals on the control bus.","to provide a clock pulse for CRT.","to give GMT details to the flight recorder and other systems."],"answer":"to give GMT details to the flight recorder and other systems.","explanation":"NIL."},{"q":"As a minimum requirement, when must a cockpit voice recorder start recording?.","options":["From the start of the aircraft take off run.","After take off when airborne.","On first engine start."],"answer":"On first engine start.","explanation":"CAP 393 Section I Para 53, OR answer a by JAR OPS Para 1.700 ©."},{"q":"The operational database of the FMS may have to be modified in flight.","options":["It cannot be modified in flight.","by the pilot.","automatically by the DADC."],"answer":"It cannot be modified in flight.","explanation":"NIL."},{"q":"CADC outputs are.","options":["altitude, vertical speed, IAS, mach no.","altitude, vertical speed, TAS, CAS, mach no, SAT, TAT.","altitude ,vertical speed, angle of attack, TAT, SAT."],"answer":"altitude, vertical speed, TAS, CAS, mach no, SAT, TAT.","explanation":"Aircraft Instruments and Integrated Systems Pallett Page 162."},{"q":"If one EICAS CRT fails.","options":["the FMS CDU will display the failed CRT data.","the remaining CRT will display primary EICAS data.","the standby CRT will automatically take over."],"answer":"the remaining CRT will display primary EICAS data.","explanation":"NIL."},{"q":"Variations in light on EFIS displays are compensated for by.","options":["An external light dependant resistor mounted on the flight deck compensating for all displays in a parallel-parallel format.","manual adjustment by flight crew on EFIS controller.","integrated light dependant resistors in the display compensating for each display individual."],"answer":"An external light dependant resistor mounted on the flight deck compensating for all displays in a parallel-parallel format.","explanation":"Aircraft Instruments and Integrated Systems by EHJ Pallett pages 296 & 299."},{"q":"A method used in modern aircraft for reporting in flight faults to an engineering and monitoring ground station is.","options":["TCAS II.","ACARS.","TAWS."],"answer":"ACARS.","explanation":"Aircraft Electricity and Electronics Eismin 5th Edition Page 299."},{"q":"The self test function on an EFIS system can be tested.","options":["on the ground only.","in the air only.","in the air and on the ground."],"answer":"in the air and on the ground.","explanation":"NIL."},{"q":"Each of the symbol generator outputs in an EFIS system can be.","options":["displayed on each individual display.","only no. 2 can be displayed on the no.1.","can not be interchanged."],"answer":"displayed on each individual display.","explanation":"NIL."},{"q":"BITE tests are inhibited for ground use during.","options":["forward motion.","gear retraction.","take-off."],"answer":"take-off.","explanation":"NIL."},{"q":"Modern aircraft with electronic displays would display information on airframe and engine on which system?.","options":["Electronic centralised aircraft monitoring system (ECAM).","Flight management system.","EADI."],"answer":"Electronic centralised aircraft monitoring system (ECAM).","explanation":"NIL."},{"q":"The Flight data recorder starts recording.","options":["after take off.","on aircraft roll out from stand.","after the first engine has started."],"answer":"after the first engine has started.","explanation":"JAR OPS Subpart K 1.715 e."},{"q":"Data to flight data recorder can be taken from a communal data bus if.","options":["the power is within flight data recorder limits.","it goes directly to it.","source isolation has been considered."],"answer":"source isolation has been considered.","explanation":"NIL."},{"q":"A central fault display system should be available through.","options":["a bite test.","a central bite test box with clear LED indications.","a easily accessible multifunction control display unit."],"answer":"a easily accessible multifunction control display unit.","explanation":"NIL."},{"q":"A flight data recorder should be capable of recording.","options":["the last 25 hours.","the last 25 hours of aircraft flight.","the last 25 hours with engines running."],"answer":"the last 25 hours with engines running.","explanation":"NIL."},{"q":"BITE for ground use only is switched off.","options":["on take-off.","when brakes are released.","when undercarriage up."],"answer":"on take-off.","explanation":"NIL."},{"q":"During normal functioning of an ECAM system the engine data shown on the Engine/Warning display comes from the.","options":["EFIS channel of DMC3.","ECAM channel of DMC1.","ECAM channel of DMC3."],"answer":"ECAM channel of DMC3.","explanation":"A330-200 31-50-00 pg4."},{"q":"Using I.N.S. an aircraft flies.","options":["rhumb line.","course directed by ground station.","great circle route."],"answer":"great circle route.","explanation":"Jeppesen Avionics Fundamentals Page 132."},{"q":"What warnings can an FMS provide?.","options":["Ground faults only.","Discrete warnings.","Spurious faults."],"answer":"Discrete warnings.","explanation":"NIL."},{"q":"Aircraft heading (HDG) is.","options":["the angle between True North and the longitudinal axis of the aircraft.","the angle between True North and the actual track.","the angle between True North and the desired track."],"answer":"the angle between True North and the longitudinal axis of the aircraft.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 254."},{"q":"For an IRS System to pass the Alignment System  Performance Test the the latitude entered must be within given limits of the.","options":["latitude computed by IRU.","entered present latitude and longitude must agree with  the latitude and longitude at last power down.","the No 1 and No 2 must both have the same latitude and longitude present position entered."],"answer":"latitude computed by IRU.","explanation":"Aircraft Instruments and Integrated Systems, Pallett pages 279-280."},{"q":"Control Display Unit (CDU ) selection of TKE (Track Angle Error), displays.","options":["difference in degrees that the aircraft is to the right or left of the desired track.","distance perpendicular from the selected track.","difference in degrees from True North in a clockwise direction from the desired track."],"answer":"difference in degrees that the aircraft is to the right or left of the desired track.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 256."},{"q":"In the EICAS system, when is the maintenance mode available?.","options":["Lower screen only - only available on the ground.","In flight.","On the upper and lower screens - only available on the ground."],"answer":"Lower screen only - only available on the ground.","explanation":"B747 Maintenance Manual. Aircraft Instruments and Integrated Systems. Pallett Page 380."},{"q":"On a modern aircraft when are BITE checks carried out?.","options":["Continuously when system is in use.","After engine shut down.","Only when BITE selected."],"answer":"Continuously when system is in use.","explanation":"Aircraft Electricity and Electronics, 5th edition, Eismin, Pages 152 and 268."},{"q":"In an IN system, the purpose of the stable platform is to.","options":["provide attitude reference.","prevent unwanted acceleration affecting the accelerometers.","stop the gyros from toppling."],"answer":"prevent unwanted acceleration affecting the accelerometers.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 260."},{"q":"An IN system requires data from the.","options":["Doppler system.","airdata computer.","satellites."],"answer":"airdata computer.","explanation":"Jeppesen Avionics Fundamentals Page 138."},{"q":"TK (cross track) is the.","options":["actual track across the earths surface.","angle in degrees that the aircraft track is left or right of desired track.","perpendicular distance from the desired track."],"answer":"perpendicular distance from the desired track.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 256."},{"q":"The output of an INS can be fed to the.","options":["attitude indicators.","altimeters.","vertical speed indicators."],"answer":"attitude indicators.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 247 fig 10.1. Jeppesen Avionics  Fundamentals Page 137 & 138."},{"q":"The three accelerometers on a strapdown system are mounted.","options":["90° to each other.","parallel to each other.","120° apart."],"answer":"90° to each other.","explanation":"Jeppesen Avionics Fundamentals Page 135."},{"q":"Gyro-compassing is the term used for.","options":["self-alignment in the vertical.","use of the gyro-magnetic compass system to align the platform.","self-alignment in azimuth."],"answer":"self-alignment in azimuth.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 280."},{"q":"Electronic Centralized Aircraft Monitoring System operates to.","options":["give red warnings and amber cautions to display system status.","perform in-flight BITE only.","perform in-flight and ground tests of aircraft systems by  carrying out a BITE."],"answer":"give red warnings and amber cautions to display system status.","explanation":"NIL."},{"q":"The Centralized Aircraft Monitoring System uses the maintenance mode of operation.","options":["on the ground only.","in the air only.","either ground or air."],"answer":"on the ground only.","explanation":"NIL."},{"q":"If part of a display is lost on a CRT, this could be due to.","options":["an inoperative symbol generator or control panel.","an inoperative symbol generator or input sensor.","loss of power to the CRT."],"answer":"an inoperative symbol generator or input sensor.","explanation":"NIL."},{"q":"A cyclic test (watch dog) should be performed for ECAM.","options":["via MCDU.","during power up.","during flight."],"answer":"during flight.","explanation":"Aircraft Electricity and Electronics, Eismin, 5th Edition. Pg 154."},{"q":"How does the symbol generator detect a program error?.","options":["By looking at the even parity without error.","By looking at the odd parity without error.","By check sum bites for error detect."],"answer":"By looking at the odd parity without error.","explanation":"NIL."},{"q":"Relationship of CMCs to BITE systems is best described as.","options":["CMCs replaced but is not related to the older BITE system.","CMCs monitors the individual BITE systems and presents data.","CMCs modifies and upgrades BITE systems."],"answer":"CMCs monitors the individual BITE systems and presents data.","explanation":"NIL."},{"q":"An IRU interface test is carried out.","options":["in the air.","only on the ground.","on the ground or in the air."],"answer":"only on the ground.","explanation":"NIL."},{"q":"FMS system gives warning indications for.","options":["take off and landings only.","any flight phase.","cruise."],"answer":"cruise.","explanation":"NIL."},{"q":"FMS CDU warnings are.","options":["fail and MSG.","OFST and Fail.","MSG, fail and OFST."],"answer":"MSG, fail and OFST.","explanation":"NIL."},{"q":"CMC (central maintenance computer) works to.","options":["perform in-flight bite and ground tests of aircraft systems, i.e. BITE.","give red warnings and amber cautions to display in accordance with system status.","perform in-flight bite only."],"answer":"perform in-flight bite and ground tests of aircraft systems, i.e. BITE.","explanation":"NIL."},{"q":"BITE test carried out on input sensors and actuators performs.","options":["validation of the information of the LRU.","a performance test of the system.","a test of the LRU."],"answer":"a performance test of the system.","explanation":"NIL."},{"q":"A BITE check for automatic performance and fault monitoring is carried out when?.","options":["Power-up self test.","For in-flight monitoring.","To check the performance of the LRU."],"answer":"Power-up self test.","explanation":"NIL."},{"q":"In which of the following does TCAS II advise the pilot to make a maneouvre?.","options":["RA.","TA.","either RA or TA."],"answer":"RA.","explanation":"NIL."},{"q":"What are the shapes of traffic shown on a TCAS display?.","options":["White circles, red diamonds and amber squares.","White diamonds, red squares and amber circles.","White squares, red diamonds and amber circles."],"answer":"White diamonds, red squares and amber circles.","explanation":"NIL."},{"q":"If a display shows a red cross only, it is due to.","options":["Symbol Generator failure.","CRT failure.","Altimeter failure."],"answer":"Symbol Generator failure.","explanation":"NIL."},{"q":"ACARS is an acronym for.","options":["ARINC Communicating Addressing and Reporting System.","Airborne Communicating Addressing and Reporting System.","Aircraft Communicating Addressing and Reporting System."],"answer":"Aircraft Communicating Addressing and Reporting System.","explanation":"NIL.    http://www.acarsonline.co.uk/alabout.htm"},{"q":"When does the flight data recorder start recording ?.","options":["Undercarriage up.","Parking brake released.","When the first engine starts."],"answer":"When the first engine starts.","explanation":"NIL."},{"q":"Brake temperature displayed on a flight deck CRT has.","options":["a master warning light.","same colour throughout.","different colour for different temperatures."],"answer":"different colour for different temperatures.","explanation":"NIL."},{"q":"When performing test on Electronic Displays using the Built In Test system.","options":["CRT continues to display current data while the SGs and Display are internally tested.","SG injects a test signal into the display system and the word TEST appears on the screen.","displays cannot be tested it is only SG which are tested by BITE."],"answer":"SG injects a test signal into the display system and the word TEST appears on the screen.","explanation":"NIL."},{"q":"Heading reference required to establish initial heading during alignment sequence comes from.","options":["FMS which gathers data from other Radio devices.","Magnetic compass installed on the airplane.","Earths Rotation."],"answer":"Earths Rotation.","explanation":"NIL."},{"q":"What is primary mode of navigation on a modern  aeroplane?.","options":["Both GPS and IRS.","Only IRS.","Inch precise GPS."],"answer":"Only IRS.","explanation":"NIL."},{"q":"In a flight director, how are small deviations corrected?.","options":["Pilot input.","Instrument is calibrated at fitment to remove any possible error.","Instrument feedback."],"answer":"Pilot input.","explanation":"NIL."},{"q":"For a 3 dimensional fix in a Global Positioning System.","options":["Minimum of 3 satellites must be in view.","Minimum of 2 satellites must be in view and altitude used to simulate a 3rd satellite.","Minimum of 4 satellites must be in view."],"answer":"Minimum of 4 satellites must be in view.","explanation":"NIL."},{"q":"In an aircraft equipped with TCAS II and EFIS.","options":["RA pitch command is shown on the EHSI and TA/RA traffic on the EADI.","RA pitch command is shown on the VSI and TA/RA traffic on the EHSI.","RA pitch command is shown on the EADI and TA/RA traffic on the EHSI."],"answer":"RA pitch command is shown on the EADI and TA/RA traffic on the EHSI.","explanation":"NIL."},{"q":"The BITE indicator on a DFDR shows Yellow colour. This indicates.","options":["power is ON but DFDR is not recording data.","power is ON and DFDR is recording data.","power is OFF or DFDR is at Fault."],"answer":"power is OFF or DFDR is at Fault.","explanation":"NIL."},{"q":"In a typical 'Glass Cockpit' EICAS provides the following.","options":["engine parameters and system warnings only.","engine parameters and engine warnings only.","engine warnings only."],"answer":"engine parameters and system warnings only.","explanation":"NIL."},{"q":"What is the minimum requirement for CVR to operate?.","options":["BEFORE take-off.","BEFORE engine start.","at any time the manufacturer decides."],"answer":"BEFORE take-off.","explanation":"Minimum requirement is AT first engine start (according to JAR OPS) which is BEFORE take-of."},{"q":"ECAM system was adopted for.","options":["Airbus A310.","both Boeing and Airbus aircraft.","Boeing 757 and 767 aircraft."],"answer":"Airbus A310.","explanation":"NIL."},{"q":"A modern electromagnetic Flight Data Recorder, for recording data, could use:.","options":["a floppy disk.","a plastic tape coated in ferrite.","a copper oxide string."],"answer":"a plastic tape coated in ferrite.","explanation":"NIL."},{"q":"What is the minimum requirement for a CVR to start recording?.","options":["When parking brake is released.","On commencement of flight.","When aircraft is capable of moving under its own power."],"answer":"When aircraft is capable of moving under its own power.","explanation":"JAR Ops 1.700 para c."},{"q":"As a minimum requirement when must a cockpit voice recorder start recording?.","options":["Once airborne after take off.","Before engine start.","Once aircraft is ready to move under its own power."],"answer":"Once aircraft is ready to move under its own power.","explanation":"JAR Ops 1.700 para c."},{"q":"What are the basic elements for 'Classic T' format?.","options":["Direction, altitude and height.","Airspeed, pitch and roll.","Airspeed, attitude, altitude and direction."],"answer":"Airspeed, attitude, altitude and direction.","explanation":"NIL."},{"q":"Typical displays on an EHSI are.","options":["Engine indications.","VOR, Map, Plan and weather radar.","VOR, Plan, Map and Attitude."],"answer":"VOR, Map, Plan and weather radar.","explanation":"Pallett - Aircraft Instruments."},{"q":"An EADI display showing a moving runway moves down during the final stages of an approach. The aircraft must.","options":["fly down.","fly up.","hold descent path."],"answer":"fly down.","explanation":"At 200ft, during Approach, the Rising Runway starts to move up the EADI display until, at touch down, it touches the bottom of the aircraft symbol. If the Rising Runway start to move down again it means that the aircraft is climbing and should FLY DOWN."},{"q":"During an instrument approach, the glideslope pointer eflects below the glideslope centre mark. This means the aircraft is positioned.","options":["above the glideslope.","below the glideslope.","to the left of the localiser."],"answer":"above the glideslope.","explanation":"Consider the centre of the G/S scale as the aircraft position and the pointer as the centre of the G/S beam."},{"q":"Engine parameters are displayed on.","options":["ECAM.","EHSI.","FMSCDU."],"answer":"ECAM.","explanation":"Engine parameters can be displayed on ECAM by selecting the Engine Page. See Pallett - Aircraft Instrumnets and Integrated Systems Page 391."},{"q":"What is the fixed feature of an ADI?.","options":["The glideslope pointer.","The aircraft symbol.","The lateral deviation bar."],"answer":"The aircraft symbol.","explanation":"The little aeroplane pianted in the middle of the instrument."},{"q":"On an EADI, the Flight Director command bars show.","options":["the path with respect to the horizon.","the required path with respect to the actual path.","the actual path with respect to the required path."],"answer":"the required path with respect to the actual path.","explanation":"NIL."},{"q":"What instrument includes a display of a rising runway?.","options":["ECAM.","EHSI.","EADI."],"answer":"EADI.","explanation":"NIL."},{"q":"What functions are available on the EHSI?.","options":["Full arc and Wx only.","Full arc, Wx and Map Mode.","Full Arc only."],"answer":"Full arc, Wx and Map Mode.","explanation":"NIL."},{"q":"With radio coupled autopilot, what are the inputs?.","options":["ADF and VOR.","ILS and VOR.","ADF and ILS."],"answer":"ILS and VOR.","explanation":"NIL."},{"q":"An EADI display of flight director commands are coloured.","options":["cyan.","magenta.","red."],"answer":"magenta.","explanation":"Aircraft instruments and integrated systems,(pallet) page 302 fig 12.5 eadi flight director command bars are magenta."},{"q":"EFIS systems have two control panels, their purpose is.","options":["one to control the type of EFIS display and the other to select the source of the information being displayed.","one for the EADI display and one for the EHSI display.","to provide display control by one control panel whilst  the other provides a standby."],"answer":"one to control the type of EFIS display and the other to select the source of the information being displayed.","explanation":"NIL."},{"q":"What would you expect to see displayed on an EADI  display?.","options":["Compass heading, selected heading and VOR.","Course information, weather radar, way point alert and bearing pointers.","Flight director command bars, slip indicator, rate to altitude & autoland."],"answer":"Flight director command bars, slip indicator, rate to altitude & autoland.","explanation":"NIL."},{"q":"An EFIS ADI display will show along with pitch and roll.","options":["flight director bars, autoland, compass rose, altitude.","decision height, autoland, rad alt , altitude.","flight director bars, autoland, altitude, range to altitude, decision height."],"answer":"decision height, autoland, rad alt , altitude.","explanation":"NIL."},{"q":"If the glideslope pointer is below the centre mark the aircraft is.","options":["below the glideslope.","on the glideslope.","above the glideslope."],"answer":"above the glideslope.","explanation":"NIL."},{"q":"On an EFIS system the weather radar is displayed on.","options":["the FMC CDU.","the EADI.","the EHSI."],"answer":"the EHSI.","explanation":"Aircraft Instruments and Integrated Systems EHJ Pallett Page 305."},{"q":"EADI displays show.","options":["pitch, roll and waypoints.","pitch and roll attitudes.","heading and weather radar."],"answer":"pitch and roll attitudes.","explanation":"NIL."},{"q":"On an EHSI in weather radar mode, a severe storm would be shown as.","options":["orange areas with black or yellow surrounds.","red areas with black surrounds","blue areas with white background."],"answer":"red areas with black surrounds","explanation":"NIL."},{"q":"During flight (non fault conditions) the EICAS system displays on the lower CRT.","options":["flight phase page.","secondary engine parameters.","synoptic display."],"answer":"secondary engine parameters.","explanation":"NIL."},{"q":"Radio altitude is displayed on an EFIS system.","options":["on the Electronic Horizontal Situation Indicator.","on the Electronic Attitude Direction Indicator.","on the RMI."],"answer":"on the Electronic Attitude Direction Indicator.","explanation":"NIL."},{"q":"An EFIS system ADI displays pitch, roll.","options":["autoland, altitude, compass rose and flight director bars.","autoland, decision height, range to altitude and flight director bars and slip indicator.","autoland, rad alt, decision height and slip indicator."],"answer":"autoland, decision height, range to altitude and flight director bars and slip indicator.","explanation":"NIL."},{"q":"An electronic flight instrument display consists of.","options":["Mode control panel, Raster and Stroke generator display, microprocessor and Data inputs.","ADC, Altimeter, VSI and ASI.","ADI, HSI and Symbol generator."],"answer":"Mode control panel, Raster and Stroke generator display, microprocessor and Data inputs.","explanation":"Automatic Flight Control by EHJ Pallett and Shawn Coyle page 268."},{"q":"The EFIS system consists of.","options":["EHSI, Mode control panel, EADI.","EADI, EHSI, Symbol generators.","Mode control Panel, RDMI, EHSI."],"answer":"EADI, EHSI, Symbol generators.","explanation":"NIL."},{"q":"ILS indications on PFD/ND are shown in.","options":["cyan.","magenta.","green."],"answer":"magenta.","explanation":"NIL."},{"q":"A weather radar image can be displayed on the ND on all modes except.","options":["arc.","nav rose.","plan."],"answer":"plan.","explanation":"NIL."},{"q":"In a typical commercial aircraft Head Up Guidance System.","options":["the type of information shown on the attitude director indicator is displayed on a transparent plate.","all instrument information is displayed on the windshield.","only emergency indications or warnings are displayed to the pilot."],"answer":"the type of information shown on the attitude director indicator is displayed on a transparent plate.","explanation":"NIL."},{"q":"A modern Electronic Horizontal Situation Indicator will display the following:.","options":["Waypoints, ILS Steering Information, Distance to go and Magnetic Heading.","ILS Steering Information, Flight director information and Glide Slope Deviation.","Ground speed, Magnetic Heading, Way points and Localiser."],"answer":"Waypoints, ILS Steering Information, Distance to go and Magnetic Heading.","explanation":"NIL."},{"q":"Cockpit panels have a matt colour finish. The purpose is.","options":["so that pilots feel more comfortable during daytime.","so that the amount of glare is reduced to minimum.","so that dust and dirt are less evident on panels."],"answer":"so that the amount of glare is reduced to minimum.","explanation":"NIL."},{"q":"A complete EFIS installation in an aircraft is made up of.","options":["either of the above.","right (captain) and left (co-pilot).","left (captain) and right (co-pilot)."],"answer":"either of the above.","explanation":"could be either, as helicopters are the other way round when compared to aeroplanes."},{"q":"On a modern 'glass cockpit' aircraft, engine information will be displayed on.","options":["FMS.","EFIS.","ECAM."],"answer":"ECAM.","explanation":"NIL."},{"q":"What does EFIS mean?.","options":["Electronic Fire Indication Signal.","Electronic Flight Instrument System.","Electronic Flight Information System."],"answer":"Electronic Flight Instrument System.","explanation":"NIL."},{"q":"What does EICAS mean?.","options":["Electronic indicator and control alerting system.","Engine indicating and Crew alerting system.","Electronic indicator and crew alerting system."],"answer":"Engine indicating and Crew alerting system.","explanation":"NIL."},{"q":"What does ECAM mean?.","options":["Engine Centralised Aircraft Management System.","Engine Centralised Aircraft Monitoring System.","Electronic Centralised Aircraft Monitoring System."],"answer":"Electronic Centralised Aircraft Monitoring System.","explanation":"NIL."}];
+</script>
+<script>
+(function(){
+  "use strict";
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  const KEYS = ['A','B','C'];
+  let session = [];       // array of {q, options:[{text,isCorrect}], explanation, userChoice:null}
+  let submitted = false;
+  let currentFilter = 'all';
+
+  const quizList = document.getElementById('quizList');
+  const gaugeFill = document.getElementById('gaugeFill');
+  const gaugeLabel = document.getElementById('gaugeLabel');
+  const footerStatus = document.getElementById('footerStatus');
+  const submitBtn = document.getElementById('submitBtn');
+  const retakeBtn = document.getElementById('retakeBtn');
+  const resultsPanel = document.getElementById('resultsPanel');
+  const introBox = document.getElementById('introBox');
+  const phaseLabel = document.getElementById('phaseLabel');
+
+  function buildSession(){
+    const shuffledQuestions = shuffle(QUESTIONS_DATA);
+    session = shuffledQuestions.map(item=>{
+      const opts = item.options.map(text=>({text, isCorrect: text === item.answer}));
+      return {
+        q: item.q,
+        explanation: item.explanation,
+        options: shuffle(opts),
+        userChoice: null
+      };
+    });
+  }
+
+  function answeredCount(){
+    return session.filter(s=>s.userChoice!==null).length;
+  }
+
+  function updateProgress(){
+    const c = answeredCount();
+    const total = session.length;
+    gaugeFill.style.width = (c/total*100).toFixed(1)+'%';
+    gaugeLabel.textContent = c+' / '+total;
+    footerStatus.innerHTML = submitted
+      ? 'ทดสอบเสร็จสิ้น'
+      : 'ตอบแล้ว <b>'+c+'</b> / '+total+' ข้อ';
+    document.getElementById('qCountSub').textContent = 'แบบทดสอบทบทวน · '+total+' ข้อ';
+    document.getElementById('allCount').textContent = total;
+  }
+
+  function render(){
+    quizList.innerHTML = '';
+    const frag = document.createDocumentFragment();
+
+    session.forEach((item, idx)=>{
+      if(submitted && currentFilter!=='all'){
+        const isCorrect = item.userChoice!==null && item.options[item.userChoice].isCorrect;
+        if(currentFilter==='wrong' && isCorrect) return;
+        if(currentFilter==='correct' && !isCorrect) return;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'qcard';
+      if(submitted){
+        const isCorrect = item.userChoice!==null && item.options[item.userChoice].isCorrect;
+        card.classList.add(item.userChoice===null ? 'unanswered' : (isCorrect?'correct':'incorrect'));
+      } else {
+        card.classList.add(item.userChoice===null ? 'unanswered' : 'answered');
+      }
+
+      const head = document.createElement('div');
+      head.className = 'qhead';
+      head.innerHTML = '<span class="qnum">Q'+String(idx+1).padStart(3,'0')+'</span><span class="qtext"></span>';
+      head.querySelector('.qtext').textContent = item.q;
+      card.appendChild(head);
+
+      const optsWrap = document.createElement('div');
+      optsWrap.className = 'options';
+
+      item.options.forEach((opt, oIdx)=>{
+        const optEl = document.createElement('div');
+        optEl.className = 'opt';
+        if(item.userChoice===oIdx) optEl.classList.add('selected');
+
+        if(submitted){
+          optEl.classList.add('locked');
+          if(opt.isCorrect) optEl.classList.add('opt-correct');
+          else if(item.userChoice===oIdx && !opt.isCorrect) optEl.classList.add('opt-wrong');
+        }
+
+        optEl.innerHTML = '<span class="opt-key">'+KEYS[oIdx]+'</span><span class="opt-text"></span>';
+        optEl.querySelector('.opt-text').textContent = opt.text;
+
+        if(!submitted){
+          optEl.addEventListener('click', ()=>{
+            item.userChoice = oIdx;
+            updateProgress();
+            render();
+          });
+        }
+        optsWrap.appendChild(optEl);
+      });
+
+      card.appendChild(optsWrap);
+
+      if(submitted){
+        const exp = document.createElement('div');
+        exp.className = 'explain show';
+        const isCorrect = item.userChoice!==null && item.options[item.userChoice].isCorrect;
+        let html = '<b>เฉลย:</b> '+escapeHtml(item.options.find(o=>o.isCorrect).text);
+        if(item.explanation && item.explanation.trim().toUpperCase()!=='NIL.' && item.explanation.trim().toUpperCase()!=='NIL'){
+          html += '<br><b>คำอธิบาย:</b> '+escapeHtml(item.explanation);
+        }
+        if(item.userChoice===null){
+          html += '<br><span style="color:var(--amber)">ไม่ได้ตอบข้อนี้</span>';
+        }
+        exp.innerHTML = html;
+        card.appendChild(exp);
+      }
+
+      frag.appendChild(card);
+    });
+
+    quizList.appendChild(frag);
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function computeScore(){
+    let correct = 0;
+    session.forEach(item=>{
+      if(item.userChoice!==null && item.options[item.userChoice].isCorrect) correct++;
+    });
+    return correct;
+  }
+
+  function showResults(){
+    const total = session.length;
+    const correct = computeScore();
+    const wrong = total - correct;
+    const pct = Math.round(correct/total*100);
+
+    document.getElementById('wrongCount').textContent = wrong;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('scoreSub').textContent = 'ตอบถูก '+correct+' จาก '+total+' ข้อ';
+
+    const scoreBig = document.getElementById('scoreBig');
+    scoreBig.textContent = pct+'%';
+    scoreBig.className = 'score-big ' + (pct>=80?'pass':(pct>=60?'warn':'fail'));
+
+    const fillColor = pct>=80 ? 'var(--green)' : (pct>=60 ? 'var(--amber)' : 'var(--red)');
+    const barFill = document.getElementById('scoreBarFill');
+    barFill.style.width = pct+'%';
+    barFill.style.background = fillColor;
+
+    resultsPanel.classList.add('show');
+    introBox.classList.add('hidden');
+    phaseLabel.textContent = 'TEST — COMPLETE';
+    phaseLabel.style.color = pct>=80?'var(--green)':(pct>=60?'var(--amber)':'var(--red)');
+
+    resultsPanel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  submitBtn.addEventListener('click', ()=>{
+    if(!submitted){
+      const unanswered = session.length - answeredCount();
+      if(unanswered>0){
+        const proceed = confirm('ยังตอบไม่ครบ เหลืออีก '+unanswered+' ข้อ ต้องการส่งคำตอบเลยหรือไม่?');
+        if(!proceed) return;
+      }
+      submitted = true;
+      submitBtn.classList.add('hidden');
+      retakeBtn.classList.remove('hidden');
+      updateProgress();
+      showResults();
+      render();
+    }
+  });
+
+  retakeBtn.addEventListener('click', ()=>{
+    submitted = false;
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+    resultsPanel.classList.remove('show');
+    introBox.classList.remove('hidden');
+    phaseLabel.textContent = 'TEST — IN PROGRESS';
+    phaseLabel.style.color = 'var(--amber)';
+    submitBtn.classList.remove('hidden');
+    retakeBtn.classList.add('hidden');
+    buildSession();
+    updateProgress();
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  // init
+  buildSession();
+  updateProgress();
+  render();
+})();
+</script>
+</body>
+</html>
