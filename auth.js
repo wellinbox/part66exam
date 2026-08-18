@@ -1,4 +1,3 @@
-<script>
 (function () {
     // ==============================
     // WEEKLY PASSWORD PROTECTION
@@ -97,4 +96,3 @@
     }
 
 })();
-</script>
