@@ -1,9 +1,3 @@
-<!-- Bootstrap 5 CSS -->
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
->
-
 (function () {
     "use strict";
 
@@ -13,7 +7,6 @@
 
     const PASSWORD_PREFIX = "PART66";
     const HOME_PAGE = "index.html";
-
 
     // ==========================================
     // ISO WEEK
@@ -46,9 +39,8 @@
         );
     }
 
-
     // ==========================================
-    // CREATE WEEKLY PASSWORD
+    // PASSWORD
     // ==========================================
 
     const now = new Date();
@@ -57,8 +49,7 @@
 
     const week = getISOWeek(now);
 
-    const weekText =
-        String(week).padStart(2, "0");
+    const weekText = String(week).padStart(2, "0");
 
     const correctPassword =
         `${PASSWORD_PREFIX}-${year}-W${weekText}`;
@@ -78,7 +69,7 @@
 
 
     // ==========================================
-    // HIDE PAGE
+    // LOCK PAGE IMMEDIATELY
     // ==========================================
 
     document.documentElement.style.visibility =
@@ -86,370 +77,278 @@
 
 
     // ==========================================
-    // CREATE MODAL
+    // CREATE LOGIN SCREEN
     // ==========================================
 
-    const modalHTML = `
+    const loginScreen = document.createElement("div");
 
-        <div
-            class="modal fade"
-            id="passwordModal"
-            tabindex="-1"
-            data-bs-backdrop="static"
-            data-bs-keyboard="false"
-            aria-hidden="true"
-        >
+    loginScreen.id = "password-protection";
 
-            <div
-                class="
-                    modal-dialog
-                    modal-dialog-centered
-                    modal-sm
-                "
+    loginScreen.innerHTML = `
+        <div class="password-box">
+
+            <div class="lock-icon">🔐</div>
+
+            <h2>Access Restricted</h2>
+
+            <p>
+                กรุณากรอกรหัสผ่านเพื่อเข้าสู่หน้านี้
+            </p>
+
+            <input
+                type="password"
+                id="passwordInput"
+                placeholder="Password"
+                autocomplete="off"
+                autofocus
             >
 
-                <div
-                    class="
-                        modal-content
-                        border-0
-                        shadow-lg
-                        rounded-4
-                    "
-                >
+            <button id="loginButton">
+                เข้าสู่ระบบ
+            </button>
 
-                    <!-- HEADER -->
-
-                    <div
-                        class="
-                            modal-header
-                            border-0
-                            justify-content-center
-                            pt-4
-                            pb-2
-                        "
-                    >
-
-                        <div
-                            class="
-                                rounded-circle
-                                bg-primary
-                                bg-opacity-10
-                                p-3
-                            "
-                        >
-
-                            <span
-                                style="
-                                    font-size:42px;
-                                "
-                            >
-                                🔐
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- BODY -->
-
-                    <div
-                        class="
-                            modal-body
-                            text-center
-                            px-4
-                            pb-4
-                        "
-                    >
-
-                        <h4
-                            class="
-                                fw-bold
-                                mb-2
-                            "
-                        >
-                            Access Restricted
-                        </h4>
-
-
-                        <p
-                            class="
-                                text-secondary
-                                small
-                                mb-4
-                            "
-                        >
-                            หน้านี้ต้องใช้รหัสผ่าน
-                            <br>
-                            กรุณากรอกรหัสผ่านประจำสัปดาห์
-                        </p>
-
-
-                        <!-- PASSWORD -->
-
-                        <div
-                            class="
-                                input-group
-                                mb-3
-                            "
-                        >
-
-                            <span
-                                class="
-                                    input-group-text
-                                    bg-light
-                                    border-end-0
-                                "
-                            >
-                                🔑
-                            </span>
-
-                            <input
-                                type="password"
-                                id="pagePassword"
-                                class="
-                                    form-control
-                                    form-control-lg
-                                    bg-light
-                                    border-start-0
-                                "
-                                placeholder="Password"
-                                autocomplete="off"
-                                autofocus
-                            >
-
-                        </div>
-
-
-                        <!-- ERROR -->
-
-                        <div
-                            id="passwordError"
-                            class="
-                                alert
-                                alert-danger
-                                d-none
-                                py-2
-                                small
-                            "
-                        >
-                        </div>
-
-
-                        <!-- LOGIN -->
-
-                        <button
-                            type="button"
-                            id="loginButton"
-                            class="
-                                btn
-                                btn-primary
-                                btn-lg
-                                w-100
-                                rounded-3
-                                fw-semibold
-                            "
-                        >
-                            🔓 เข้าสู่ระบบ
-                        </button>
-
-
-                        <div
-                            class="
-                                mt-3
-                                text-secondary
-                                small
-                            "
-                        >
-                            PART 66 Examination System
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
+            <div id="errorMessage"></div>
 
         </div>
     `;
 
 
     // ==========================================
-    // INSERT MODAL
+    // LOGIN STYLE
     // ==========================================
 
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        modalHTML
-    );
+    const style = document.createElement("style");
 
+    style.textContent = `
 
-    // ==========================================
-    // LOAD BOOTSTRAP JS
-    // ==========================================
+        #password-protection {
 
-    function loadBootstrap() {
+            position: fixed;
 
-        if (
-            window.bootstrap &&
-            window.bootstrap.Modal
-        ) {
+            inset: 0;
 
-            showModal();
+            z-index: 999999;
 
-            return;
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #020617,
+                    #0f172a,
+                    #1e293b
+                );
+
+            font-family:
+                Arial,
+                sans-serif;
 
         }
 
 
-        const script =
-            document.createElement("script");
+        .password-box {
 
-        script.src =
-            "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js";
+            width: min(90%, 380px);
 
-        script.onload = showModal;
+            padding: 35px 30px;
 
-        document.body.appendChild(script);
+            text-align: center;
 
-    }
+            background: rgba(255,255,255,0.08);
+
+            border: 1px solid
+                rgba(255,255,255,0.15);
+
+            border-radius: 20px;
+
+            backdrop-filter: blur(15px);
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,0.4);
+
+            color: white;
+
+        }
+
+
+        .lock-icon {
+
+            font-size: 50px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .password-box h2 {
+
+            margin:
+                0 0 10px;
+
+        }
+
+
+        .password-box p {
+
+            color: #cbd5e1;
+
+            font-size: 14px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        #passwordInput {
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            padding: 14px;
+
+            border: none;
+
+            outline: none;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        #loginButton {
+
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+
+        #loginButton:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        #errorMessage {
+
+            min-height: 22px;
+
+            margin-top: 15px;
+
+            color: #f87171;
+
+            font-size: 14px;
+
+        }
+
+    `;
+
+
+    document.head.appendChild(style);
+
+    document.body.appendChild(loginScreen);
 
 
     // ==========================================
-    // SHOW MODAL
+    // HIDE PAGE CONTENT
     // ==========================================
 
-    function showModal() {
-
-        const modalElement =
-            document.getElementById(
-                "passwordModal"
-            );
-
-        const modal =
-            new bootstrap.Modal(
-                modalElement,
-                {
-                    backdrop: "static",
-                    keyboard: false
-                }
-            );
-
-
-        modal.show();
-
-
-        setTimeout(function () {
-
-            document
-                .getElementById("pagePassword")
-                .focus();
-
-        }, 500);
-
-
-        setupLogin(modal);
-
-    }
+    document.documentElement.style.visibility =
+        "visible";
 
 
     // ==========================================
-    // LOGIN
+    // ELEMENTS
     // ==========================================
 
-    function setupLogin(modal) {
+    const input =
+        document.getElementById(
+            "passwordInput"
+        );
 
-        const input =
-            document.getElementById(
-                "pagePassword"
-            );
+    const button =
+        document.getElementById(
+            "loginButton"
+        );
 
-        const button =
-            document.getElementById(
-                "loginButton"
-            );
-
-        const error =
-            document.getElementById(
-                "passwordError"
-            );
+    const error =
+        document.getElementById(
+            "errorMessage"
+        );
 
 
-        function login() {
+    // ==========================================
+    // LOGIN FUNCTION
+    // ==========================================
 
-            const password =
-                input.value.trim();
+    function login() {
 
-
-            // EMPTY
-
-            if (!password) {
-
-                error.textContent =
-                    "⚠️ กรุณากรอกรหัสผ่าน";
-
-                error.classList.remove(
-                    "d-none"
-                );
-
-                input.focus();
-
-                return;
-
-            }
+        const password =
+            input.value.trim();
 
 
-            // CORRECT
-
-            if (
-                password ===
-                correctPassword
-            ) {
-
-                sessionStorage.setItem(
-                    "pageAuthenticated",
-                    "true"
-                );
-
-
-                error.classList.add(
-                    "d-none"
-                );
-
-
-                modal.hide();
-
-
-                setTimeout(function () {
-
-                    document.documentElement
-                        .style
-                        .visibility = "visible";
-
-
-                    document
-                        .getElementById(
-                            "passwordModal"
-                        )
-                        .remove();
-
-                }, 300);
-
-
-                return;
-
-            }
-
-
-            // WRONG
+        if (!password) {
 
             error.textContent =
-                "❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
+                "⚠️ กรุณากรอกรหัสผ่าน";
 
-            error.classList.remove(
-                "d-none"
+            input.focus();
+
+            return;
+        }
+
+
+        if (password === correctPassword) {
+
+            // AUTHENTICATED
+
+            sessionStorage.setItem(
+                "pageAuthenticated",
+                "true"
             );
 
+
+            // Remove protection screen
+
+            loginScreen.remove();
+
+
+            // Restore page
+
+            document.documentElement
+                .style
+                .visibility = "visible";
+
+        } else {
+
+            error.textContent =
+                "❌ รหัสผ่านไม่ถูกต้อง";
 
             input.value = "";
 
@@ -457,42 +356,54 @@
 
         }
 
-
-        // BUTTON
-
-        button.addEventListener(
-            "click",
-            login
-        );
-
-
-        // ENTER
-
-        input.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-                    event.key === "Enter"
-                ) {
-
-                    event.preventDefault();
-
-                    login();
-
-                }
-
-            }
-        );
-
     }
 
 
     // ==========================================
-    // START
+    // BUTTON
     // ==========================================
 
-    loadBootstrap();
+    button.addEventListener(
+        "click",
+        login
+    );
 
+
+    // ==========================================
+    // ENTER KEY
+    // ==========================================
+
+    input.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                login();
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // BLOCK ESCAPE
+    // ==========================================
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Escape") {
+
+                event.preventDefault();
+
+            }
+
+        }
+    );
 
 })();
