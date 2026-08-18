@@ -1,409 +1,166 @@
-(function () {
-    "use strict";
+/**
+ * Password Protect Script
+ * วิธีใช้: นำไฟล์นี้ไป include ในหน้า HTML ที่ต้องการป้องกัน
+ * <script src="password-protect.js"></script>
+ * 
+ * ⚠️ คำเตือน: วิธีนี้ไม่ปลอดภัย 100% ผู้ใช้สามารถดูรหัสผ่านจาก Source Code ได้
+ * เหมาะสำหรับป้องกันเบื้องต้นเท่านั้น
+ */
 
-    // ==========================================
-    // CONFIG
-    // ==========================================
+(function() {
+    // ========== ตั้งค่าตรงนี้ ==========
+    const CONFIG = {
+        password: "admin1234",           // รหัสผ่านที่ต้องการ
+        title: "🔒 พื้นที่ส่วนตัว",         // หัวข้อ
+        message: "กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบ", // ข้อความ
+        errorMessage: "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่", // ข้อความเมื่อกรอกผิด
+        buttonText: "เข้าสู่ระบบ",          // ข้อความบนปุ่ม
+        sessionKey: "isAuthenticated",    // ชื่อ key ใน sessionStorage
+        containerId: "password-protect-container" // ID ของ container ที่สร้าง
+    };
+    // =================================
 
-    const PASSWORD_PREFIX = "PART66";
-    const HOME_PAGE = "index.html";
-
-    // ==========================================
-    // ISO WEEK
-    // ==========================================
-
-    function getISOWeek(date) {
-
-        const d = new Date(Date.UTC(
-            date.getFullYear(),
-            date.getMonth(),
-            date.getDate()
-        ));
-
-        const dayNum = d.getUTCDay() || 7;
-
-        d.setUTCDate(
-            d.getUTCDate() + 4 - dayNum
-        );
-
-        const yearStart = new Date(
-            Date.UTC(
-                d.getUTCFullYear(),
-                0,
-                1
-            )
-        );
-
-        return Math.ceil(
-            (((d - yearStart) / 86400000) + 1) / 7
-        );
+    // สร้าง CSS และเพิ่มเข้าไปในหน้า
+    function injectStyles() {
+        const css = `
+            #${CONFIG.containerId} {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            #${CONFIG.containerId} .pp-box {
+                background: white;
+                padding: 40px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                text-align: center;
+                width: 90%;
+                max-width: 400px;
+            }
+            #${CONFIG.containerId} .pp-box h2 {
+                margin-top: 0;
+                color: #333;
+            }
+            #${CONFIG.containerId} .pp-box p {
+                color: #666;
+            }
+            #${CONFIG.containerId} .pp-input {
+                width: 100%;
+                padding: 12px;
+                margin: 15px 0;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 16px;
+                box-sizing: border-box;
+            }
+            #${CONFIG.containerId} .pp-button {
+                width: 100%;
+                padding: 12px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            #${CONFIG.containerId} .pp-button:hover {
+                background-color: #0056b3;
+            }
+            #${CONFIG.containerId} .pp-error {
+                color: red;
+                font-size: 14px;
+                margin-top: 10px;
+                display: none;
+            }
+            .pp-protected-content {
+                display: none;
+            }
+            .pp-protected-content.pp-visible {
+                display: block;
+            }
+        `;
+        const style = document.createElement('style');
+        style.textContent = css;
+        document.head.appendChild(style);
     }
 
-    // ==========================================
-    // PASSWORD
-    // ==========================================
+    // สร้าง UI ของหน้าล็อกอิน
+    function createLoginUI() {
+        const overlay = document.createElement('div');
+        overlay.id = CONFIG.containerId;
+        overlay.innerHTML = `
+            <div class="pp-box">
+                <h2>${CONFIG.title}</h2>
+                <p>${CONFIG.message}</p>
+                <input type="password" class="pp-input" id="pp-password" placeholder="กรอกรหัสผ่าน..." autocomplete="off">
+                <button class="pp-button" id="pp-submit">${CONFIG.buttonText}</button>
+                <p class="pp-error" id="pp-error">${CONFIG.errorMessage}</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
 
-    const now = new Date();
-
-    const year = now.getFullYear();
-
-    const week = getISOWeek(now);
-
-    const weekText = String(week).padStart(2, "0");
-
-    const correctPassword =
-        `${PASSWORD_PREFIX}-${year}-W${weekText}`;
-
-
-    // ==========================================
-    // CHECK SESSION
-    // ==========================================
-
-    if (
-        sessionStorage.getItem(
-            "pageAuthenticated"
-        ) === "true"
-    ) {
-        return;
+        // เพิ่ม event listeners
+        document.getElementById('pp-submit').addEventListener('click', checkPassword);
+        document.getElementById('pp-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
+        });
     }
 
-
-    // ==========================================
-    // LOCK PAGE IMMEDIATELY
-    // ==========================================
-
-    document.documentElement.style.visibility =
-        "hidden";
-
-
-    // ==========================================
-    // CREATE LOGIN SCREEN
-    // ==========================================
-
-    const loginScreen = document.createElement("div");
-
-    loginScreen.id = "password-protection";
-
-    loginScreen.innerHTML = `
-        <div class="password-box">
-
-            <div class="lock-icon">🔐</div>
-
-            <h2>Access Restricted</h2>
-
-            <p>
-                กรุณากรอกรหัสผ่านเพื่อเข้าสู่หน้านี้
-            </p>
-
-            <input
-                type="password"
-                id="passwordInput"
-                placeholder="Password"
-                autocomplete="off"
-                autofocus
-            >
-
-            <button id="loginButton">
-                เข้าสู่ระบบ
-            </button>
-
-            <div id="errorMessage"></div>
-
-        </div>
-    `;
-
-
-    // ==========================================
-    // LOGIN STYLE
-    // ==========================================
-
-    const style = document.createElement("style");
-
-    style.textContent = `
-
-        #password-protection {
-
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 999999;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #020617,
-                    #0f172a,
-                    #1e293b
-                );
-
-            font-family:
-                Arial,
-                sans-serif;
-
-        }
-
-
-        .password-box {
-
-            width: min(90%, 380px);
-
-            padding: 35px 30px;
-
-            text-align: center;
-
-            background: rgba(255,255,255,0.08);
-
-            border: 1px solid
-                rgba(255,255,255,0.15);
-
-            border-radius: 20px;
-
-            backdrop-filter: blur(15px);
-
-            box-shadow:
-                0 20px 60px
-                rgba(0,0,0,0.4);
-
-            color: white;
-
-        }
-
-
-        .lock-icon {
-
-            font-size: 50px;
-
-            margin-bottom: 15px;
-
-        }
-
-
-        .password-box h2 {
-
-            margin:
-                0 0 10px;
-
-        }
-
-
-        .password-box p {
-
-            color: #cbd5e1;
-
-            font-size: 14px;
-
-            margin-bottom: 25px;
-
-        }
-
-
-        #passwordInput {
-
-            width: 100%;
-
-            box-sizing: border-box;
-
-            padding: 14px;
-
-            border: none;
-
-            outline: none;
-
-            border-radius: 10px;
-
-            font-size: 16px;
-
-            margin-bottom: 12px;
-
-        }
-
-
-        #loginButton {
-
-            width: 100%;
-
-            padding: 14px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            background: #2563eb;
-
-            color: white;
-
-            font-size: 16px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-
-        }
-
-
-        #loginButton:hover {
-
-            background: #1d4ed8;
-
-        }
-
-
-        #errorMessage {
-
-            min-height: 22px;
-
-            margin-top: 15px;
-
-            color: #f87171;
-
-            font-size: 14px;
-
-        }
-
-    `;
-
-
-    document.head.appendChild(style);
-
-    document.body.appendChild(loginScreen);
-
-
-    // ==========================================
-    // HIDE PAGE CONTENT
-    // ==========================================
-
-    document.documentElement.style.visibility =
-        "visible";
-
-
-    // ==========================================
-    // ELEMENTS
-    // ==========================================
-
-    const input =
-        document.getElementById(
-            "passwordInput"
-        );
-
-    const button =
-        document.getElementById(
-            "loginButton"
-        );
-
-    const error =
-        document.getElementById(
-            "errorMessage"
-        );
-
-
-    // ==========================================
-    // LOGIN FUNCTION
-    // ==========================================
-
-    function login() {
-
-        const password =
-            input.value.trim();
-
-
-        if (!password) {
-
-            error.textContent =
-                "⚠️ กรุณากรอกรหัสผ่าน";
-
-            input.focus();
-
-            return;
-        }
-
-
-        if (password === correctPassword) {
-
-            // AUTHENTICATED
-
-            sessionStorage.setItem(
-                "pageAuthenticated",
-                "true"
-            );
-
-
-            // Remove protection screen
-
-            loginScreen.remove();
-
-
-            // Restore page
-
-            document.documentElement
-                .style
-                .visibility = "visible";
-
+    // ตรวจสอบรหัสผ่าน
+    function checkPassword() {
+        const input = document.getElementById('pp-password');
+        const error = document.getElementById('pp-error');
+        const overlay = document.getElementById(CONFIG.containerId);
+
+        if (input.value === CONFIG.password) {
+            overlay.style.display = 'none';
+            sessionStorage.setItem(CONFIG.sessionKey, 'true');
+            
+            // แสดงเนื้อหาที่ถูกป้องกัน
+            document.querySelectorAll('.pp-protected-content').forEach(el => {
+                el.classList.add('pp-visible');
+            });
         } else {
-
-            error.textContent =
-                "❌ รหัสผ่านไม่ถูกต้อง";
-
-            input.value = "";
-
+            error.style.display = 'block';
+            input.value = '';
             input.focus();
-
         }
-
     }
 
+    // ฟังก์ชันออกจากระบบ (เรียกใช้จากที่อื่นได้)
+    window.ppLogout = function() {
+        sessionStorage.removeItem(CONFIG.sessionKey);
+        location.reload();
+    };
 
-    // ==========================================
-    // BUTTON
-    // ==========================================
+    // เริ่มต้นการทำงาน
+    function init() {
+        injectStyles();
 
-    button.addEventListener(
-        "click",
-        login
-    );
-
-
-    // ==========================================
-    // ENTER KEY
-    // ==========================================
-
-    input.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Enter") {
-
-                event.preventDefault();
-
-                login();
-
-            }
-
+        // ถ้ายังไม่ได้ล็อกอิน → แสดงหน้าล็อกอิน
+        if (sessionStorage.getItem(CONFIG.sessionKey) !== 'true') {
+            createLoginUI();
+        } else {
+            // ถ้าล็อกอินอยู่แล้ว → แสดงเนื้อหา
+            document.querySelectorAll('.pp-protected-content').forEach(el => {
+                el.classList.add('pp-visible');
+            });
         }
-    );
+    }
 
-
-    // ==========================================
-    // BLOCK ESCAPE
-    // ==========================================
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (event.key === "Escape") {
-
-                event.preventDefault();
-
-            }
-
-        }
-    );
-
+    // เรียก init เมื่อ DOM พร้อม
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();
