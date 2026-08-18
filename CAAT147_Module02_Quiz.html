@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบทดสอบ Module 2 — Physics</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#000000; --muted:#555; --line:#ddd;
+    --green:#2e7d32; --green-bg:#e8f5e9;
+    --yellow:#b28704; --yellow-bg:#fff8e1;
+    --red:#c62828; --red-bg:#ffebee;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--fg); font-family:"Segoe UI", Tahoma, sans-serif; line-height:1.5;}
+  .wrap{max-width:860px; margin:0 auto; padding:16px 14px 120px;}
+  header{border-bottom:2px solid #000; padding:14px 0 12px; margin-bottom:14px;}
+  header h1{font-size:1.35rem;}
+  header p{color:var(--muted); font-size:.9rem; margin-top:4px;}
+  .badge{display:inline-block; border:1px solid #000; border-radius:999px; padding:2px 10px; font-size:.8rem; margin-right:6px; margin-top:8px;}
+  /* progress */
+  .progress-outer{background:#eee; border:1px solid var(--line); border-radius:999px; height:10px; overflow:hidden; margin:8px 0;}
+  .progress-inner{background:#000; height:100%; width:0%; transition:width .2s;}
+  /* question card */
+  .qcard{border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:12px;}
+  .qcard .qno{font-weight:700; font-size:.8rem; color:var(--muted);}
+  .qcard .qtext{font-weight:600; margin:6px 0 10px;}
+  .opt{display:flex; align-items:flex-start; gap:8px; border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-bottom:6px; cursor:pointer;}
+  .opt:hover{background:#f5f5f5;}
+  .opt input{margin-top:3px; accent-color:#000;}
+  .opt.correct{background:var(--green-bg); border-color:var(--green);}
+  .opt.wrong{background:var(--red-bg); border-color:var(--red);}
+  .qcard.is-correct{border-left:6px solid var(--green);}
+  .qcard.is-wrong{border-left:6px solid var(--red);}
+  .explain{margin-top:10px; border-top:1px dashed var(--line); padding-top:8px; font-size:.9rem;}
+  .explain .tag{font-weight:700;}
+  .explain .tag.ok{color:var(--green);} .explain .tag.no{color:var(--red);}
+  /* bottom bar */
+  .bottombar{position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:2px solid #000; padding:10px 14px; display:flex; align-items:center; gap:12px; z-index:50;}
+  .bottombar .inner{max-width:860px; margin:0 auto; width:100%; display:flex; align-items:center; gap:12px;}
+  .btn{border:2px solid #000; background:#000; color:#fff; padding:10px 18px; border-radius:8px; font-size:1rem; cursor:pointer; font-weight:700;}
+  .btn.ghost{background:#fff; color:#000;}
+  .btn:active{transform:translateY(1px);}
+  /* result */
+  .result{border:2px solid #000; border-radius:12px; padding:18px; margin-bottom:16px; display:none;}
+  .score-big{font-size:2.4rem; font-weight:800;}
+  .bar-outer{background:#eee; border:1px solid var(--line); height:22px; border-radius:999px; overflow:hidden; margin:10px 0;}
+  .bar-inner{height:100%; width:0%; transition:width .6s;}
+  .bar-green{background:var(--green);} .bar-yellow{background:#f4c400;} .bar-red{background:var(--red);}
+  .stat-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+  .filters{display:flex; gap:8px; margin:14px 0; flex-wrap:wrap;}
+  .fbtn{border:1.5px solid #000; background:#fff; color:#000; padding:7px 14px; border-radius:999px; cursor:pointer; font-weight:600;}
+  .fbtn.active{background:#000; color:#fff;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📘 แบบทดสอบ Module 2 — Physics</h1>
+    <p>สุ่มลำดับข้อและตัวเลือกใหม่อัตโนมัติทุกครั้ง • เฉลย+คำอธิบายหลังส่งคำตอบ</p>
+    <span class="badge">ทั้งหมด <b id="totalCount1">0</b> ข้อ</span>
+    <span class="badge">เกณฑ์ผ่าน ≥ 80%</span>
+  </header>
+
+  <!-- ผลคะแนน -->
+  <div class="result" id="resultBox">
+    <div>คะแนนของคุณ</div>
+    <div class="score-big" id="scoreText">0%</div>
+    <div class="bar-outer"><div class="bar-inner" id="scoreBar"></div></div>
+    <div class="stat-row">
+      <span class="badge">✅ ถูก <b id="correctCount">0</b></span>
+      <span class="badge">❌ ผิด <b id="wrongCount">0</b></span>
+      <span class="badge">เต็ม <b id="totalCount2">0</b> ข้อ</span>
+    </div>
+    <div class="filters">
+      <button class="fbtn active" data-f="all">ทั้งหมด (<span id="fAll">0</span>)</button>
+      <button class="fbtn" data-f="wrong">❌ ดูเฉพาะข้อผิด (<span id="fWrong">0</span>)</button>
+      <button class="fbtn" data-f="correct">✅ ดูเฉพาะข้อถูก (<span id="fCorrect">0</span>)</button>
+    </div>
+    <button class="btn" id="retryBtn">🔄 ทำใหม่ (สุ่มใหม่ทั้งหมด)</button>
+  </div>
+
+  <div id="quiz"></div>
+</div>
+
+<div class="bottombar" id="bottomBar">
+  <div class="inner">
+    <div style="flex:1">
+      <div style="font-size:.85rem">ตอบแล้ว <b id="answeredCount">0</b> / <span id="totalCount3">0</span> ข้อ</div>
+      <div class="progress-outer"><div class="progress-inner" id="progBar"></div></div>
+    </div>
+    <button class="btn" id="submitBtn">ส่งคำตอบ</button>
+  </div>
+</div>
+
+<script>
+/* ================= ข้อมูลข้อสอบ [คำถาม, [ตัวเลือก], ดัชนีเฉลย, คำอธิบาย] ================= */
+const DATA=[
+["An atom with 3 free electrons in its outer shell is said to be",["pentavalent","covalent","trivalent"],2,"อิเล็กตรอนวงนอก 3 ตัว = เวเลนซี 3 เรียกว่า trivalent"],
+["What is the mass number of an element?",["Number of electrons and protons","Number of neutrons and protons","Number of electrons and neutrons"],1,"เลขมวล = โปรตอน + นิวตรอนในนิวเคลียส"],
+["What do you get when you add 2H2 and O?",["H2O","2H2O","2H2O2"],1,"2H2 + O2 → 2H2O (น้ำ 2 โมเลกุล)"],
+["The splitting of a chemical compound is called",["bombardment","synthesis","analysis"],2,"analysis = การแยก/สลายสาร, synthesis = การรวมสาร"],
+["What is the atomic number of an element?",["The number of neutrons in the atom","The number of electrons in the atom","The number of protons in the atom"],2,"เลขอะตอม = จำนวนโปรตอน"],
+["An atom with 5 free electrons is said to be",["pentavalent","covalent","trivalent"],0,"อิเล็กตรอนวงนอก 5 ตัว = pentavalent (valency 5)"],
+["An atom consists of",["protons, neutrons and electrons","protons and electrons","protons and neutrons"],0,"อะตอมประกอบด้วย โปรตอน นิวตรอน และอิเล็กตรอน"],
+["The maximum number of electrons in the inner shell of an atom is",["8","2","4"],1,"ชั้นในสุด (n=1) จุอิเล็กตรอนได้สูงสุด 2 ตัว (2n² = 2)"],
+["The mass of a proton equals the mass of a",["neutron","beta particle","electron"],0,"โปรตอนมีมวล ≈ นิวตรอน (ส่วนอิเล็กตรอนเบากว่า ~2000 เท่า)"],
+["Catalysts",["speed up reactions","speed up and slow down reactions","slow down reactions"],0,"ตัวเร่งปฏิกิริยาทำให้ปฏิกิริยาเกิดเร็วขึ้น"],
+["If the outer shell of an atom is full the element is",["unstable/reactive","a good conductor","practically inert"],2,"วงนอกเต็ม = เสถียร จึงเฉื่อย (inert) เช่น แก๊สเฉื่อย"],
+["Molecules of the same compound are held together by",["cohesive forces","adhesive forces","gravitational forces"],0,"แรงยึดเหนี่ยวระหว่างโมเลกุลชนิดเดียวกัน = cohesive force"],
+["Oxygen has a valency of",["2","6","8"],0,"ออกซิเจนมีเวเลนซี 2 (จับพันธะได้ 2)"],
+["The further from the nucleus the shells are in an atom",["the shells retain the same spacing from each other","the closer the shells get to each other","the further the shells get from each other"],2,"ยิ่งไกลนิวเคลียส ชั้นอิเล็กตรอนยิ่งห่างกันมากขึ้น"],
+["What determines an element's identity?",["The number of neutrons","The number of electrons","The number of protons"],2,"จำนวนโปรตอนกำหนดชนิดของธาตุ"],
+["An isotope of an element will have more/less _________ than usual",["electrons","neutrons","protons"],1,"ไอโซโทป = โปรตอนเท่ากัน นิวตรอนต่างกัน"],
+["The smallest part of an element is",["a compound","an atom","a molecule"],1,"หน่วยที่เล็กที่สุดของธาตุคืออะตอม"],
+["The nucleus of an atom contains",["protons and electrons","protons and neutrons","electrons and neutrons"],1,"นิวเคลียสประกอบด้วยโปรตอนและนิวตรอน"],
+["What is atomic mass?",["Number of neutrons","Number of protons plus the number of neutrons","Number of protons"],1,"มวลอะตอม ≈ โปรตอน + นิวตรอน"],
+["An ice melted into a liquid will take up",["the same amount of space","less space","more space"],1,"น้ำแข็งมีปริมาตรมากกว่าน้ำ เมื่อละลายจึงกินพื้นที่น้อยลง"],
+["What form of heat is used to turn a solid into a liquid?",["specific heat","coefficient of heat","heat of fusion"],2,"ความร้อนแฝงของการหลอมเหลว (heat of fusion) เปลี่ยนของแข็งเป็นของเหลว"],
+["Change from solid to gas state without going through liquid state is called",["transformation","sublimation","state leap"],1,"การระเหิด (sublimation) คือของแข็ง→แก๊สโดยไม่ผ่านของเหลว"],
+["What is the smallest particle of matter that can exist in nature?",["A molecule","An isotope","An atom"],2,"อนุภาคที่เล็กที่สุดของสสารที่มีอยู่ได้คืออะตอม"],
+["A positive ion",["has extra electrons","has missing electrons","is a radioactive isotope"],1,"ไอออนบวกเกิดจากการสูญเสียนอิเล็กตรอน"],
+["The isotope of a carbon atom C14 to C12 will have",["same numbers of neutrons","same numbers of protons","same number of electrons"],1,"ไอโซโทปของธาตุเดียวกันมีโปรตอนเท่ากันเสมอ (C = 6 โปรตอน)"],
+["If an atom has 2 protons, how many electrons will it have?",["1","8","2"],2,"อะตอมเป็นกลางทางไฟฟ้า: อิเล็กตรอน = โปรตอน = 2"],
+["A molecule with like atoms is said to be a",["neutroid","compound","element"],2,"โมเลกุลของอะตอมชนิดเดียวกัน = ธาตุ (element)"],
+["Two elements in the same substance is said to be a",["mixture","element","compound"],2,"สารที่เกิดจาก 2 ธาตุขึ้นไปรวมกันทางเคมี = สารประกอบ"],
+["The number of protons in an atom is equal to the number of",["electrons","neutrons","mass number"],0,"อะตอมเป็นกลาง: โปรตอน = อิเล็กตรอน"],
+["The charge of an electron is",["neutral","negative","positive"],1,"อิเล็กตรอนมีประจุลบ"],
+["A valence electron is an electron",["in the innermost shell","in the outermost shell","which is not within an atom"],1,"เวเลนซ์อิเล็กตรอนอยู่ในชั้นนอกสุด"],
+["Molecules of unlike atoms are combined by their",["adhesive force","magnetic force","cohesive force"],0,"แรงยึดระหว่างโมเลกุลต่างชนิด = adhesive force"],
+["What is the difference between hydrogen, deuterium and tritium?",["The number of electrons","The number of protons","The number of neutrons"],2,"ทั้งสามเป็นไอโซโทปของไฮโดรเจน ต่างกันที่จำนวนนิวตรอน"],
+["The smallest material in the universe is",["an ion","helium","hydrogen"],2,"ไฮโดรเจนเป็นอะตอมที่เล็กและเบาที่สุด"],
+["What is the atomic number of the element shown here? (fictional element)",["4","3","7"],0,"เลขอะตอม = จำนวนโปรตอน = 4"],
+["What is the mass number of the element shown here?",["4","5","9"],2,"เลขมวล = โปรตอน + นิวตรอน = 4 + 5 = 9"],
+["There are solids, liquids and gases present in the universe and every unit of theirs occupy some space. This is called",["matter","compound","mass"],0,"สสาร (matter) คือสิ่งที่ครองพื้นที่และมีมวล"],
+["An atom deficient of a valency electron is deficient",["of an electron in the outer shell","of a neutron in the outer shell","of an electron in the inner shell"],0,"เวเลนซ์อิเล็กตรอนอยู่ชั้นนอก การขาดจึงขาดที่ชั้นนอก"],
+["The maximum number of electrons in the second shell is",["4","8","2"],1,"ชั้นที่ 2 จุได้ 2n² = 2(4) = 8 ตัว"],
+["What does an oxygen atom consist of?",["Protons, neutrons and electrons","Protons and electrons","Protons and neutrons"],0,"อะตอมทุกชนิดประกอบด้วยโปรตอน นิวตรอน อิเล็กตรอน"],
+["Surface molecular attraction between two different molecules is",["adhesive","gravitational","cohesive"],0,"แรงดึงดูดระหว่างโมเลกุลต่างชนิด = adhesive"],
+["The atomic mass number is the number of",["protons plus electrons","neutrons plus electrons","protons plus neutrons"],2,"เลขมวล = โปรตอน + นิวตรอน"],
+["A catalyst in a chemical reaction does what?",["Can either speed it up or slow it down","Speeds it up","Slows it down"],1,"ตัวเร่งปฏิกิริยาทำให้ปฏิกิริยาเร็วขึ้น"],
+["What is the number of electrons in the inner-most shell of an atom?",["4","8","2"],2,"ชั้นในสุดจุได้สูงสุด 2 ตัว"],
+["What form of heat is used to turn a solid into a gas?",["Sensible heat","Specific heat","Latent heat"],2,"ความร้อนแฝง (latent heat) ใช้เปลี่ยนสถานะ"],
+["The heat required to change a liquid to a gas at constant temperature is the heat of",["fusion","condensation","vaporisation"],2,"ความร้อนแฝงของการกลายเป็นไอ (vaporisation)"],
+["An atom with a full outer shell is",["practically inert","a good insulator","a good conductor"],0,"วงนอกเต็ม = เสถียร = เฉื่อย"],
+["An element with a full valence shell is",["very reactive","good conductor","inert"],2,"เวเลนซ์เชลล์เต็ม = เฉื่อย (เช่น แก๊สเฉื่อย)"],
+["A substance of two or more different atoms is",["a neutrino","an isotope","a chemical compound"],2,"สารจากอะตอมต่างชนิดตั้งแต่ 2 ขึ้นไป = สารประกอบ"],
+["An atom with 5 electrons in its outer shell is",["trivalent","pentavalent","covalent"],1,"อิเล็กตรอนวงนอก 5 ตัว = pentavalent"],
+["Protons have",["no charge","positive charge","negative charge"],1,"โปรตอนมีประจุบวก"],
+["Producing a compound from commonly available materials is",["synthesis","analysis","bombardment"],0,"synthesis = การสังเคราะห์/สร้างสารประกอบ"],
+["A different number of nucleons in the nucleus of atoms would represent",["semiconductor","isotopes","isotones"],1,"จำนวนนิวคลีออนต่างกัน = ไอโซโทป (โปรตอนเท่า นิวตรอนต่าง)"],
+["Molecules of matter are in constant motion. The amount of vibration or motion is dependent on",["temperature","volume","pressure"],0,"อุณหภูมิ越高 โมเลกุลสั่น/เคลื่อนที่越快"],
+["When a chemical change takes place, the smallest particle indivisible in an element is called",["an atom","an electron","a neutron"],0,"อะตอมคือหน่วยเล็กที่สุดของธาตุที่ไม่แยกได้อีกในปฏิกิริยาเคมี"],
+["A nucleus of an atom consists of",["positively charged particles","a nucleus and normally has no overall charge at all and so is neutral","negatively charged particles"],0,"นิวเคลียสมีโปรตอน(บวก)+นิวตรอน(กลาง) จึงมีสภาพเป็นบวก"],
+["A compound is a",["mixture of more than one element which are chemically bonded together","solution of elements or mixtures of elements to form a new material","mixture of more than one element which are mixed together"],0,"สารประกอบต้องเกิดจากพันธะเคมี ไม่ใช่เพียงผสมกัน"],
+["A compound such as water can exist in how many states?",["2","3","1"],1,"น้ำมี 3 สถานะ: ของแข็ง ของเหลว แก๊ส"],
+["Select the correct statement from the following",["Temperature is the only factor which can affect the state in which matter exists","Matter can only exist in one of three states","As temperature rises a solid will always become a liquid and then a gas"],1,"สสารอยู่ใน 1 ใน 3 สถานะ; อุณหภูมิไม่ใช่ปัจจัยเดียว (ความดันก็มีผล) และของแข็งอาจระเหิดได้"],
+["Isotopes of an element have",["a different atomic number","the same number of neutrons but a different number of protons","the same number of protons but a different number of neutrons"],2,"ไอโซโทป: โปรตอนเท่า นิวตรอนต่าง"],
+["Neutrons have",["no charge","a positive charge","a negative charge"],0,"นิวตรอนเป็นกลางทางไฟฟ้า"],
+["Atomic MASS number is the number of",["protons","protons and neutrons","electrons"],1,"เลขมวล = โปรตอน + นิวตรอน"],
+["How many electrons does an S orbital hold?",["6","8","2"],2,"s-orbital จุได้ 2 อิเล็กตรอน"],
+["The number of electrons in a stable atom equals",["the number of neutrons in the nucleus","the number of protons and neutrons in the nucleus","the number of protons in the nucleus"],2,"อะตอมเสถียรเป็นกลาง: อิเล็กตรอน = โปรตอน"],
+["An isotope of an element has",["the same atomic number but a different mass number","the same mass number but a different atomic number","a different mass and atomic number"],0,"ไอโซโทป: เลขอะตอมเดิม มวลต่าง"],
+["The mass number of an element is based on",["the total number of protons and neutrons in its nucleus","the number of protons in its nucleus","the number of neutrons in its nucleus"],0,"เลขมวล = โปรตอน + นิวตรอน"],
+["The atomic weight of all atoms is related to",["Hydrogen","Carbon","Helium"],1,"มาตรฐานมวลอะตอมอ้างอิงคาร์บอน-12"],
+["The chemical bonding of two or more elements is called",["chemical analysis","chemical synthesis","chemical fusion"],1,"การรวมธาตุทางเคมี = chemical synthesis"],
+["Two or more elements that are chemically bonded together and have an even mass distribution form a",["mixture","substance","chemical compound"],2,"พันธะเคมี + กระจายตัวสม่ำเสมอ = สารประกอบ"],
+["An atom that gains one or more additional electrons is called",["a negative ion","a positive ion","an isotope"],0,"รับอิเล็กตรอนเพิ่ม = ประจุลบ (negative ion)"],
+["Ionic bonding involves",["electron sharing","attraction to a free electron cloud","electron transfer"],2,"พันธะไอออนิกเกิดจากการถ่ายโอนอิเล็กตรอน"],
+["Non-metals form",["covalent bonds","ionic bond","metallic bonds"],0,"อโลหะสร้างพันธะโควาเลนต์ (ใช้อิเล็กตรอนร่วมกัน)"],
+["Brownian Movement describes",["the attraction of neutrons","the attraction of electrons","the motion of molecules"],0,"การเคลื่อนที่แบบบราวน์คือการเคลื่อนที่ของโมเลกุล"],
+["Elements on the extreme right of the periodic table are",["metals","non-metals","transition metals"],1,"ขวาสุดของตารางธาตุเป็นอโลหะ (แก๊สเฉื่อย)"],
+["Oxygen, atomic number 8 is",["trivalent","univalent","bivalent"],2,"ออกซิเจนต้องการอีก 2 อิเล็กตรอนให้เต็ม = bivalent (เวเลนซี 2)"],
+["The atomic number of the atom of an element is based on",["the number of neutrons in the nucleus","the number of protons in its nucleus","the total number of protons and neutrons in its nucleus"],1,"เลขอะตอม = จำนวนโปรตอน"],
+["Water is",["an element","a mixture","a compound"],2,"น้ำ (H2O) เป็นสารประกอบของไฮโดรเจนและออกซิเจน"],
+["The Mass of a Proton is approximately",["equal to the mass of an electron","equal to the relative mass of a molecule","2000 times greater than the mass of an electron"],2,"โปรตอนหนักกว่าอิเล็กตรอนประมาณ 2000 เท่า"],
+["Noble gases are _______ and _______ and have a full outer shell of electrons",["fluorine and neon","sulphur and neon","helium, neon, argon"],2,"แก๊สเฉื่อย เช่น He, Ne, Ar มีวงนอกเต็ม"],
+["If a hydrogen atom has 2 neutrons and 1 proton what kind of water would you get?",["Fresh water","Heavy water","Salt water"],1,"ไฮโดรเจนที่มีนิวตรอนเพิ่มให้น้ำหนัก (heavy water)"],
+["A majority of an atom's mass is in the",["compound","isotope","nucleus"],2,"มวลเกือบทั้งหมดรวมอยู่ที่นิวเคลียส"],
+["An insulator has its electrons",["totally free from the atoms","loosely bound","tightly bound"],2,"ฉนวนมีอิเล็กตรอนถูกยึดแน่น เคลื่อนที่ยาก"],
+["The centre of gravity is adjusted by 10 kg and 5 kg placed 4 m and 2 m aft. To balance, where must a 20 kg weight be added?",["2.5 m","4 m","2 m"],0,"โมเมนต์ = 10×4 + 5×2 = 50; 50 ÷ 20 = 2.5 m (ด้านตรงข้าม)"],
+["For the CGS system, the force is",["the 'N' which produces an acceleration of 1 cm/s2 for a mass of gram","the 'dyne' which produces an acceleration of 1 cm/s2 for a mass of gram","the 'pdl' which produces an acceleration of 1 cm/s2 for a mass of gram"],1,"หน่วยแรง CGS คือ dyne (g·cm/s²)"],
+["The quadrature component of a vector is",["45° to the original","90° to the original","180° to the original"],1,"quadrature = ตั้งฉาก 90° กับเวกเตอร์เดิม"],
+["1 Newton is equal to",["1 kilogram meter per second per second","1 kilogram of force","1 joule per second"],0,"1 N = 1 kg·m/s²"],
+["The SI unit of mass is the",["metre (m)","pound (lb)","kilogram (kg)"],2,"หน่วย SI ของมวลคือกิโลกรัม"],
+["A slug is a unit of",["speed","mass","weight"],1,"slug เป็นหน่วยมวลในระบบอังกฤษ"],
+["If an object in air is submerged in a liquid or a gas its weight will",["increase","decrease","remain the same"],1,"แรงลอยตัวช่วยพยุง น้ำหนักปรากฏจึงลดลง"],
+["If a material is loaded excessively and is permanently deformed, it is said to be",["stretched","stressed","strained"],2,"การเปลี่ยนรูปแบบถาวร = strain (เกินขีดจำกัดยืดหยุ่น)"],
+["The SI unit of force is the",["Newton (N)","Metre (m)","Pascal (Pa)"],0,"หน่วยแรง SI คือ นิวตัน"],
+["The formula for calculating stress is",["load divided by cross sectional area","area divided by load","load multiplied by cross sectional area"],0,"stress = แรง ÷ พื้นที่หน้าตัด"],
+["Stress is given by",["force per unit area","extension per original length","force per original length"],0,"stress = แรงต่อหนึ่งหน่วยพื้นที่"],
+["The force which opposes twisting deformation is",["torsion","strain","shear"],0,"แรงต้านการบิด = torsion"],
+["A force perpendicular to a beam produces what type of stress?",["compressive","shear","tensile"],1,"แรงตั้งฉากกับคานทำให้เกิดความเค้นเฉือน (shear)"],
+["The extension of a spring can be determined using",["Charles' Law","Newton's 2nd Law","Hooke's Law"],2,"กฎของฮุค: การยืดของสปริงแปรผันตามแรง"],
+["When a steel bar is overstressed, the point at which it does not return to its original form is the",["Ultimate point","Yield point","Young's modulus"],1,"จุดคราก (yield point) = เริ่มเปลี่ยนรูปแบบถาวร"],
+["Two couples with magnitude F act against each other. The resultant will be",["-2F","2F","0"],2,"คู่แรงขนาดเท่ากันทิศทางตรงข้ามหักล้างกัน = 0"],
+["The height of mercury required to give 1 bar is",["700 mm","1000 mm","760 mm"],2,"ความดันบรรยากาศ ≈ ปรอทสูง 760 มม."],
+["A vessel has 25 ml of water which produces 10 kPa. If another 125 ml is added, the pressure is",["40 kPa","50 kPa","60 kPa"],2,"(25+125) ÷ 25 × 10 = 60 kPa"],
+["Two hydraulic jacks with different diameters have the same fluid pressures entering at the same rate. They will extend at",["the same rate until the smaller jack becomes full","the same rate","different rates"],2,"อัตราการไหลเท่ากันแต่พื้นที่ต่างกัน → ความเร็วต่างกัน"],
+["The most common method of expressing pressure is in",["pounds per square inch","grams per square inch","inch pounds per square inch"],0,"นิยมใช้ปอนด์ต่อตารางนิ้ว (PSI)"],
+["The difference between two pressures is",["vacuum pressure","differential pressure","static pressure"],1,"ผลต่างความดัน = differential pressure"],
+["What torque loading would you apply to a nut if the force is 50 lbs, exerted 2 feet from its axis?",["100 lbs.ft","600 lbs.ft","251 lbs.ft"],0,"ทอร์ก = แรง × ระยะ = 50 × 2 = 100 lb·ft"],
+["In a jack with a ram only on one side and hydraulic fluid applied from both sides",["a condition of hydraulic lock exists and no movement will take place","the ram will move opposite to the side where the ram is due to pressure acting on differential areas","the ram will move to the side where the ram is, due to pressure acting on differential areas"],2,"ด้านไม่มีก้านลูกสูบมีพื้นที่มากกว่า แรงมากกว่า จึงดันไปด้านที่มีก้าน"],
+["Using the same hydraulic pressure, the force applied by a jack of 4 sq. inch piston area",["will be twice that applied by a similar jack of 2 sq. inch piston area","will be equal to that applied by a similar jack of 2 sq. inch piston area","will be half that applied by a similar jack of 2 sq. inch piston area"],0,"F = P×A; พื้นที่ 2 เท่า → แรง 2 เท่า"],
+["A pressure of 100 PSI acts on two jacks having piston areas 2 sq in and 4 sq in",["the smaller jack will exert 50 lb and the larger 25 lb","the smaller jack will exert 200 lb and the larger 400 lb","the two jacks will exert the same force"],1,"F = 100×2 = 200 lb และ 100×4 = 400 lb"],
+["The purpose of an accumulator in a hydraulic system is to",["collect air from the hydraulic fluid","relieve excess pressure","store hydraulic fluid under pressure"],2,"แอคคูมูเลเตอร์กักเก็บของไหลภายใต้ความดัน"],
+["If the hydraulic system accumulator has a low air pressure, it will cause",["rapid pressure fluctuations during operation of services","rapid movement of the operating jacks","slow build up of pressure in the system"],0,"แรงดันอากาศต่ำ → หน่วงความดันไม่ได้ ความดันจึงแกว่ง"],
+["Specific torque is 50 lbs.ins with a 2 inch extension added to an 8 inch torque wrench. Actual reading?",["54 lb.ins","40 lb.ins","60 lb.ins"],1,"ค่าอ่าน = T×L/(L+E) = 50×8/(8+2) = 40 lb·in"],
+["If 1500 psi hydraulic pressure is pumped into an accumulator with pre-charge air of 1000 psi the gauge will read",["2500 psi","1500 psi","1000 psi"],1,"เกจ์อ่านค่าความดันระบบ = 1500 psi"],
+["Young's modulus is",["stress × strain","strain / stress","stress / strain"],2,"E = stress ÷ strain"],
+["A cylinder filled with water to half a metre will exert a pressure of",["4.9 Pa","4900 Pa","49 Pa"],1,"P = ρgh = 1000 × 9.8 × 0.5 = 4900 Pa"],
+["A mass of 10 kg placed 2 metres away from a pivot will have a moment of",["196 Nm","50 Nm","20 Nm"],0,"โมเมนต์ = mgd = 10 × 9.8 × 2 = 196 N·m"],
+["25 litres of fuel exerts 10 kPa. If a further 125 litres is added, the pressure will be",["50 kPa","60 kPa","40 kPa"],1,"(25+125) ÷ 25 × 10 = 60 kPa"],
+["1000 lb/in2 is in an accumulator. If 3000 lb/in2 hydraulic fluid is pumped in, pressure on the air side is",["3000 lb/in2","4000 lb/in2","1000 lb/in2"],0,"ที่สมดุล ด้านอากาศจะเท่าความดันไฮดรอลิก = 3000"],
+["A ram has a piston of 2 in2. Another ram with a piston of 4 in2 will provide",["the same force","double the force","square the force"],1,"พื้นที่ 2 เท่า → แรง 2 เท่า (ความดันเท่ากัน)"],
+["Force exerted by a piston with pressure 3000 Pa and area 2.5 m2?",["7500 N","3000 N","1200 N"],0,"F = P×A = 3000 × 2.5 = 7500 N"],
+["A force of 10 million Newtons is expressed numerically as",["10 MN","100 MN","1 MN"],0,"M = mega = ล้าน → 10 MN"],
+["A millilitre is equal to",["one million litres","one millionth of a litre","one thousandth of a litre"],2,"milli = 1/1000 → 1 ml = 0.001 ลิตร"],
+["If a square has an area of 9 m2, one side is",["3 m","3 m2","3 sq. m"],0,"ด้าน = √9 = 3 m (หน่วยความยาวต้องเป็น m)"],
+["A vector quantity is a quantity which",["possesses sense, magnitude and direction","possesses direction only","possesses sense only"],0,"เวกเตอร์มีทั้งขนาด ทิศ และ sense"],
+["One atmosphere is equal to",["1.22 kg/m2","14.7 lbf/in2","28.9 inches of Hg"],1,"1 atm = 14.7 psi ≈ 29.92 in.Hg ≈ 760 mmHg"],
+["Strain is calculated by",["Original Length × Extension","Extension ÷ Original Length","Original Length ÷ Extension"],1,"strain = ส่วนยืด ÷ ความยาวเดิม (ไม่มีหน่วย)"],
+["When a twisting force is applied to a bolt, what stress is exerted on to the head?",["Shear","Compressive","Torsion"],0,"แรงบิดทำให้เกิดความเค้นเฉือน (torsional shear)"],
+["When you overstress a steel bar, the point where it does not return to its original form is the",["Plastic limit","Elasticity limit","Deformation limit"],1,"เกินขีดจำกัดยืดหยุ่น (elastic limit) แล้วไม่คืนรูปเดิม"],
+["The formula for calculating shear is",["force ÷ cross-sectional area parallel to the applied force","force × area","force ÷ cross-sectional area (perpendicular)"],0,"shear stress = แรง ÷ พื้นที่ขนานกับแนวแรง"],
+["A force 10 N is placed 2 metres from a pivot point, what is the moment?",["20 Nm","40 Nm","80 Nm"],0,"โมเมนต์ = 10 × 2 = 20 N·m"],
+["If a tensile load is placed on a bar, it will",["bend","crush","stretch"],2,"แรงดึง (tensile) ทำให้ยืดออก"],
+["What atmospheric conditions will cause the true landing speed of an aircraft to be highest?",["Low temp, high humidity","Head wind, low humidity","High temp, high humidity"],2,"อากาศร้อน+ชื้น → ความหนาแน่นต่ำ → ต้องใช้ TAS สูงขึ้น"],
+["Structures designed to withstand compression are called a",["tie","strut","beam"],1,"strut รับแรงอัด; tie รับแรงดึง"],
+["1 Pascal equals",["105 N/m2","1 N/m2","10 Nm"],1,"1 Pa = 1 N/m²"],
+["The addition of 2 different vectors to produce another vector is called",["resultant","resolution","component"],0,"ผลลัพธ์ของการรวมเวกเตอร์ = resultant"],
+["Two items 11 kg and 8 kg are placed 2 m and 1 m aft of the C of G. A 30 kg weight must be placed forward at",["2 m","1.5 m","1 m"],2,"โมเมนต์ = 11×2 + 8×1 = 30; 30 ÷ 30 = 1 m"],
+["A point at which the total force of a body acts is known as the",["centre of gravity","point of equilibrium","centre of mass"],0,"จุดศูนย์กลางความถ่วงคือจุดที่แรงโน้มถ่วงรวมกระทำ"],
+["A load of 600 N is suspended by a cable with stress limited to 15 N/mm2. Minimum cross sectional area is",["0.025 mm2","9000 mm2","40 mm2"],2,"A = F ÷ stress = 600 ÷ 15 = 40 mm²"],
+["A spring shortens 60 mm under 480 N. Total shortening when load increases by 120 N?",["82 mm","45 mm","75 mm"],2,"แรงใหม่ 600 N; 600÷480 × 60 = 75 mm"],
+["The c.g. of a triangular plate is at the intersection of",["medians from a vertex to the opposite side","angle bisectors","perpendicular bisectors"],0,"จุดเซนทรอยด์อยู่ที่จุดตัดของเส้นมัธยฐาน"],
+["When a square block is pushed into a parallelogram, the material is under",["Compression","Torsion","Shear"],2,"การเปลี่ยนรูปเป็นสี่เหลี่ยมด้านขนาน = ความเค้นเฉือน"],
+["A quantity which has size but no direction is called a",["Scalar","Moment","Vector"],0,"สเกลาร์มีแต่ขนาด ไม่มีทิศทาง"],
+["The advantage of using a machine is",["mechanical advantage of input","mechanical advantage of output","input work is less than the output work"],0,"เครื่องกลช่วยผ่อนแรง (mechanical advantage) ด้านแรงป้อนเข้า"],
+["Which of the following can transmit pressure?",["Liquids and gases","Solids and gases","Any matter can transmit pressure, depending on temperature"],0,"ของไหล (ของเหลว+แก๊ส) ส่งผ่านความดันได้ทุกทิศทาง"],
+["A moment of 5 N at 4 m from pivot. To balance, 10 N must act at",["8 m","4 m","2 m"],2,"5×4 = 20; 20 ÷ 10 = 2 m"],
+["A lever 105 cm with fulcrum 15 cm from the load. Its mechanical advantage is",["1/6","7","6"],2,"MA = แขนแรง ÷ แขนน้ำหนัก = 90 ÷ 15 = 6"],
+["The stress created when a material is pulled apart is called",["tension","torsion","compression"],0,"แรงดึงออก = ความเค้นดึง (tension)"],
+["The yield point of a material is the point at which",["strain becomes proportional to stress","the material ruptures or breaks","permanent deformation takes place"],2,"จุดคราก = เริ่มเปลี่ยนรูปแบบถาวร"],
+["A steel bar of 2 m deforms to 2.2 m. The strain is",["1.1","0.9","0.1"],2,"strain = 0.2 ÷ 2 = 0.1"],
+["A Scalar quantity has",["sense, magnitude and direction","sense and direction","magnitude only"],2,"สเกลาร์มีเฉพาะขนาด"],
+["A hydraulic piston of 2.5 square inches produces 7500 lbf. What pressure is used?",["5000 PSI","3000 PSI","7000 PSI"],1,"P = F ÷ A = 7500 ÷ 2.5 = 3000 PSI"],
+["Forces passing through a common point are said to be",["coherent","coplanar","concurrent"],2,"แรงบรรจบที่จุดเดียวกัน = concurrent forces"],
+["A force of 5 N acting perpendicularly at 300 cm from the pivot produces a moment of",["1500 Newton metre","15 Newton metre","1.5 Kilonewton millimetre"],1,"300 cm = 3 m; โมเมนต์ = 5 × 3 = 15 N·m"],
+["Equilibrium of translation occurs when",["downward forces equal upward (reactive) forces","clockwise moments equal counterclockwise moments","clockwise forces and counterclockwise forces are equal"],2,"สมดุลการเลื่อนที่: แรงทุกทิศหักล้างกัน (ΣF = 0)"],
+["The conversion factor to convert litres to pints is",["0.57","1.76","2.2"],1,"1 ลิตร ≈ 1.76 ไพนต์"],
+["Hydraulic pressure can be restored by",["the use of pressure/heat exchange","compressing the air charge in an accumulator","compressing the fluid in a reservoir"],1,"อากาศอัดในแอคคูมูเลเตอร์ดันของไหลกลับคืนระบบ"],
+["When checking a hydraulic accumulator initial air pressure, the hydraulic system pressure",["should be at the normal working pressure","is not important","should be released"],2,"ต้องระบายความดันไฮดรอลิกก่อน จึงอ่านค่าลมเริ่มต้นได้ถูกต้อง"],
+["One kg is the mass of",["one litre of pure water","one pint of pure water","one gallon of pure water"],0,"น้ำบริสุทธิ์ 1 ลิตร มีมวล ≈ 1 kg"],
+["The centre of gravity of a triangle is",["1/3 the median from the base","1/3 the bisector from the base","1/3 the height from the base"],0,"เซนทรอยด์อยู่บนเส้นมัธยฐาน ห่างฐาน 1/3"],
+["A lifting machine moves an effort 200 cm to raise a load 0.5 m. The Velocity Ratio is",["0.25","4","40"],1,"VR = 200 ÷ 50 = 4"],
+["Two vectors at 90° with magnitudes 3 N and 4 N. The resultant is",["5 N","1 N","7 N"],0,"√(3² + 4²) = 5 N"],
+["Which of the following has no units?",["Strain","Stress","Elasticity"],0,"strain = อัตราส่วนความยาว จึงไม่มีหน่วย"],
+["For a car weighing 1000 N, force required to accelerate it at 3 m/s2 is",["3270 N","305.8 N","3000 N"],1,"m = 1000÷9.81 ≈ 101.9 kg; F = 101.9×3 ≈ 305.8 N"],
+["A time period of 10 microseconds is equal to a frequency of",["100 kHz","10 kHz","1 MHz"],0,"f = 1 ÷ (10×10⁻⁶) = 100,000 Hz = 100 kHz"],
+["The SI unit of acceleration is the",["metre per second squared (m/s2)","metre per second (m/s)","square metre (m2)"],0,"ความเร่ง = m/s²"],
+["If a body starts at rest and reaches 84 m/s in 3 seconds, its acceleration is",["28 m/s2","14 m/s2","252 m/s2"],0,"a = 84 ÷ 3 = 28 m/s²"],
+["The SI unit of velocity is the",["metre per second squared (m/s2)","metre per second (m/s)","metre (m)"],1,"ความเร็ว = m/s"],
+["An aircraft flies 1350 nmiles in 2 h 15 min. Average speed is",["600 nmiles/hour","600 miles/hour","150 nmiles/hour"],0,"1350 ÷ 2.25 = 600 knot (nautical miles/hour)"],
+["A spring extends to the ground and back 20 times a minute. The period is",["7 cm","3 seconds","1/3 cycle"],1,"T = 60 ÷ 20 = 3 วินาที"],
+["A cyclist goes from rest to 50 m/s in 5 seconds. Average acceleration is",["10 m/s2","12 m/s2","8 m/s2"],0,"a = 50 ÷ 5 = 10 m/s²"],
+["What is the period of a frequency of 4 Hz?",["8 seconds","0.25 seconds","4 seconds"],1,"T = 1 ÷ f = 1 ÷ 4 = 0.25 s"],
+["A dot rotating on a circle, its vertical position plotted against time gives",["a linear motion","a transverse waveform","a sinusoidal waveform"],2,"การฉายตำแหน่งแนวตั้งของการหมุนให้คลื่นไซน์"],
+["A freely falling body from 2 km (g = 10 m/s2) strikes the ground in",["400 s","80 s","20 s"],2,"h = ½gt² → 2000 = 5t² → t = 20 s"],
+["Angular velocity of a shaft rotating at 300 rpm is",["10π radians/second","2π radians/second","5π radians/second"],0,"300 rpm = 5 rev/s × 2π = 10π rad/s"],
+["The force that acts on a body to cause it to rotate in a circular path is the",["centripetal force","centrifugal force","inertia force"],0,"แรงสู่ศูนย์กลางทำให้วัตถุเคลื่อนที่เป็นวงกลม"],
+["Aircraft of 2 tonnes with 800 kJ kinetic energy stops with 10 kN brake force. Distance is",["40 mm","800 mm","80 m"],2,"s = W ÷ F = 800,000 ÷ 10,000 = 80 m"],
+["A body rotating at 5 rad/s with radius 5 m has a speed of",["5π m/s","5 m/s","25 m/s"],2,"v = ωr = 5 × 5 = 25 m/s"],
+["A mass of 400 kg moves 27 m with a force of 54 N. Work produced is",["1458 J","583.2 kJ","10.1 kJ"],0,"W = F×s = 54 × 27 = 1458 J"],
+["A mass on a spring hits the ground 20 times a minute. Its frequency is",["3 cycles per second","1/3 cycle per second","20 cycles per second"],1,"f = 20 ÷ 60 = 1/3 Hz"],
+["A body at 20 m/s accelerates to 36 m/s in 8 s. Acceleration is",["8 m/s2","4 m/s2","2 m/s2"],2,"a = (36−20) ÷ 8 = 2 m/s²"],
+["A body dropped from 10 m will hit the ground in",["2 seconds","0.2 seconds","1.41 seconds"],2,"t = √(2h/g) = √(20/9.81) ≈ 1.41 s"],
+["What is the rate of gravity?",["12.7 m/s2","0.981 m/s2","9.81 m/s2"],2,"ความเร่งจากแรงโน้มถ่วง ≈ 9.81 m/s²"],
+["An object travels 18 km in 1 minute 30 seconds. Average speed is",["200 m/s","270 m/s","100 m/s"],0,"18,000 ÷ 90 = 200 m/s"],
+["100 m is approximately",["220 yard","109 yard","66 yard"],1,"100 m ≈ 109.4 หลา"],
+["A car moves 5 miles at steady speed in 10 minutes. Speed is",["30 mph","15 mph","60 mph"],0,"5 ไมล์ ÷ (1/6 ชม.) = 30 mph"],
+["A spaceship travels 480,000 miles in 2 days. Its speed is",["48,000 mph","36,000 mph","10,000 mph"],2,"480,000 ÷ 48 ชม. = 10,000 mph"],
+["A cyclist covers 1,000 m at constant speed in 90 seconds. His speed is",["50 m/s","12.5 m/s","11.1 m/s"],2,"1000 ÷ 90 ≈ 11.1 m/s"],
+["How long will a car at 60 km/hr take to travel 90 km?",["40 minutes","75 minutes","90 minutes"],2,"t = 90 ÷ 60 = 1.5 ชม. = 90 นาที"],
+["An aircraft travels at 500 km/hr for 30 minutes. Distance moved is",["500 km","1000 km","250 km"],2,"500 × 0.5 = 250 km"],
+["Which of the following affect the velocity of an object?",["Speed and direction","Speed and distance","Speed and mass"],0,"ความเร็ว (velocity) = อัตราเร็ว + ทิศทาง"],
+["Acceleration involves",["change in speed or direction of movement","change of position with time","steady speed over a fixed period of time"],0,"ความเร่ง = การเปลี่ยนอัตราเร็วหรือทิศทาง"],
+["Acceleration if a mass increases speed from rest to 10 ft/sec in 5 seconds?",["2 ft/sec2","50 ft/sec2","0.5 ft/sec2"],0,"a = 10 ÷ 5 = 2 ft/s²"],
+["A car at 5 m/s accelerates at 1 m/s2. Time to reach 20 m/s?",["15 secs","10 secs","20 secs"],0,"t = (20−5) ÷ 1 = 15 วินาที"],
+["Newton's laws of motion apply to",["solid substances only","all substances irrespective of state","gases and liquids only"],1,"กฎของนิวตันใช้กับสสารทุกสถานะ"],
+["Which Newton's Law applies to an aircraft accelerating down a runway?",["The 3rd law","The 2nd law","The 1st law"],1,"การเร่งเครื่องตาม F = ma คือกฎข้อ 2"],
+["Which Newton's Law applies to a car slowing down due to braking?",["The 1st law","The 3rd law","The 2nd law"],2,"แรงเบรกทำให้เกิดความหน่วง (F = ma) = กฎข้อ 2"],
+["F = ma expresses",["Newton's 2nd law","Newton's 1st law","Newton's 3rd law"],0,"กฎข้อ 2: แรง = มวล × ความเร่ง"],
+["Force required to produce 5 m/s2 on a mass of 2 kg?",["2.5 N","10 N","50 N"],1,"F = ma = 2 × 5 = 10 N"],
+["If 10 lbf produces 2.5 ft/sec2, the mass is",["4 slugs","4 lb","25 slugs"],0,"m = F ÷ a = 10 ÷ 2.5 = 4 slugs"],
+["What is acceleration?",["Rate of change of velocity","Rate of change of movement","Rate of change of position"],0,"ความเร่ง = อัตราการเปลี่ยนของความเร็ว"],
+["In a gear train the driver has 100 TPI and the driven 50 TPI",["The driven rotates twice as fast","The driver and driven rotate at the same speed","The driven rotates half as fast"],0,"ฟันน้อยกว่าครึ่งหนึ่ง → หมุนเร็ว 2 เท่า"],
+["Aircraft of 2 tonnes lands with 400 kJ, 10 kN brake force. Stopping distance is",["40 m","400 m","80 m"],0,"s = 400,000 ÷ 10,000 = 40 m"],
+["A radar rotates 1 rev per 30 s using 10 J per rev. Energy used in a day is",["28.8 kJ","720 kJ","7200 kJ"],0,"86,400 ÷ 30 = 2880 รอบ × 10 J = 28,800 J = 28.8 kJ"],
+["An aircraft flies a semi-circle of radius 20 km in 30 min. Average speed is",["125.7 km/h","110 km/h","80 km/h"],0,"ระยะ = πr = 62.8 km ใน 0.5 ชม. → 125.7 km/h"],
+["Landing speed 54 m/s, max deceleration 3 m/s2. Minimum runway length is",["360 m","486 m","162 m"],1,"s = v² ÷ 2a = 2916 ÷ 6 = 486 m"],
+["The number of radians in a semi circle are",["exactly 3","π","2π"],1,"ครึ่งวงกลม = 180° = π เรเดียน"],
+["Angular velocity of 500 RPM in rad/s is",["1000π rad/s","8.33π rad/s","16.66π rad/s"],2,"500 ÷ 60 × 2π = 16.66π rad/s"],
+["Force = mass × acceleration relates to Newton's",["1st law","2nd law","3rd law"],1,"F = ma คือกฎข้อ 2"],
+["The period of a simple pendulum is",["independent of its mass","longer for a heavy pendulum bob","longer on the earth than on the moon"],0,"คาบขึ้นกับความยาวและ g ไม่ขึ้นกับมวล"],
+["A satellite needs 10 J for half a revolution (30 s). Energy for one day is",["14,400 J","1,200 J","28,800 J"],2,"1 รอบ = 20 J ใน 60 s → 86,400÷60 × 20 = 28,800 J"],
+["The size of centripetal force on an object travelling in a circle",["increases with increasing mass","decreases with increasing speed","increases with increasing radius"],0,"F = mv²/r → เพิ่มตามมวลและความเร็ว ลดตามรัศมี"],
+["In circular motion at constant velocity, if radius is doubled the centripetal force will",["double","remain the same","half"],2,"F = mv²/r → รัศมี 2 เท่า แรงเหลือครึ่งเดียว"],
+["Aircraft of 6400 lb lands at 10 ft/s and stops in 10 s. Brake force is (g = 32 ft/s2)",["-2000 lbs","-200 lbs","-640 lbs"],1,"m = 6400÷32 = 200 slugs; a = 10÷10 = 1; F = 200×1 = 200 lb (ทิศต้าน)"],
+["'For every action there is an equal and opposite reaction' is Newton's",["second law","third law","first law"],1,"กฎข้อ 3: กิริยา = ปฏิกิริยา"],
+["One radian is equal to",["angle where arc-length equals the radius","66.67 degrees","angle where arc-length equals π"],0,"1 เรเดียน = มุมที่ความยาวส่วนโค้งเท่ากับรัศมี"],
+["A weight on a spring touches the floor 7 times in 21 seconds. Frequency is",["3 cycles/second","1/3 cycles/second","7 cycles/second"],1,"f = 7 ÷ 21 = 1/3 Hz"],
+["Which describes centrifugal force?",["Smaller than centripetal force, opposite direction","Greater than centripetal force, opposite direction","Equal to centripetal force, opposite direction"],2,"แรงหนีศูนย์กลางขนาดเท่าแรงสู่ศูนย์กลางแต่ทิศตรงข้าม"],
+["A body from rest accelerates at 20 m/s2 until 50 m/s. Distance covered is",["0.625 kilometres","50 metres","62.5 metres"],2,"s = v² ÷ 2a = 2500 ÷ 40 = 62.5 m"],
+["A pendulum 2500 mm long has a periodic time of",["300 milliseconds","3 seconds","1.25 seconds"],1,"T = 2π√(l/g) = 2π√(2.5/9.81) ≈ 3 s"],
+["A drive shaft at 150π rad/s. Speed in RPM is",["4500","9000","1500"],0,"150π ÷ 2π = 75 rev/s × 60 = 4500 rpm"],
+["As an object slides down a slope, its",["kinetic energy increases and potential energy increases","kinetic energy increases and potential energy decreases","kinetic energy decreases and potential energy increases"],1,"ลงเนิน: ความสูงลด PE ลด → KE เพิ่ม"],
+["A single fixed pulley (no friction) has a mechanical advantage of",["2","1/2","1"],2,"รอกเดี่ยวตายตัว MA = 1 (เปลี่ยนทิศอย่างเดียว)"],
+["What is the ratio of load to effort called?",["Mechanical advantage","Velocity ratio","Mechanical ratio"],0,"MA = น้ำหนัก ÷ แรงพยายาม"],
+["1 kW is",["3413 BTU per hour","1.56 HP","360 Joules"],0,"1 kW ≈ 3413 BTU/hr (และ ≈ 1.34 HP)"],
+["Crane cable tension 2500 N lifting a load 50 m. Work done is",["500 J","1.25 × 10^5 J","12.5 kJ"],1,"W = F×s = 2500 × 50 = 125,000 J"],
+["Kinetic energy of an aircraft of 2 tonnes at 2 m/s?",["8 kJ","4 kJ","2 kJ"],1,"KE = ½mv² = ½ × 2000 × 4 = 4000 J = 4 kJ"],
+["Work done lifting 2000 kg to 40 m is",["80 kJ","784.8 kJ","500 kJ"],1,"W = mgh = 2000 × 9.81 × 40 = 784,800 J"],
+["A machine with MA = 10 and VR = 20. Efficiency is",["200%","0.5","2"],1,"ประสิทธิภาพ = MA ÷ VR = 10 ÷ 20 = 0.5 (50%)"],
+["1 Watt =",["1 kg/h","1 Joule/s","1 HP"],1,"1 วัตต์ = 1 จูลต่อวินาที"],
+["Work done by a 100% efficient machine is worked out from",["Input and output","Mechanical advantage and output","Mechanical advantage and input"],0,"ประสิทธิภาพ 100% → งานเข้า = งานออก"],
+["Ignoring friction, an object sliding down a slope at the bottom has",["potential energy equal to kinetic energy","potential energy more than kinetic energy","kinetic energy more than potential energy"],0,"PE เปลี่ยนเป็น KE ทั้งหมด (อนุรักษ์พลังงาน)"],
+["1 HP =",["736 Watts","746 Watts","1360 Watts"],1,"1 แรงม้า = 746 วัตต์"],
+["15 N moves a 30 kg body at uniform velocity. Coefficient of dynamic friction (g = 10) is",["1/20","1/2","20"],0,"μ = F ÷ mg = 15 ÷ 300 = 1/20"],
+["A mass of 400 kg moves 27 m with 54 N. Work produced is",["10.1 kJ","583.2 kJ","1458 J"],2,"W = 54 × 27 = 1458 J"],
+["The SI unit of Power is the",["Volt","Pascal","Watt"],2,"หน่วยกำลังคือวัตต์"],
+["What is 1 joule in calories?",["4.186","252","0.239"],2,"1 cal = 4.186 J → 1 J = 0.239 cal"],
+["Push with 5 N for 10 m in 4 seconds. Power used is",["12.5 watts","8 watts","200 watts"],0,"W = 50 J; P = 50 ÷ 4 = 12.5 W"],
+["Kinetic energy of a 2 kg object at 12 m/s?",["24 Joules","288 Joules","144 Joules"],2,"KE = ½ × 2 × 144 = 144 J"],
+["A mass of 3 kg weighs approximately",["0.675 N","6.6 lb","1.3 lb"],1,"3 kg ≈ 6.6 ปอนด์"],
+["Power is the rate of doing work. It is measured in",["Watts/Seconds","Joules/Seconds","Joules × Seconds"],1,"กำลัง = จูลต่อวินาที"],
+["A 6000 kg engine lifted 0.5 m then pushed 24 m with 12 kN. Work done moving the trolley is",["298 kJ","84 MJ","288 kJ"],2,"W = 12,000 × 24 = 288,000 J = 288 kJ"],
+["A ball dropped from rest. Speed after 4 seconds (g = 10)?",["80 m/s","40 m/s","20 m/s"],1,"v = gt = 10 × 4 = 40 m/s"],
+["1 kW is equal to",["1.34 HP","1000 Joules","252 BTU"],0,"1 kW ≈ 1.34 แรงม้า"],
+["Ten kilograms is expressed numerically as",["1 Mg","10 K","10 kg"],2,"10 kg เขียนให้ถูกคือ 10 kg (ตัวพิมพ์เล็ก)"],
+["An object accelerating down a slope gains kinetic energy",["less than the potential energy lost","greater than the potential energy lost","equal to the potential energy lost"],2,"พลังงานอนุรักษ์: KE ที่เพิ่ม = PE ที่เสีย"],
+["A block slides down a frictionless slope",["kinetic energy is gained at the same rate as potential energy is lost","kinetic energy is gained at a greater rate","potential energy is gained at a greater rate"],0,"ไม่มีแรงเสียดทาน → KE เพิ่มเท่า PE ที่ลดพอดี"],
+["The English unit of mass is",["the Newton","the kilogram","the slug"],2,"ระบบอังกฤษใช้ slug เป็นหน่วยมวล"],
+["The SI unit of energy is the",["Watt (W)","Pascal (Pa)","Joule (J)"],2,"หน่วยพลังงานคือจูล"],
+["A 4.5 kW motor is 90% efficient. Energy used in 20 seconds is",["90 kJ","2.25 kJ","100 kJ"],2,"กำลังเข้า = 4.5 ÷ 0.9 = 5 kW; 5 × 20 = 100 kJ"],
+["A 1000 kg pile driver falls 3 m (g = 10). Kinetic energy at impact is",["30 kJ","45 kJ","90 kJ"],0,"KE = mgh = 1000 × 10 × 3 = 30,000 J"],
+["The SI unit for work is the",["Joule","Watt","horsepower"],0,"หน่วยงานคือจูล"],
+["Work done by 100 N moving a body 15 m?",["1500 kJ","1.5 kJ","0.15 mJ"],1,"W = 100 × 15 = 1500 J = 1.5 kJ"],
+["A good refrigerant has a",["low condensation temperature and high condensation pressure","low condensation temperature and low condensation pressure","high condensation temperature and low condensation pressure"],0,"สารทำความเย็นที่ดี: ระเหย/ควบแน่นที่อุณหภูมิต่ำและความดันเหมาะสม"],
+["Momentum of a 2 g ball at 10 cm/s?",["5 kg.m/s","20 kg.m/s","0.0002 kg.m/s"],2,"p = mv = 0.002 × 0.1 = 0.0002 kg·m/s"],
+["A gyroscope suffers from apparent wander due to",["friction on the gimbals and bearings","the earth's rotation","the aircraft flying a north/south track"],1,"apparent wander เกิดจากการหมุนของโลก"],
+["The SI unit of momentum is the",["metre squared (m2)","kilogram metre per second","kilogram/metre"],1,"โมเมนตัม = kg·m/s"],
+["Precession in a gyro is",["proportional to the magnitude of the torque applied","proportional to the square of the torque","inversely proportional to the torque"],0,"การส่ายแปรผันตามทอร์กที่กระทำ"],
+["A gyro with a fixed point free to rotate in three axes is",["a tied gyro","a space gyro","an earth gyro"],1,"ไจโรอิสระใน 3 แกน = space gyro"],
+["What type of friction requires the greatest force to overcome?",["Dynamic friction","Static friction","Rolling friction"],1,"แรงเสียดทานสถิตมีค่ามากที่สุด"],
+["A gyro constrained to an external reference with three degrees of freedom is",["a tied gyro","an earth gyro","a space gyro"],0,"ไจโรที่ผูกกับอ้างอิงภายนอก = tied gyro"],
+["The point at which applied force overcomes friction and motion begins is the coefficient of",["limiting friction","static friction","kinetic friction"],0,"ขีดจำกัดก่อนเริ่มเคลื่อนที่ = limiting friction"],
+["The amount a gyro precesses when a torque is applied is",["proportional to the torque","inversely proportional to the torque","proportional to the square of the torque"],0,"ทอร์กมาก → การส่ายมาก (แปรผันตรง)"],
+["The gyroscopic principle is based upon",["Newton's 3rd Law","Newton's 2nd Law","Newton's 1st Law"],2,"ความเฉื่อยของจานหมุน (กฎความเฉื่อยข้อ 1)"],
+["A 20 kg mass has momentum 300 kg.m/s. Kinetic energy is",["0.25 kJ","2250 J","3250 J"],1,"v = 300÷20 = 15; KE = ½×20×225 = 2250 J"],
+["A 400 kg motorcycle at 8 m/s. Momentum is",["3200 kg.m/s","50 kg.m/s","320 kg.m/s"],0,"p = mv = 400 × 8 = 3200 kg·m/s"],
+["If the speed of a gyro is increased, the force required to precess it",["increased","remains the same","decreased"],0,"จานหมุนเร็วยิ่งมี rigidity มาก ต้องใช้แรงมากขึ้น"],
+["Specific gravity is calculated by",["density of body squared × density of water","density of body ÷ density of water","density of body × density of water"],1,"ถ.พ. = ความหนาแน่นสาร ÷ ความหนาแน่นน้ำ"],
+["The SI unit of density is the",["kilogram per cubic metre (kg/m3)","Pascal (Pa)","cubic metre (m3)"],0,"ความหนาแน่น = kg/m³"],
+["Relative density is",["density of medium / density of water","density of water / density of medium","density of water × density of medium"],0,"ความถ่วงจำเพาะ = ρสาร ÷ ρน้ำ"],
+["The standard for measuring density is",["0 °C and 760 mm of mercury","-20 °C and 700 mm of mercury","+20 °C and 760 mm of mercury"],0,"มาตรฐานวัดความหนาแน่น (แก๊ส) ที่ 0°C, 760 mmHg"],
+["1 kg of water heated from 0 °C to 2 °C. Its volume will",["decrease","stay the same","increase"],0,"น้ำหนาแน่นสุดที่ 4°C จึงหดตัวเมื่ออุ่นจาก 0→2°C"],
+["9.2 tonnes of fuel with specific gravity 0.8. The uplift is",["7360 litres","11500 litres","9200 litres"],1,"9200 kg ÷ 0.8 kg/l = 11,500 ลิตร"],
+["Specific gravity",["is measured in kg/m2","is measured in kg/m3","has no units"],2,"ถ.พ. เป็นอัตราส่วน จึงไม่มีหน่วย"],
+["Standard temperature and pressure for measuring density of liquids is",["15 °C and 760 mmHg","0 °C and 760 mmHg","4 °C and 760 mmHg"],2,"อ้างอิงน้ำที่ 4°C ซึ่งหนาแน่นที่สุด"],
+["Standard temperature and pressure for measuring volume of liquids and solids is",["20 °C and 700 mmHg","20 °C and 760 mmHg","0 °C and 760 mmHg"],1,"มาตรฐานปริมาตรของเหลว/ของแข็ง: 20°C, 760 mmHg"],
+["1 cubic foot of water weighs 62.4 lb, fuel SG = 0.81. Weight of 10 ft3 of fuel is",["402.8 lbs","505.4 lbs","770.3 lbs"],1,"62.4 × 0.81 × 10 = 505.4 lb"],
+["At what temperature does water have the greatest density?",["0 °C","100 °C","4 °C"],2,"น้ำหนาแน่นสูงสุดที่ 4°C"],
+["Specific gravity of methylated spirit is 0.8. Its density is",["800 g/m3","800 kg/m3","80 kg/m3"],1,"0.8 × 1000 = 800 kg/m³"],
+["Density of Cu is 8,900 kg/m3. Its relative density is",["890","8.9","89"],1,"8900 ÷ 1000 = 8.9"],
+["Atmospheric pressure at ISA conditions is",["1013 Pa","1013 bar","1013 mBar"],2,"มาตรฐาน ISA = 1013.25 mbar (hPa)"],
+["Convert 220 gallons to litres",["1000 litres","48.4 litres","500 litres"],0,"220 × 4.545 ≈ 1000 ลิตร"],
+["The SI unit of pressure is the",["Newton per metre squared (N/m2)","Cubic metre (m3)","kilogram per metre cubed"],0,"ความดัน SI = N/m² (ปาสคาล)"],
+["A gauge indicates 15 PSIG. The absolute pressure is",["30 PSI","0.3 PSI","Zero PSI"],0,"P_abs = gauge + บรรยากาศ ≈ 15 + 14.7 ≈ 30 PSI"],
+["Water is most dense at",["-4 °C","0 °C","+4 °C"],2,"น้ำหนาแน่นสุดที่ 4°C"],
+["Viscosity can be described as",["Newton's 1st law of motion","fluids flowing in a straight line","the internal resistance of a fluid to flow"],2,"ความหนืด = แรงต้านภายในของของไหลต่อการไหล"],
+["Lift produced on a wing can be derived from",["Bernoulli's Theorem","Faraday's law","Charles law"],0,"ทฤษฎีแบร์นูลลีอธิบายแรงยก"],
+["Pressure in a pipe is",["force per unit area","mass divided by cross-sectional area","weight per unit area"],0,"ความดัน = แรง ÷ พื้นที่"],
+["Convert 25 °C to Fahrenheit",["57","77","-7"],1,"°F = 25 × 9/5 + 32 = 77"],
+["At the north pole at -50 °C, what thermometer would you use?",["Water","Alcohol","Mercury"],1,"ปรอทแข็งตัวที่ -39°C จึงต้องใช้อัลกอฮอล์"],
+["Convert 15 °C to °F",["37 °F","59 °F","62 °F"],1,"15 × 9/5 + 32 = 59°F"],
+["1 degree rise on the centigrade scale causes a",["1.8 degree rise in Fahrenheit","33 degree rise in Fahrenheit","0.911 degree rise in Fahrenheit"],0,"ช่วง 1°C = 1.8°F"],
+["1 calorie is equal to",["4 J","40 J","400 J"],0,"1 cal ≈ 4.186 J"],
+["1 BTU equals",["1055 Joules","1055 Calorie","1055 kJ"],0,"1 BTU ≈ 1055 จูล"],
+["Temperature is a measure of",["the amount of friction produced by mating surfaces","the amount of vibration of molecules","the heat energy of particles"],1,"อุณหภูมิวัดระดับการสั่น/เคลื่อนที่ของโมเลกุล"],
+["What temperature scale is used with the combined gas law?",["Absolute","Fahrenheit","Celsius"],0,"กฎแก๊สต้องใช้สเกลสัมบูรณ์ (เคลวิน)"],
+["What is 1 BTU/lb in joules per kilogram?",["2326 J/kg","4128 J/kg","9.18 J/kg"],0,"1 BTU/lb ≈ 2326 J/kg"],
+["1 CHU = energy to raise",["1 lb of water by 1 °F","1 kg of water by 1 °C","1 lb of water by 1 °C"],2,"CHU = ความร้อนที่อุ่นน้ำ 1 ปอนด์ให้ร้อนขึ้น 1°C"],
+["1 BTU = 778 ft.lbs, the energy required to raise",["1 lb of water by 1 °F","1 kg of water by 1 °F","1 lb of water by 1 °C"],0,"BTU = อุ่นน้ำ 1 ปอนด์ขึ้น 1°F"],
+["41 °F in Centigrade is",["9 degrees","5 degrees","7 degrees"],1,"(41−32) × 5/9 = 5°C"],
+["Heat is described as",["a high temperature","energy in transit","the stored energy in a hot body"],1,"ความร้อน = พลังงานที่กำลังถ่ายโอน"],
+["600 K is equal to",["853 °C","873 °C","326.85 °C"],2,"°C = 600 − 273.15 = 326.85°C"],
+["When gases change temperature/pressure, the scale used is",["Kelvin","degrees Fahrenheit","degrees Centigrade"],0,"ต้องใชั Kelvin (สเกลสัมบูรณ์)"],
+["Convert 100 °C to Kelvin",["173 K","373 K","273 K"],1,"K = 100 + 273 = 373 K"],
+["-40 °C in Fahrenheit is",["72 °F","8 °F","-40 °F"],2,"จุดที่ °C = °F คือ −40"],
+["Absolute zero is",["0 °C","273.15 K","-273.15 °C"],2,"ศูนย์สัมบูรณ์ = 0 K = −273.15°C"],
+["One degree increment on Centigrade equals what increment on Fahrenheit?",["1.8 °F","33 °F","12 °F"],0,"ช่วง 1°C = 1.8°F"],
+["Transfer of heat from a hot area to a cold area is",["conduction","convection","radiation"],0,"การนำความร้อนส่งพลังงานจากบริเวณร้อนไปเย็น"],
+["Fahrenheit to Celsius equation is",["°C = 5/9 × (°F − 32)","°C = 5/9 × °F − 32","°C = 9/5 × °F + 32"],0,"สูตรแปลงที่ถูกต้อง: ลบ 32 ก่อนแล้วคูณ 5/9"],
+["What is 1 BTU/lb in joules per kilogram?",["4128 J/kg","9.18 J/kg","2326 J/kg"],2,"1 BTU/lb ≈ 2326 J/kg"],
+["Celsius to Fahrenheit is calculated by",["(9/5 × °C) + 32","(5/9 × °C) + 32","(5/9 + 32) + °C"],0,"°F = °C × 9/5 + 32"],
+["The percentage of nitrogen in air is approximately",["0.62","0.21","0.78"],2,"อากาศมีไนโตรเจน ~78%, ออกซิเจน ~21%"],
+["Net heat supplied = work done + change in internal energy is the",["2nd Law of thermodynamics","First law of thermodynamics","Ideal Gas law"],1,"กฎข้อ 1 ของอุณหพลศาสตร์ (อนุรักษ์พลังงาน)"],
+["In a heat pump",["the evaporator gains heat during the heating cycle","the condenser always loses heat","the pump operates in both directions"],0,"ในโหมดทำความร้อน evaporator ดูดความร้อนจากภายนอก"],
+["What is -28 °C on the Kelvin scale?",["245 K","18 K","291 K"],0,"K = 273 − 28 = 245 K"],
+["When water freezes, heat energy is",["absorbed","retained","released"],2,"การแข็งตัวคายความร้อนแฝงออกมา"],
+["842 °F is equal to",["450 °C","400 °C","232.2 °C"],0,"(842−32) × 5/9 = 450°C"],
+["Water at 10,000 ft compared to sea level will boil",["at a lower temperature than sea level","at the same temperature","at a higher temperature"],0,"ความสูงเพิ่ม ความดันลด จุดเดือดจึงต่ำลง"],
+["Dew point is",["the temperature at which condensation actually occurs","the temperature below which condensation occurs","the temperature above which condensation occurs"],0,"จุดน้ำค้าง = อุณหภูมิที่ไอน้ำเริ่มควบแน่น"],
+["By adding impurities to water",["melting point increases and boiling point decreases","no effect","melting point decreases and boiling point increases"],2,"สิ่งเจือปนทำให้จุดเยือกแข็งลด จุดเดือดเพิ่ม (เช่น เกลือ)"],
+["When source temperature is insufficient for a thermocouple, use a",["thermistor","temperature bulb","balanced bridge"],0,"เทอร์มิสเตอร์ไวต่อการเปลี่ยนแปลงอุณหภูมิต่ำได้ดี"],
+["4 lb of gas heated 17→89 °C, cp = 0.2404, cv = 0.1718. Heat at constant pressure / volume is",["70.1 and 50 C.H.U.","49.5 and 69 C.H.U.","69.2 and 49.5 C.H.U."],2,"Q = mcΔT: 4×0.2404×72 = 69.2; 4×0.1718×72 = 49.5"],
+["Standard conditions for volume and density of a gas are",["0 °C and 760 mm of Mercury","20 °C and 700 mm of Mercury","20 °C and 760 mm of Mercury"],0,"STP ของแก๊ส: 0°C, 760 mmHg"],
+["Standard conditions for volume and density of a liquid or solid are",["20 °C and 760 mm of Mercury","0 °C and 760 mm of Mercury","20 °C and 700 mm of Mercury"],0,"ของเหลว/ของแข็งใช้ 20°C, 760 mmHg"],
+["842 Degrees Fahrenheit is equal to",["450 Degrees Celsius","232.2 Degrees Celsius","400 Degrees Celsius"],0,"(842−32) × 5/9 = 450°C"],
+["Which two temperature points are equal?",["-32 °C and 0 °F","40 °C and 40 °F","-40 °C and -40 °F"],2,"−40°C = −40°F"],
+["What is 100 °C in Fahrenheit?",["30 Degrees","148 Degrees","212 Degrees"],2,"จุดเดือดน้ำ: 100°C = 212°F"],
+["The absolute temperature scale with Fahrenheit-size increments is the",["Rankine scale","Kelvin scale","Celsius scale"],0,"Rankine = สเกลสัมบูรณ์ของ Fahrenheit"],
+["The absolute temperature scale with Celsius-size increments is the",["Rankine scale","Kelvin scale","Fahrenheit scale"],1,"Kelvin = สเกลสัมบูรณ์ของ Celsius"],
+["For a heat pump to heat internally it uses the",["inside evaporator","inside condenser","outside condenser"],1,"โหมดร้อน: คอยล์ในเป็น condenser คายความร้อนเข้าห้อง"],
+["The heat required to change a liquid to a gas is the heat of",["condensation","fusion","vapourisation"],2,"ความร้อนแฝงของการกลายเป็นไอ"],
+["The SI units for specific heat capacity are",["J kg-1 K-1","J/S/C","J/kg"],0,"ความจุความร้อนจำเพาะ = J/(kg·K)"],
+["The most common refrigerants are",["water, ammonia, freon","water, freon, carbon dioxide","ammonia, freon, methyl bromide"],0,"สารทำความเย็นที่ใช้กันมาก: น้ำ แอมโมเนีย ฟรีออน"],
+["How is heat transferred in a vacuum?",["Convection","Conduction","Radiation"],2,"สุญญากาศไม่มีตัวกลาง จึงถ่ายเทได้โดยการแผ่รังสี"],
+["Specific heat of a gas at constant pressure compared to constant volume is",["more","less","the same"],0,"cp > cv เพราะที่ความดันคงที่แก๊สต้องทำงานขยายตัวด้วย"],
+["Adiabatic compression is when",["no heat is lost or gained","kinetic energy is gained","heat is given off to the surroundings"],0,"adiabatic = ไม่มีการถ่ายเทความร้อนข้ามขอบเขต"],
+["The heat required to change a solid to a liquid is the heat of",["vapourisation","condensation","fusion"],2,"ความร้อนแฝงของการหลอมเหลว"],
+["Latent heat is the",["heat to raise temperature by 1 °C","heat to raise 1 kg of matter by 1 K","heat required to change the state of a body"],2,"ความร้อนแฝงใช้เปลี่ยนสถานะโดยไม่เปลี่ยนอุณหภูมิ"],
+["The intensity of radiated heat is",["inversely proportional to the square of the distance","not affected by distance","directly proportional to distance"],0,"ความเข้มรังสีแปรผกผันกับระยะทางยกกำลังสอง"],
+["As ice is melted (to 4 °C), its volume",["remains the same","decreases","increases"],1,"น้ำแข็งละลายแล้วปริมาตรลดลง"],
+["A good refrigerant has",["high condensing pressure, low evaporating temperature","high condensing pressure, high evaporating temperature","low condensing pressure, low evaporating temperature"],0,"ต้องการระเหยที่อุณหภูมิต่ำและควบแน่นที่ความดันเหมาะสม"],
+["In a heat pump",["flow across the condenser is always in one direction","the condenser loses heat","the evaporator gains heat during the heating cycle"],1,"condenser คือส่วนคาย/ปล่อยความร้อนเสมอ"],
+["Charles' Law states that",["volume varies inversely with temperature","volume varies directly with temperature","volume equals pressure × temperature"],1,"ที่ความดันคงที่: V ∝ T"],
+["Boyle's law states that",["pressure equals temperature divided by volume","pressure varies directly with volume","pressure varies inversely with volume"],2,"ที่อุณหภูมิคงที่: P ∝ 1/V"],
+["A process where volume does not change is",["isochoric","isobaric","isothermic"],0,"iso = เท่ากัน, choric = ปริมาตร → isochoric"],
+["A process where heat is not transferred to or from a gas is",["adiabatic","isochoric","isobaric"],0,"adiabatic = ไม่มีการถ่ายเทความร้อน"],
+["A process where pressure does not change is",["isochoric","isothermic","isobaric"],2,"isobaric = ความดันคงที่"],
+["When a liquid is heated, it expands",["more than a solid","less than a solid","more than a gas"],0,"ของเหลวขยายตัวมากกว่าของแข็ง (แต่น้อยกว่าแก๊ส)"],
+["If pressure on a liquid increases at constant temperature, the volume will",["decrease","remain constant","increase"],0,"เพิ่มความดัน → ปริมาตรลดลงเล็กน้อย"],
+["A process where temperature remains the same is",["isobaric","isochoric","isothermic"],2,"isothermic = อุณหภูมิคงที่"],
+["Boyle's Law is described by",["P proportional to 1/T","P proportional to 1/V","P proportional to T"],1,"P ∝ 1/V ที่อุณหภูมิคงที่"],
+["A compressor increases",["kinetic energy","potential energy","moving energy"],1,"คอมเพรสเซอร์เพิ่มความดัน = พลังงานศักย์ของแก๊ส"],
+["P1V1/T1 = P2V2/T2 is the",["Ideal gas law","Charles' law","Boyle's law"],0,"กฎรวมของแก๊ส (combined/ideal gas law)"],
+["V1/T1 = V2/T2 at constant pressure is",["Ideal gas law","Boyle's law","Charles' law"],2,"กฎของชาร์ล (ปริมาตรกับอุณหภูมิ)"],
+["P1V1 = P2V2 at constant temperature is",["Boyle's law","Ideal gas law","Charles' law"],0,"กฎของบอยล์ (ความดันกับปริมาตร)"],
+["The atmosphere temperature falls 1.98 °C/1000 ft to 36,000 ft then stays at",["-56 °F","-52 °C","-56 °C"],2,"ISA: โทรโพพอสมีอุณหภูมิ −56.5°C"],
+["A process where heat is given off to the surroundings is",["isothermal","adiabatic","isobaric"],0,"กระบวนการ isothermal คายความร้อนเพื่อรักษาอุณหภูมิคงที่"],
+["A body allowed to expand when heated past the imposed pressure will",["produce a force","do nothing","do work"],2,"การขยายตัวเอาชนะแรงดันภายนอก = ทำงาน (work)"],
+["The quantity of heat developed by burning 1 kg of fuel is the",["radiant heat","latent heat","heat of combustion"],2,"ความร้อนจากการเผาไหม้ = heat of combustion"],
+["Heat transfer through radiation is achieved by",["the application of radioactive isotopes","warming up the intervening medium","not warming up the intervening medium"],2,"รังสีเดินทางได้โดยไม่ต้องอุ่นตัวกลาง"],
+["The dew point is",["the point at which air can be heated","the point when air is cooled at which moisture just starts to condense","the point when air is cooled at which moisture does not condense"],1,"จุดที่ไอน้ำเริ่มควบแน่นเมื่ออากาศเย็นลง"],
+["Common refrigerant agents are",["formaldehyde, ammonia, carbon dioxide","water, freon, ammonia","dry ice, methyl bromide, water"],1,"น้ำ ฟรีออน และแอมโมเนียเป็นสารทำความเย็นทั่วไป"],
+["Gas heating with no heat absorbed or given out is",["adiabatic","isochoric","isothermal"],0,"ไม่มีการถ่ายเทความร้อน = adiabatic"],
+["A pressurising process where all heat is given away is",["adiabatic","isochoric","isothermal"],2,"คายความร้อนเท่าที่อัด → อุณหภูมิคงที่ = isothermal"],
+["A material capable of going direct from solid to gas is a",["substrate","substance","sublimate"],2,"สารที่ระเหิดได้เรียกว่า sublimate"],
+["The composition of the atmosphere is approximately",["1/5 oxygen and 4/5 nitrogen","4/5 oxygen and 1/5 nitrogen","2/5 oxygen and 3/5 nitrogen"],0,"ออกซิเจน ~21%, ไนโตรเจน ~78%"],
+["What is meant by adiabatic?",["All heat crosses the boundary","No heat crosses the boundary","Some heat crosses the boundary"],1,"adiabatic = ไม่มีความร้อนผ่านขอบเขตระบบ"],
+["A gas heated and its temperature raised by 1 K. Its volume",["decreases by 1/273","increases by 1/273","remains the same"],1,"แก๊สขยายตัว 1/273 ต่อ 1 K (ที่ความดันคงที่)"],
+["If a block of ice melts in a glass of water, the water level will",["fall","rise","remain the same"],2,"น้ำแข็งลอยแทนที่น้ำเท่ากับน้ำหนักตัวเอง ระดับจึงเท่าเดิม"],
+["If heat is constant and pressure on a liquid increases, the volume will",["increase","remain constant","decrease"],2,"เพิ่มความดัน → ปริมาตรลด"],
+["Radiant heat from a radiant source is",["inversely proportional to the square of the distance","proportional to distance","inversely proportional"],0,"กฎกำลังสองผกผัน"],
+["The combined gas law relates volume, pressure and",["temperature","density","velocity"],0,"กฎรวมแก๊ส: P, V, T"],
+["The heat given off by burning a 1 kg block of wood is",["transmissive heat","radiant heat","latent heat"],1,"การเผาไหม้แผ่ความร้อนแบบ radiant heat"],
+["H2O holds the most energy in what form?",["Steam","Ice","Water"],0,"ไอน้ำมีพลังงานแฝงของการกลายเป็นไอเพิ่มเข้ามา"],
+["A block of metal melted will",["remain the same volume","decrease in volume","increase in volume"],2,"โลหะส่วนใหญ่ขยายตัวเมื่อหลอมเหลว"],
+["Energy ice at 0 °C must gain to become water at 0 °C is the",["latent heat of vaporisation","sensible energy","latent heat of fusion"],2,"ความร้อนแฝงของการหลอมเหลว"],
+["An ideal gas isothermal process follows",["Gay Lussac's","Boyle's","Charles's"],1,"อุณหภูมิคงที่ → กฎของบอยล์"],
+["The Steam Point of water is",["0 Kelvin","373 Kelvin","273 Kelvin"],1,"จุดเดือด = 100°C = 373 K"],
+["A 200 cm titanium bar lengthens 2 cm for a 100 °C rise. Linear expansivity is",["0.01 per °C","0.0001 per °C","0.0101 per °C"],1,"α = ΔL/(LΔT) = 2/(200×100) = 0.0001"],
+["Heat transmission by convection is confined to",["liquids and gases","gases and solids","solids and liquids"],0,"การพาความร้อนเกิดเฉพาะในของไหล"],
+["Which contains the least heat energy?",["1 kg ice and 1 kg water at 0 °C are equal","1 kg of water at 0 °C","1 kg of ice at 0 °C"],2,"น้ำแข็งต้องดูดความร้อนแฝงเพิ่มจึงกลายเป็นน้ำ จึงมีพลังงานน้อยกว่า"],
+["Which weighs the most?",["1 kg of ice at 0 °C","Both 1 kg ice and 1 kg water weigh the same","1 kg of water at 0 °C"],1,"ทั้งสองมีมวล 1 kg เท่ากัน"],
+["Which has the greatest density?",["1 kg of ice at 0 °C","1 kg of water at 0 °C","Both have the same density"],1,"น้ำหนาแน่นกว่าน้ำแข็ง"],
+["Which has the greatest volume?",["1 kg of water at 0 °C","1 kg of ice at 0 °C","Both have the same volume"],1,"น้ำแข็งมีปริมาตรมากกว่าน้ำ"],
+["Water exists as solid, liquid and gas simultaneously at",["the triple point, approximately 0 °C","the tri-state point, approximately 0 °C","the tri-state point, approximately 98 °C"],0,"จุด triples point ของน้ำ ≈ 0.01°C"],
+["Material A is hotter than B after the same oven time because",["material B has a higher specific heat capacity","material A had a higher temperature before the oven","material A has a higher specific heat capacity"],0,"ความจุความร้อนจำเพาะสูงกว่า → อุณหภูมิขึ้นช้ากว่า"],
+["The thickness of a single mode fibre optic is",["200 micrometres","5 micrometres","50 micrometres"],1,"แกน single mode เล็กมาก (~5–10 µm)"],
+["Divergent light rays give rise to",["a real image","a virtual image","chromatic aberrations"],1,"รังสีถ่างกันให้ภาพเสมือน"],
+["In fibre optics the type of cable is chosen by",["matching diameter to wavelength","distance required to travel","the strength of signal needed"],1,"ระยะทางกำหนดประเภทสาย (single/multimode)"],
+["A material with gradually varying refractive index has a",["graded index","step index","single index"],0,"ดัชนีหักเหค่อย ๆ เปลี่ยน = graded index"],
+["Fibre optic cables transmit light at",["1.99 × 10^8 m/s","3 × 10^8 m/s","0.99 × 10^8 m/s"],0,"ในเส้นใย (n≈1.5) แสงเดินทาง ~2×10⁸ m/s"],
+["Step index fibres suffer from",["dispersion","scatter","attenuation"],0,"modal dispersion เป็นปัญหาหลักของ step index"],
+["Attenuated pulses have size and shape restored by",["regenerators","impedance matching transformers","opto-isolators"],0,"regenerator ฟื้นรูปสัญญาณที่อ่อนลง"],
+["Attenuation in fibre optic cables is most often caused by",["backscattering and microbends","microbends and scattering","absorption and scattering"],2,"การดูดกลืนและการกระเจิงทำให้สัญญาณลดทอน"],
+["For a concave lens the image is",["virtual","real","a chromatic orb"],0,"เลนส์เว้าให้ภาพเสมือนเสมอ"],
+["In a fibre optic flying control system",["the sensor and the transmitter require electrical power","the transmitter requires power","the sensor requires electrical power"],0,"ทั้งเซนเซอร์และตัวส่งสัญญาณยังต้องใช้ไฟฟ้า"],
+["Photons stimulated in a semiconductor to emit more photons is a",["photodiode","laser diode","LED"],1,"laser ใช้การแผ่รังสีแบบกระตุ้น (stimulated emission)"],
+["In a fibre optic flying control system, which is used?",["Single mode fibre","Multi mode fibre","Dual mode fibre"],0,"ใช้ single mode เพื่อลดการบิดเบือนสัญญาณ"],
+["A fibre optic cable attenuated at 29 dB/metre refers to",["allowable loss","the figure for power gain","the maximum cable run allowed"],0,"ค่า dB คือการสูญเสีย (loss) ที่ยอมได้"],
+["The fibre optic receiver is a",["laser diode","photodiode","light emitting diode"],1,"photodiode แปลงแสงเป็นสัญญาณไฟฟ้า"],
+["Regenerators are used in fibre optic systems to reduce",["dispersion","random emission","attenuation"],2,"ช่วยชดเชยการลดทอนของสัญญาณ"],
+["When light rays enter a medium with a different refractive index they",["change direction","reflect","change speed"],2,"ความเร็วของแสงเปลี่ยนตามตัวกลาง (ทำให้เกิดการหักเห)"],
+["A converging lens can focus light rays because",["the incoming rays are already converging","it is spherical","the light rays travel more slowly at the centre"],2,"เลนส์ตรงกลางหนากว่า แสงใช้เวลาในตัวกลางนานกว่า จึงลู่เข้า"],
+["Light enters fibre of refractive index 1.5. Speed in the cable is",["300,000 km/s","400,000 km/s","200,000 km/s"],2,"v = c/n = 300,000 ÷ 1.5 = 200,000 km/s"],
+["A mirror",["refracts all light","reflects light","absorbs a percentage of light"],1,"กระจกสะท้อนแสง"],
+["The width of a multimode fibre optic cable (including cladding) is",["1 µm","100 µm","10 µm"],1,"ขนาดรวม cladding ≈ 100–125 µm"],
+["A varying refractive index optical fibre is a",["single index","graded index","step index"],1,"ดัชนีหักเหแปรตามรัศมี = graded index"],
+["Refractive index is",["speed of light in air × speed in medium","speed of light in air ÷ speed in medium","speed in medium ÷ speed in air"],1,"n = ความเร็วในอากาศ ÷ ความเร็วในตัวกลาง"],
+["What is the speed of light in km/s?",["3000","3 × 10^8","300,000"],2,"แสง ≈ 300,000 km/s (3×10⁸ m/s)"],
+["The focal point of a mirror is",["1/2 the radius","the radius","2 × the radius"],0,"f = R/2"],
+["The speed of light in air at 0 °C is",["331 m/s","300 m/µs","331 mm/s"],1,"300 m/µs = 3×10⁸ m/s"],
+["How far will light travel in one year?",["9.46 × 10^15 m","1.5 × 10^11 m","3 × 10^15 m"],0,"1 ปีแสง ≈ 9.46×10¹⁵ m"],
+["Different signals down a fibre core are distinguished by a",["active filter","passive filter","star coupler"],1,"แยกความยาวคลื่นด้วย passive filter (WDM)"],
+["On an OTDR, attenuation is",["read from the cathode ray display","derived from a graph","dialed into the OTDR"],0,"อ่านค่าจากการแสดงผลบนจอ"],
+["In a flat mirror, the angle of reflection is",["equal to the angle of incidence","less than the angle of incidence","more than the angle of incidence"],0,"มุมสะท้อน = มุมตกกระทบ"],
+["In a multimode fibre optic cable, the",["diameter is greater than the wavelength","diameter is less than the wavelength","diameter is equal to the wavelength"],0,"แกน multimode ใหญ่กว่าความยาวคลื่นมาก"],
+["A converging lens converges light because",["it is not a sphere","the light source is already converging","light is refracted less at the centre than at the extremities"],2,"ขอบเลนส์หนาทำมุมหักเหมากกว่าตรงกลาง"],
+["Fibre cable of refractive index 1.5. Its speed is",["300 m/µs","400 m/µs","200 m/µs"],2,"v = 300 ÷ 1.5 = 200 m/µs"],
+["A material with a varying refractive index is a",["step index","single index","double index"],0,"step index มีดัชนีหักเหเปลี่ยนขั้นระหว่างแกนกับ cladding"],
+["A ray through the centre of curvature of a concave mirror is reflected",["through the focal point","through the focal point and centre of curvature","through the centre of curvature"],2,"รังสีผ่านจุดศูนย์กลางความโค้งจะสะท้อนกลับทางเดิม"],
+["The image through a divergent lens is",["Negative","Real","Virtual"],2,"เลนส์ถ่างให้ภาพเสมือน"],
+["A beam passing to a medium with different refractive index will",["total internal reflection","change speed","total internal refraction"],1,"ความเร็วเปลี่ยนเมื่อเปลี่ยนตัวกลาง"],
+["Different refractive indexes across the core diameter means",["single mode fibre","graded index fibre","step index fibre"],1,"graded index คือดัชนีหักเหไล่ระดับทั่วแกน"],
+["Light travelling from air to water is",["bent towards the normal","not bent","bent away from the normal"],0,"เข้าสู่ตัวกลางหนาแน่นขึ้น หักเหเข้าหาเส้นปกติ"],
+["Light beamed at a flat mirror reflects at the",["reflective index","angle of incidence","reactive angle"],1,"มุมสะท้อนเท่ากับมุมตกกระทบ"],
+["In a graded index multimode fibre the refractive index",["is high","varies high and low","is low"],1,"ค่าดัชนีหักเหเปลี่ยนแปลงสูง-ต่ำตามรัศมี"],
+["The fibre optic receiver is a",["photodiode","laser diode","light emitting diode"],0,"ตัวรับใช้ photodiode"],
+["The usable bandwidth of a fibre is determined by",["the wavelength of the light","the angle of total internal reflection","the intermodal dispersion"],2,"intermodal dispersion จำกัดแบนด์วิดท์"],
+["Concave mirror, image beyond centre of curvature is",["virtual, erect and larger","real, inverted and smaller","real, erect and larger"],1,"วัตถุเลย C: ภาพจริง หัวกลับ เล็กลง"],
+["The power of a lens is calculated from the",["reciprocal of the focal length","product of focal length and distance","focal length squared"],0,"กำลังเลนส์ P = 1/f (ไดออปเตอร์)"],
+["Single mode optical fibre cable will",["have several light rays to pass","have diameter matched to wavelength of light passed","cause distortion dependent on length"],0,"แกนเล็กเท่ากับความยาวคลื่น ให้โหมดเดียว"],
+["An emergent light wave entering a divergent lens",["will focus beyond the lens","will focus behind the lens","is spherical"],1,"เลนส์ถ่างให้จุดโฟกัสเสมือนอยู่ด้านหลังเลนส์"],
+["In a concave mirror, rays parallel to the axis are reflected",["through the focal point","back to the centre of curvature","parallel to the axis"],0,"รังสีขนานแกนสะท้อนผ่านจุดโฟกัส"],
+["In a concave mirror, a ray through the focal point is reflected",["through the focal point","on the centre line","parallel to the axis"],2,"รังสีผ่านโฟกัสสะท้อนขนานกับแกน"],
+["A passive sensor",["does not require power","requires power for the sensor","requires power for the transmitter"],0,"เซนเซอร์ passive ไม่ต้องใช้ไฟเลี้ยง"],
+["Refractive index is",["lower for 4 °C water than 0 °C ice","higher for diamond than acrylic","highest for water"],1,"เพชร n≈2.42 สูงกว่าอะคริลิก n≈1.49"],
+["Refractive index of cladding compared to core",["can be bigger or smaller","is always smaller","is always larger"],1,"cladding ต้องมี n ต่ำกว่าแกนเพื่อให้เกิด TIR"],
+["The ability of a fibre optic cable to carry waves depends on",["material, absorption and speed of light","internal reflection","material, diameter and absorption"],1,"อาศัยการสะท้อนกลับหมดภายใน"],
+["In spherical aberrations",["rays further from the axis focus closer to the lens, distorting the picture","rays further from the axis focus further away","rays intersect at the same point"],0,"รังสีขอบเลนส์โฟกัสใกล้เลนส์กว่ารังสีใกล้แกน"],
+["In a fibre optic flying control system",["the sensor and transmitter require electrical power","the sensor inputs to the transmitter which needs power","the sensor needs electrical power"],0,"ทั้งเซนเซอร์และ transmitter ต้องใช้ไฟฟ้า"],
+["In fibre optics, the cable type is chosen by",["the strength of signal needed","matching diameter to wavelength","distance required to travel"],2,"ระยะทางเป็นเกณฑ์เลือกชนิดสาย"],
+["When refraction takes place",["the frequency remains constant","the speed remains constant","the wavelength remains constant"],0,"ความถี่คงที่ ความเร็วและความยาวคลื่นเปลี่ยน"],
+["Light at a glass/air boundary below the critical angle",["both reflection and refraction take place","no light is reflected","total internal reflection takes place"],0,"มุมต่ำกว่ามุมวิกฤต: เกิดทั้งหักเหและสะท้อนบางส่วน"],
+["Object beyond 2F of a converging lens forms an image that is",["inverted, larger and virtual","inverted, smaller and real","erect, smaller and real"],1,"วัตถุเลย 2F: ภาพจริง หัวกลับ เล็กลง"],
+["A parabolic mirror prevents",["lateral inversion","spherical aberration","formation of a penumbra"],1,"กระจกพาราโบลาแก้ความคลาดทรงกลม"],
+["The refractive index for air is approximately",["0","1","10"],1,"อากาศ n ≈ 1.0003 ≈ 1"],
+["Total internal reflection only occurs at angles",["less than the critical angle","equal to the critical angle","greater than the critical angle"],2,"TIR ต้องมุมตกกระทบมากกว่ามุมวิกฤต"],
+["Concave mirror, object between focal point and pole gives",["real, erect and diminished","virtual and on the opposite side","real, inverted and larger"],1,"วัตถุใกล้กว่าโฟกัส: ภาพเสมือนอยู่หลังกระจก"],
+["The purpose of a patch cord with an OTDR is",["to compensate for cable contraction","to overcome the dead zone from launch connector reflection","to attenuate OTDR output power"],1,"ช่วยลด dead zone จากการสะท้อนที่หัวต่อ"],
+["The power of a lens is measured in",["Lumens per Watt","Watts","Diopters"],2,"หน่วยกำลังเลนส์คือไดออปเตอร์"],
+["For a concave lens, the image is",["real","virtual","a chromatic orb"],1,"เลนส์เว้าให้ภาพเสมือนเสมอ"],
+["Lasers use which source of light?",["Scattered","Refraction","Coherent"],2,"เลเซอร์เป็นแสงอาพันธ์ (coherent)"],
+["Illumination of one lumen per square metre is one",["luxor","lux","candle"],1,"1 lux = 1 lumen/m²"],
+["The amount of light emitted by a lamp is measured in",["candles","luxors","lumens"],2,"ปริมาณแสงที่ปล่อยออกมา = ลูเมน"],
+["The light gathering power of a lens is indicated by its",["material","thickness","focal ratio"],2,"focal ratio (f-number) บอกความสามารถรับแสง"],
+["For a converging lens to form a real image, object distance must be more than the",["focal length","5 × thickness","1 inch"],0,"วัตถุต้องอยู่ไกลกว่าความยาวโฟกัส"],
+["A ______ lens is thicker in the middle than at the edges",["converging","concave","up sharp"],0,"เลนส์นูน (converging) ตรงกลางหนากว่าขอบ"],
+["The only time a concave mirror forms a virtual image is when the object is",["at the focal point","inside the focal point","at the centre of curvature"],1,"วัตถุใกล้กว่าโฟกัส → ภาพเสมือน"],
+["A convex mirror forms a virtual image when",["the object is at the centre of curvature","the object is inside the focus","always"],2,"กระจกนูนให้ภาพเสมือนเสมอ"],
+["A concave mirror is used in",["a rear view mirror","a periscope","headlights"],2,"โคมไฟหน้าใช้กระจกเว้ารวมแสง"],
+["The projection of an object rotating at constant speed onto a plane follows a",["Sinusoidal","Lateral","Longitudinal"],0,"การฉายให้เส้นโค้งไซน์"],
+["The speed of sound in air at 0 °C is approximately",["331 m/s","3 × 10^8 m/s","181 m/s"],0,"เสียงในอากาศที่ 0°C ≈ 331 m/s"],
+["A wave meeting an equal-frequency wave from the opposite direction forms",["the two waves cancel out","no effect","a standing wave"],2,"เกิดคลื่นนิ่ง (standing wave)"],
+["Quality of sound depends upon",["pure sound waves from the source","frequency and harmonics of the waves produced","quality of the receiver"],1,"คุณภาพเสียงขึ้นกับความถี่และฮาร์มอนิก"],
+["Particles vibrating in air",["tend to give off heat","tend to give off light","produce waves"],2,"การสั่นของอนุภาคทำให้เกิดคลื่นเสียง"],
+["The fundamental frequency is the",["1st harmonic","2nd harmonic","3rd harmonic"],0,"ความถี่มูลฐาน = ฮาร์มอนิกที่ 1"],
+["The first overtone of a sound wave is the",["1st harmonic","2nd harmonic","fundamental frequency"],1," overtone แรก = ฮาร์มอนิกที่ 2"],
+["Two pure tones of similar frequency heard together produce",["one pure tone","a beat of the two tones","two tones"],1,"ความถี่ใกล้เคียงกันเกิดบีตส์"],
+["Two waves of same frequency and amplitude half a wavelength out of phase give",["Nothing","Twice the volume","Half the volume"],0,"หักล้างกันหมด (destructive interference)"],
+["A fire engine approaches and passes you. Its pitch",["stays the same","increases","decreases"],2,"ผ่านไปแล้วความถี่ปรากฏลดลง (Doppler)"],
+["Quality of sound is dependant on",["number and pitch of harmonics","the medium","frequency of the supply"],0,"จำนวนและระดับของฮาร์มอนิกกำหนดคุณภาพเสียง"],
+["A tone 4 times the fundamental frequency is the",["2nd overtone","3rd overtone","3rd harmonic"],1,"4f = ฮาร์มอนิกที่ 4 = overtone ที่ 3"],
+["Intensity of sound waves",["is not affected by distance","varies inversely as the square of distance","varies directly with distance"],1,"ความเข้มแปรผกผันกับระยะกำลังสอง"],
+["In a standing wave, maximum amplitude vibration occurs at the",["harmonic","anti-node","node"],1,"ปฏิบัพ (anti-node) คือจุดสั่นมากสุด"],
+["Sounds below 20 Hz are called",["ultra sound","infra sound","sonic pitch"],1,"ต่ำกว่าที่หูได้ยิน = infrasound"],
+["Speed of sound in dry air is 331 m/s. In a solid it would",["increase","decrease","stay the same"],0,"เสียงเดินทางในของแข็งได้เร็วกว่า"],
+["A tuning fork rotated about its vertical axis gives no sound how many times per rotation?",["2","4","Sound is audible for the whole revolution"],1,"มีทิศดับ 4 ทิศต่อรอบจากการแทรกสอด"],
+["A siren pitch dropping as it passes is the",["Resonance","Doppler effect","Echo"],1,"ปรากฏการณ์ดอปเพลอร์"],
+["Noise cancelling headphones operate by",["cannot reduce noise completely","destructive interference of sound waves","constructive interference of sound waves"],1,"สร้างคลื่นตรงข้ามเพื่อหักล้างเสียง"],
+["Tuning forks are used to tune instruments because",["they produce both effects","they produce a beat with the instrument","they produce a pure note"],2,"ส้อมเสียงให้โน้ตบริสุทธิ์"],
+["When an open pipe is played",["the lowest frequency is the second harmonic","resonance occurs with standing waves inside the pipe","there is a 180° phase change at the open end"],1,"เกิดคลื่นนิ่งจากการกำทอนในท่อ"],
+["Two sound waves the same but slightly out of phase means",["the beat frequency is the same","there will be no beat frequency","the beat frequency will be slightly different"],2,"เฟสต่างกันเล็กน้อยให้ความถี่บีตส์ต่างกันเล็กน้อย"],
+["In a vibrating string, the point of no displacement is a",["antinode","node","fundamental mode"],1,"บัพ (node) คือจุดไม่สั่น"],
+["The amplitude of a transverse wave is the distance from",["top of peak to bottom of trough","half the distance from peak to trough","one peak to the next"],1,"แอมพลิจูด = ครึ่งหนึ่งของระยะยอดถึงท้องคลื่น"],
+["Increasing the amplitude of a sound wave increases its",["pitch","moment","loudness"],2,"แอมพลิจูดมาก → เสียงดังขึ้น"],
+["A wave with vibrations perpendicular to travel direction is a",["Dispersion Wave","Longitudinal Wave","Transverse Wave"],2,"คลื่นตามขวาง: สั่นตั้งฉากทิศเดินทาง"],
+["When a string vibrates, maximum displacement occurs at the",["node","antinode","primary node"],1,"ปฏิบัพ (anti-node)"],
+["Increasing the frequency of a sound wave increases its",["pitch","loudness","moment"],0,"ความถี่สูง → เสียงแหลม (pitch เพิ่ม)"],
+["A wave with vibrations parallel to travel direction is a",["Transverse Wave","Upright Wave","Longitudinal Wave"],2,"คลื่นตามยาว: สั่นขนานทิศเดินทาง"],
+["A string vibrating at the 3rd harmonic oscillates at",["fundamental frequency","4 times fundamental","3 times fundamental"],2,"ฮาร์มอนิกที่ 3 = 3 เท่าของความถี่มูลฐาน"],
+["The varying pitch of a passing train is the",["Doppler effect","double frequency","resonance"],0,"ปรากฏการณ์ดอปเพลอร์"],
+["Wavelength is",["distance from trough to crest","distance between crests","distance between top and bottom"],1,"ความยาวคลื่น = ระยะระหว่างยอดที่ติดกัน"],
+["The speed of sound at standard temperature and pressure is",["34 km/s","340 m/s","340 km/s"],1,"≈ 340 m/s ที่ STP"],
+["In which medium does sound travel fastest?",["Steel","Air","Water"],0,"ของแข็งหนาแน่นยืดหยุ่นสูง เสียงจึงเร็วสุด"],
+["What most affects the speed of sound in air?",["Temperature","Wavelength","Frequency"],0,"อุณหภูมิมีผลต่อความเร็วเสียงมากสุด"],
+["Fundamental frequency 10 Hz. The 2nd harmonic is",["10 Hz","20 Hz","20 kHz"],1,"ฮาร์มอนิกที่ 2 = 2 × 10 = 20 Hz"],
+["An example of a longitudinal wave is a",["Sound Wave","Radio Wave","Light Wave"],0,"เสียงเป็นคลื่นตามยาว"],
+["Wavelength of 1 kHz at velocity 340 m/s?",["0.34 m","3.4 m","0.34 km"],0,"λ = v/f = 340 ÷ 1000 = 0.34 m"],
+["A body drops from 10 m. It hits the ground in",["1 second","2 seconds","√2 seconds"],2,"t = √(2h/g) = √(20/10) = √2 s"],
+["What height of water equals 1 atmosphere?",["29 ft","33 ft","101 ft"],1,"1 atm ≈ คอลัมน์น้ำสูง 10.3 m ≈ 33 ft"],
+["10 BTU is equivalent to",["570 Joules","10,550 Joules","63,560 Joules"],1,"10 × 1055 = 10,550 J"],
+["What does 'temperature of a body' mean?",["Its hotness","How it radiates heat","Its ability to retain heat"],0,"อุณหภูมิบอกความร้อน/เย็นของวัตถุ"]
+];
+
+/* ================= ตัวแปรสถานะ ================= */
+let quiz=[], userAnswers=[], submitted=false, currentFilter="all";
+
+const $=id=>document.getElementById(id);
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+/* สร้างชุดข้อสอบใหม่: สุ่มลำดับข้อ + สุ่มตัวเลือก */
+function buildQuiz(){
+  quiz=DATA.map(d=>({q:d[0],opts:[...d[1]],ans:d[2],exp:d[3]}));
+  shuffle(quiz);
+  quiz.forEach(q=>{
+    const correctText=q.opts[q.ans];
+    shuffle(q.opts);
+    q.ans=q.opts.indexOf(correctText);
+  });
+  userAnswers=new Array(quiz.length).fill(null);
+  submitted=false;
+  currentFilter="all";
+}
+
+/* เรนเดอร์ข้อสอบ */
+function render(){
+  const box=$("quiz");
+  box.innerHTML="";
+  quiz.forEach((q,qi)=>{
+    const card=document.createElement("div");
+    card.className="qcard";
+    card.id="card-"+qi;
+    let optsHtml="";
+    q.opts.forEach((opt,oi)=>{
+      optsHtml+=`
+      <label class="opt" id="opt-${qi}-${oi}">
+        <input type="radio" name="q${qi}" value="${oi}" ${userAnswers[qi]===oi?"checked":""}>
+        <span>${String.fromCharCode(65+oi)}. ${opt}</span>
+      </label>`;
+    });
+    card.innerHTML=`
+      <div class="qno">ข้อที่ ${qi+1} / ${quiz.length}</div>
+      <div class="qtext">${q.q}</div>
+      ${optsHtml}
+      <div class="explain hidden" id="exp-${qi}"></div>`;
+    box.appendChild(card);
+    card.querySelectorAll("input").forEach(inp=>{
+      inp.addEventListener("change",()=>{
+        if(submitted)return;
+        userAnswers[qi]=parseInt(inp.value);
+        updateProgress();
+      });
+    });
+  });
+  updateCounts();
+  updateProgress();
+}
+
+/* อัปเดตตัวเลขจำนวนข้อ + ความคืบหน้า (อัตโนมัติจากข้อมูล) */
+function updateCounts(){
+  const total=quiz.length;
+  $("totalCount1").textContent=total;
+  $("totalCount2").textContent=total;
+  $("totalCount3").textContent=total;
+}
+
+function updateProgress(){
+  const answered=userAnswers.filter(a=>a!==null).length;
+  $("answeredCount").textContent=answered;
+  $("progBar").style.width=(quiz.length?answered/quiz.length*100:0)+"%";
+}
+
+/* ส่งคำตอบ + คำนวณคะแนน */
+function submit(){
+  const answered=userAnswers.filter(a=>a!==null).length;
+  if(answered<quiz.length){
+    if(!confirm(`คุณยังตอบไม่ครบ (${answered}/${quiz.length} ข้อ)\nข้อที่ไม่ได้ตอบจะถือว่าผิด — ต้องการส่งเลยหรือไม่?`))return;
+  }
+  submitted=true;
+  let correct=0;
+  quiz.forEach((q,qi)=>{
+    const card=$("card-"+qi);
+    const user=userAnswers[qi];
+    const isCorrect=user===q.ans;
+    if(isCorrect)correct++;
+    card.classList.add(isCorrect?"is-correct":"is-wrong");
+    card.dataset.result=isCorrect?"correct":"wrong";
+    /* ไฮไลต์ตัวเลือก */
+    q.opts.forEach((_,oi)=>{
+      const el=$(`opt-${qi}-${oi}`);
+      el.querySelector("input").disabled=true;
+      if(oi===q.ans)el.classList.add("correct");
+      else if(oi===user)el.classList.add("wrong");
+    });
+    /* เฉลย + คำอธิบาย */
+    const exp=$("exp-"+qi);
+    exp.classList.remove("hidden");
+    exp.innerHTML=`
+      <span class="tag ${isCorrect?"ok":"no"}">${isCorrect?"✅ ถูกต้อง":"❌ ผิด"}</span>
+      &nbsp;เฉลย: <b>${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}</b>
+      ${user===null?" <i>(ไม่ได้ตอบ)</i>":""}
+      <br><span style="color:var(--muted)">💡 ${q.exp}</span>`;
+  });
+
+  const total=quiz.length;
+  const wrong=total-correct;
+  const pct=total?Math.round(correct/total*100):0;
+
+  $("scoreText").textContent=pct+"%";
+  const bar=$("scoreBar");
+  bar.className="bar-inner "+(pct>=80?"bar-green":pct>=60?"bar-yellow":"bar-red");
+  bar.style.width=pct+"%";
+  $("scoreText").style.color=pct>=80?"var(--green)":pct>=60?"var(--yellow)":"var(--red)";
+  $("correctCount").textContent=correct;
+  $("wrongCount").textContent=wrong;
+  $("fAll").textContent=total;
+  $("fCorrect").textContent=correct;
+  $("fWrong").textContent=wrong;
+
+  $("resultBox").style.display="block";
+  $("submitBtn").textContent="🔄 ทำใหม่";
+  window.scrollTo({top:0,behavior:"smooth"});
+  applyFilter("all");
+}
+
+/* กรองข้อ ถูก/ผิด */
+function applyFilter(f){
+  currentFilter=f;
+  document.querySelectorAll(".fbtn").forEach(b=>b.classList.toggle("active",b.dataset.f===f));
+  quiz.forEach((_,qi)=>{
+    const card=$("card-"+qi);
+    const res=card.dataset.result;
+    card.classList.toggle("hidden",!(f==="all"||f===res));
+  });
+}
+
+/* ทำใหม่: รีเซ็ต + สุ่มใหม่ทั้งหมด */
+function retry(){
+  buildQuiz();
+  render();
+  $("resultBox").style.display="none";
+  $("submitBtn").textContent="ส่งคำตอบ";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* เหตุผลของปุ่ม */
+$("submitBtn").addEventListener("click",()=>{
+  if(submitted)retry(); else submit();
+});
+$("retryBtn").addEventListener("click",retry);
+document.querySelectorAll(".fbtn").forEach(b=>b.addEventListener("click",()=>applyFilter(b.dataset.f)));
+
+/* เริ่มต้น */
+buildQuiz();
+render();
+</script>
+</body>
+</html>
