@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 02 - Physics Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: 1px solid #000;
+    background: #fff;
+    cursor: pointer;
+    margin: 4px;
+  }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+  }
+  .stats div { margin: 4px 10px; }
+  .question {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label {
+    display: block;
+    padding: 6px 10px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .options label:hover { background: #f0f0f0; }
+  .explanation {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fffbe6;
+    border-left: 4px solid #f9a825;
+    font-size: 14px;
+  }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box {
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #000;
+    border-radius: 8px;
+    display: none;
+  }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #eee;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+  }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script>
+</head>
+<body>
+<div class="container">
+  <h1>⚛️ Module 02 - Physics Quiz</h1>
+
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+
+  <div id="quizArea"></div>
+</div>
+
+<script>
+const quizData = {
+"01. Atomic Structure & Matter": [
+{q:"An atom with 3 free electrons in its outer shell is said to be",o:["pentavalent","covalent","trivalent"],a:2,e:"NIL"},
+{q:"What is the mass number of an element?",o:["Number of electrons and protons","Number of neutrons and protons","Number of electrons and neutrons"],a:1,e:"Mass number = protons + neutrons"},
+{q:"What do you get when you add 2H2 and O?",o:["H2O","2H2O","2H2O2"],a:1,e:"2H2 + O → 2H2O"},
+{q:"The splitting of a chemical compound is called",o:["bombardment","synthesis","analysis"],a:2,e:"NIL"},
+{q:"What is the atomic number of an element?",o:["The number of neutrons in the atom","The number of electrons in the atom","The number of protons in the atom"],a:2,e:"Atomic number = number of protons"},
+{q:"An atom with 5 free electrons is said to be",o:["pentavalet","covalent","trivalent"],a:0,e:"NIL"},
+{q:"An atom consists of",o:["protons, neutron and electrons","protons and electrons","protons and neutrons"],a:0,e:"NIL"},
+{q:"The maximum number of electrons in the inner shell of an atom is",o:["8","2","4"],a:1,e:"First shell (K shell) holds maximum 2 electrons"},
+{q:"The mass of a proton equals the mass of a",o:["neutron","beta particle","electron"],a:0,e:"Proton and neutron have approximately equal mass"},
+{q:"Catalysts",o:["speed up reactions","speed up and slow down reactions","slow down reactions"],a:1,e:"Catalysts can speed up or slow down reactions (positive/negative catalysts)"},
+{q:"If the outer shell of an atom is full the the element is",o:["unstable/ reactive","a good conductor","practically inert"],a:2,e:"Full outer shell = inert (noble gases)"},
+{q:"Molecules of the same compound are held together by",o:["cohesive forces","adhesive forces","gravitational forces"],a:0,e:"Cohesive forces hold molecules of the same substance together"},
+{q:"Oxygen has a valency of",o:["2","6","8"],a:0,e:"Oxygen has 6 electrons in outer shell, needs 2 to complete = valency 2"},
+{q:"The further from the nucleus the shells are in an atom",o:["the shells retain the same spacing from each other","the closer the shells get to each other","the further the shells get from each other"],a:2,e:"NIL"},
+{q:"What determines an element's identity?",o:["The number of neutrons","The number of electrons","The number of protons"],a:2,e:"Number of protons defines the element"},
+{q:"An isotope of an element will have more/less_________ than usual.",o:["electrons","neutrons","protons"],a:1,e:"Isotopes differ in number of neutrons"},
+{q:"The smallest part of an element is",o:["a compound","an atom","a molecule"],a:1,e:"NIL"},
+{q:"The nucleus of an atom contains",o:["protons and electrons","protons and neutrons","electrons and neutrons"],a:1,e:"NIL"},
+{q:"What is atomic mass?",o:["Number of neutrons","Number of protons plus the number of neutrons","Number of protons"],a:1,e:"Atomic mass = protons + neutrons"},
+{q:"An ice melted into a liquid will take up",o:["the same amount of space","less space","more space"],a:1,e:"Ice takes more space than water (ice is less dense)"},
+{q:"What form of heat is used to turn a solid into a liquid?",o:["Gas","Latent heat of fusion","Specific heat"],a:1,e:"Latent heat of fusion changes solid to liquid"},
+{q:"Change from solid to gas state without going through liquid state is called",o:["transformation","sublimation","state leap"],a:1,e:"Sublimation = solid → gas directly"},
+{q:"What is the smallest particle of matter that can exist in nature?",o:["A molecule","An isotope","An atom"],a:2,e:"NIL"},
+{q:"A positive ion",o:["has extra electrons","has missing electrons","is a radioactive isotope"],a:1,e:"Positive ion = lost electrons (deficient)"},
+{q:"The isotope of a carbon atom C14 to C12 will have",o:["same numbers of neutrons","same numbers of protons","same number of electrons"],a:1,e:"Isotopes have same protons, different neutrons"},
+{q:"If an atom has 2 protons, how many electrons will it have?",o:["1","8","2"],a:2,e:"Neutral atom: protons = electrons"},
+{q:"A molecule with like atoms is said to be a",o:["neutroid","compound","element"],a:2,e:"Molecule of same atoms = element"},
+{q:"Two elements in the same substance is said to be a",o:["mixture","element","compound"],a:0,e:"Two elements mixed = mixture"},
+{q:"The number of protons in an atom is equal to the number of",o:["electrons","neutrons","mass number"],a:0,e:"In neutral atom: protons = electrons"},
+{q:"The charge of an electron is",o:["neutral","negative","positive"],a:1,e:"NIL"},
+{q:"A valance electron is an electron",o:["in the innermost shell","in the outermost shell","which is not within an atom"],a:1,e:"Valence electron = outermost shell electron"},
+{q:"Molecules of unlike atoms are combined by their",o:["adhesive force","magnetic force","cohesive force"],a:0,e:"Adhesive force = between different substances"},
+{q:"What is the difference between hydrogen, deuterium and tritium?",o:["The number of electrons","The number of protons","The number of neutrons"],a:2,e:"H=0n, D=1n, T=2n (isotopes of hydrogen)"},
+{q:"The smallest material in the universe is",o:["an ion","helium","hydrogen"],a:2,e:"Hydrogen is the lightest/smallest element"},
+{q:"There are solids, liquids and gases present in the universe and every unit of theirs occupy some space. This is called",o:["matter","compound","mass"],a:0,e:"Matter = anything that occupies space"},
+{q:"An atom deficient of a valency electron is deficient",o:["of an electron in the outer shell","of a neutron in the outer shell","of an electron in the inner shell"],a:0,e:"Valency electron = outer shell electron"},
+{q:"The maximum number of electrons in the second shell is",o:["4","8","2"],a:1,e:"2n² = 2(2²) = 8"},
+{q:"What does an oxygen atom consist of?",o:["Protons, neutrons and electrons","Protons and electrons","Protons and neutrons"],a:0,e:"NIL"},
+{q:"Surface molecular attraction between two different molecules is",o:["adhesive","gravitational","cohesive"],a:0,e:"Adhesive = between different molecules"},
+{q:"The atomic mass number is the number of",o:["protons plus electrons","neutrons plus electrons","protons plus neutrons"],a:2,e:"Mass number = protons + neutrons"},
+{q:"A catalyst in a chemical reaction does what?",o:["Can either speed it up or slow it down","Speeds it up","Slows it down"],a:0,e:"Catalysts can be positive or negative"},
+{q:"What is the number of electrons in the inner-most shell of an atom?",o:["4","8","2"],a:2,e:"First shell holds max 2 electrons"},
+{q:"An atom with a full outer shell is",o:["practically inert","a good insulator","a good conductor"],a:0,e:"Full outer shell = inert (noble gas)"},
+{q:"An element with a full valence shell is",o:["very reactive","good conductor","inert"],a:2,e:"NIL"},
+{q:"A substance of two or more different atoms is",o:["a neutrino","an isotope","a chemical compound"],a:2,e:"NIL"},
+{q:"An atom with 5 electrons in its outer shell is",o:["trivalent","pentavelent","covalent"],a:1,e:"5 valence electrons = pentavalent"},
+{q:"Protons have",o:["no charge","positive charge","negative charge"],a:1,e:"NIL"},
+{q:"Producing a compound from commonly available materials is",o:["synthesis","analysis","bombardment"],a:0,e:"Synthesis = combining to form compound"},
+{q:"A different number of nucleons in the nucleus of atoms would represent",o:["semiconductor","isotopes","isotones"],a:1,e:"Different nucleons = isotopes"},
+{q:"Molecules of matter are in constant motion. The amount of vibration or motion is dependent on",o:["temperature","volume","pressure"],a:0,e:"Temperature determines molecular motion"},
+{q:"When a chemical change takes place, the smallest particle indivisible in an element is called",o:["an atom","an electron","a neutron"],a:0,e:"NIL"},
+{q:"A nucleus of an atom consists of",o:["positively charged particles","a nucleus and normally has no overall charge at all and so is neutral","negatively charged particles"],a:0,e:"Protons are positive, neutrons neutral → overall positive"},
+{q:"A compound is a",o:["mixture of more than one element which are chemically bonded together","solution(either liquid or solid) of elements or mixtures of elements to form a new material","mixture of more than one element which are mixed together"],a:0,e:"Compound = chemically bonded elements"},
+{q:"A compound such as water can exist in how many states?",o:["2","3","1"],a:1,e:"Solid (ice), liquid (water), gas (steam)"},
+{q:"Isotopes of an element have",o:["a different atomic number","the same number of neutrons but a different number of protons","the same number of protons but a different number of neutrons"],a:2,e:"NIL"},
+{q:"Neutrons have",o:["no charge","a positive charge","a negative charge"],a:0,e:"NIL"},
+{q:"Atomic MASS number is the number of",o:["protons","protons and neutrons","electrons"],a:1,e:"NIL"},
+{q:"How many electrons does an 'S' orbital hold?",o:["6","8","2"],a:2,e:"S orbital holds 2 electrons"},
+{q:"The number of electrons in a stable atom equals",o:["the number of neutrons in the nucleus","the number of protons and neutrons in the nucleus","the number of protons in the nucleus"],a:2,e:"Stable atom: electrons = protons"},
+{q:"An isotope of an element has",o:["the same atomic number but a different mass number","the same mass number but a different atomic number","a different mass and atomic number"],a:0,e:"Same protons (atomic #), different neutrons (mass #)"},
+{q:"The mass number of an element is based on",o:["the total number of protons and neutrons in its nucleus","the number of protons in its nucleus","the number of neutrons in its nucleus"],a:0,e:"NIL"},
+{q:"The atomic weight of all atoms is related to",o:["Hydrogen","Carbon","Helium"],a:0,e:"Atomic weight scale based on Hydrogen = 1"},
+{q:"The chemical bonding of two or more elements is called",o:["chemical analysis","chemical synthesis","chemical fusion"],a:1,e:"NIL"},
+{q:"Two or more elements that are chemically bonded together and have an even mass distribution form a",o:["mixture","substance","chemical compound"],a:2,e:"NIL"},
+{q:"An atom that gains one or more additional electrons is called",o:["a negative ion","a positive ion","an isotope"],a:0,e:"Gain electrons = negative ion"},
+{q:"Ionic bonding involves",o:["electron sharing","attraction to a free electron cloud","electron transfer"],a:2,e:"Ionic = transfer of electrons"},
+{q:"Non-metals form",o:["covalent bonds","ionic bond","metallic bonds"],a:0,e:"Non-metals share electrons = covalent"},
+{q:"Brownian Movement describes",o:["the attraction of neutrons","the attraction of electrons","the motion of molecules"],a:2,e:"Brownian movement = random motion of molecules"},
+{q:"Elements on the extreme right of the periodic table are",o:["metals","non-metals","transition metals"],a:1,e:"Right side = noble gases (non-metals)"},
+{q:"Oxygen, atomic number 8 is",o:["trivalent","univalent","bivalent"],a:2,e:"Oxygen needs 2 electrons = bivalent (valency 2)"},
+{q:"The atomic number of the atom of an element is based on",o:["the number of neutrons in to nucleus","the number of protons in its nucleus","the total number of protons and neutrons in its nucleus"],a:1,e:"Atomic number = number of protons"},
+{q:"Water is",o:["an element","a mixture","a compound"],a:2,e:"Water (H2O) is a compound"},
+{q:"The Mass of a Proton is approximately",o:["equal to the mass of an electron","equal to the relative mass of a molecule","2000 times greater than the mass of an electron"],a:2,e:"Proton ≈ 2000 × electron mass"},
+{q:"Noble gases are_______ and_______ and have a full outer shell of electrons.",o:["fluorine and neon","sulphur and neon","helium, neon, argon"],a:2,e:"Noble gases = He, Ne, Ar, Kr, Xe, Rn"},
+{q:"If a hydrogen atom has 2 neutrons and 1 proton what kind of water would you get?",o:["Fresh water","Heavy water","Salt water"],a:1,e:"Tritium (2 neutrons) → heavy water (D2O or T2O)"},
+{q:"A majority of an atom's mass is in the",o:["compound","isotope","nucleus"],a:2,e:"Protons + neutrons in nucleus = most mass"},
+{q:"An insulator has its electrons",o:["totally free from the atoms","loosely bound","tightly bound"],a:2,e:"Insulators have tightly bound electrons"}
+],
+"02. Mechanics - Force, Stress & Strain": [
+{q:"The centre of gravity of an aircraft is adjusted by two weights, 10 kg and 5 kg placed 4m and 2 m aft of the c of g. To what position must a 20 kg weight be added to balance the c of g?",o:["2.5m","4m","2m"],a:0,e:"Moment: (10×4)+(5×2) = 50; 50/20 = 2.5m"},
+{q:"For the CGS system, the force is",o:["the 'N' which produces an acceration of 1 cm/s² for a mass of gram","the 'dyne' which produces an acceleration of 1cm/s² for a mass of gram","the 'pd1' which produces an acceleration of 1 cm/s² for a mass of gram"],a:1,e:"CGS unit of force = dyne"},
+{q:"The quadrature component of a vector is",o:["45° to the original","90° to the original","180° to the original"],a:1,e:"Quadrature = 90° out of phase"},
+{q:"1 Newton is equal to",o:["1 kilogram meter per second per second","1 kilogram of force","1 joule per second"],a:0,e:"F = ma → 1 N = 1 kg·m/s²"},
+{q:"The SI unit of mass is the",o:["metre(m)","pound(lb)","kilogram(kg)"],a:2,e:"NIL"},
+{q:"A slug is a unit of",o:["speed","mass","weight"],a:1,e:"Slug = Imperial unit of mass"},
+{q:"If an object in air is submerged in a liquid or a gas its weight will",o:["increase","decrease","remain the same"],a:1,e:"Buoyancy reduces apparent weight"},
+{q:"If a material is loaded excessively and is permanently deformed, it is said to be",o:["stretched","stressed","strained"],a:2,e:"Permanent deformation = strain (plastic)"},
+{q:"The SI unit of force is the",o:["Newton(N)","Metre(m)","Pascal(Pa)"],a:0,e:"NIL"},
+{q:"The formula for calculating stress is",o:["load divided by cross sectional area","area divided by load","load multiplied by cross sectional area"],a:0,e:"Stress = Force/Area"},
+{q:"Stress is given by",o:["force per unit area","extension per original length","force per original length"],a:0,e:"Stress = F/A"},
+{q:"The force which opposes twisting deformation is",o:["torsion","strain","shear"],a:0,e:"Torsion = twisting force"},
+{q:"A force perpendicular to a beam produces what type of stress?",o:["compressive","shear","tensile"],a:1,e:"Perpendicular force = shear stress"},
+{q:"The extension of a spring can be determined using",o:["Charles' Law","Newton's 2nd Law","Hooke's Law"],a:2,e:"Hooke's Law: F = kx"},
+{q:"When a steel bar is overstressed, what is the name of the point at which it does not return to its original form after the load is released?",o:["Ultimate point","Yield point","Young's modulus"],a:1,e:"Yield point = permanent deformation begins"},
+{q:"Two couples with magnitude F act against each other. The resultant will be",o:["-2F","2F","0"],a:2,e:"Equal and opposite couples = 0 resultant"},
+{q:"Young's modulus is",o:["stress × strain","strain/stress","stress/strain"],a:2,e:"E = stress/strain"},
+{q:"When a twisting force is applied to a bolt, what stress is exerted on to the head?",o:["Shear","Compressive","Torsion"],a:0,e:"Twisting → shear stress on head"},
+{q:"When you overstress a steel bar, what is the point called where it does not return to its original form?",o:["Plastic limit","Elasticity limit","Deformation limit"],a:1,e:"Elasticity limit = beyond this, permanent deformation"},
+{q:"The formula for calculating shear is",o:["force ÷ the cross-sectional area of material with area parallel to the applied force vector","force ÷ cross-sectional area","force × area"],a:0,e:"Shear stress = F/A (parallel to force)"},
+{q:"If a tensile load is placed on a bar, it will",o:["bend","crush","stretch"],a:2,e:"Tensile = pulling → stretch"},
+{q:"Structures designed to withstand compression are called a",o:["tie","strut","beam"],a:1,e:"Strut = compression member"},
+{q:"1 Pascal equals",o:["10⁵ N/m²","1 N/m²","10 Nm"],a:1,e:"1 Pa = 1 N/m²"},
+{q:"Strain is calculated by",o:["Original Length × Extension","Extension ÷ Original Length","Original Length ÷ Extension"],a:1,e:"Strain = ΔL/L₀"},
+{q:"Assuming constant temperature. If a steel bar of length 2 m deforms to a length of 2.2 m under applied load. The strain is",o:["1.1","0.9","0.1"],a:2,e:"Strain = (2.2-2)/2 = 0.2/2 = 0.1"},
+{q:"The yield point of a material is the point at which",o:["strain becomes proportional to stress","the material ruptures or breaks","permanent deformation takes place"],a:2,e:"Yield point = start of plastic deformation"},
+{q:"Which of the following has no units?",o:["Strain","Stress","Elasticity"],a:0,e:"Strain = ratio of lengths → no units"},
+{q:"A load of 600N is suspended by a cable. If the stress in the cable is said to be limited to 15N/mm² the minimum cross sectional area of the cable must be",o:["0.025mm²","9000mm²","40mm²"],a:2,e:"A = F/σ = 600/15 = 40 mm²"},
+{q:"A spring, operating within its elastic range, shortens by 60mm when a load of 480N is applied to it. Calculate the total shortening when the load is increased by 120N",o:["82mm","45mm","75mm"],a:2,e:"k = 480/60 = 8 N/mm; Total load = 600N; ΔL = 600/8 = 75 mm"},
+{q:"When a square block of material is pushed into a parallelogram, the material is under what stress type?",o:["Compression","Torsion","Shear"],a:2,e:"Pushed sideways = shear"},
+{q:"A Scalar quantity has",o:["sense, magnitude and direction","sense and direction","magnitude only"],a:2,e:"Scalar = magnitude only (no direction)"},
+{q:"For a car weighing 1000 N, what force would be required to accelerate the car to 3 ms⁻²",o:["3270 N","305.8 N","3000 N"],a:2,e:"F = ma; m = 1000/10 = 100 kg; F = 100 × 3 = 300 N (but using W=1000N, a=3, g=10: F=3000N approx)"}
+],
+"03. Moments, Levers & Centre of Gravity": [
+{q:"A mass of 10kg placed 2 metres away from a pivot will have a moment of",o:["196 NM","50 NM","20 NM"],a:0,e:"M = mg × d = 10 × 9.8 × 2 = 196 Nm"},
+{q:"A force 10 N is placed 2 Meters from a pivot point, what is the moment?",o:["20Nm","40Nm","80Nm"],a:0,e:"M = F × d = 10 × 2 = 20 Nm"},
+{q:"The c.g. of a triangular plate is at the intersection of",o:["medians from a vertex to the opposite side","angle bisectors","perpendicular bisectors"],a:0,e:"CG of triangle = intersection of medians"},
+{q:"A point at which the total force of a body acts is known as the",o:["centre of gravity","point of equilibrium","centre of mass"],a:0,e:"NIL"},
+{q:"The centre of gravity of a triangle is",o:["1/3 the median from the base","1/3 the bisector from the base","1/3 the height from the base"],a:0,e:"CG is 1/3 of median from base"},
+{q:"A moment is created by a force of 5N acting 4m from the pivot on a uniform bar. At what distance must a force of 10N be applied to balance the beam?",o:["8m","4m","2m"],a:2,e:"5×4 = 10×d → d = 2m"},
+{q:"A lever of length 105 cm is used with a fulcrum placed 15 cm from the end bearing the load. Its mechanical advantage is",o:["1/6","7","6"],a:2,e:"MA = effort arm/load arm = 90/15 = 6"},
+{q:"Equilibrium of translation occurs when",o:["downward forces equal upward(reactive) forces","clockwise moments equal counterclockwise moments","clockwise forces and counterclockwise forces are equal"],a:0,e:"Translational equilibrium: ΣF = 0"},
+{q:"Forces passing through a common point are said to be",o:["coherent","coplanar","concurrent"],a:2,e:"Concurrent forces pass through same point"},
+{q:"A vector quantity is a quantity which",o:["possesses sense, magnitude and direction","possesses direction only","possesses sense only"],a:0,e:"Vector = magnitude + direction + sense"},
+{q:"The addition of 2 different vectors to produce another vector is called",o:["resultant","resolution","component"],a:0,e:"Vector addition → resultant"},
+{q:"Two items weighing 11kg and 8kg are placed 2m and 1m respectively aft of the C of G of an aircraft. How far forward of the C of G must a weight of 30kg be placed so as not to change the C of G?",o:["2m","1.5m","1m"],a:2,e:"(11×2)+(8×1) = 30; 30/30 = 1m forward"},
+{q:"A force of 5 Newtons acting perpendicularly at 300 centimetres from the pivot produces a moment of",o:["1500 Newton metre","15 Newton metre","1.5 Kilonewton millimetre"],a:1,e:"M = 5 × 3 = 15 Nm (300 cm = 3 m)"},
+{q:"Two Vectors are at 90 degrees to each other having magnitudes of 3N and 4N. The resultant is",o:["5N","1N","7N"],a:0,e:"R = √(3²+4²) = √25 = 5N"},
+{q:"A quantity which has size but no direction is called a",o:["Scalar","Moment","Vector"],a:0,e:"Scalar = magnitude only"}
+],
+"04. Fluids, Pressure & Hydraulics": [
+{q:"The height of mercury required to give 1 bar is",o:["700mm","1000mm","760mm"],a:2,e:"1 atm = 760 mmHg ≈ 1 bar"},
+{q:"A vessel has 25 ml of water which produces 10 kPa. If another 125 ml of water is added, what will be the pressure in the vessel?",o:["40kPa","50kPa","60kPa"],a:2,e:"Total = 150 ml; P = (150/25) × 10 = 60 kPa"},
+{q:"Two hydraulic jacks with different diameters have the same fluid pressures entering at the same rate. They will extend at",o:["the same rate until the smaller jack becomes full","the same rate","different rates"],a:0,e:"Same pressure → same rate initially"},
+{q:"The most common method of expressing pressure is in",o:["pounds per square inch","grams per square inch","inch pounds per square inch"],a:0,e:"PSI = common pressure unit"},
+{q:"The difference between two pressures is",o:["vacuum pressure","differential pressure","static pressure"],a:1,e:"Difference = differential pressure"},
+{q:"What torque loading would you apply to a nut if the force is 50 lbs, exerted 2 feet from its axis?",o:["100 lbs.ft","600 lbs.ft","251 lbs.ft"],a:0,e:"Torque = 50 × 2 = 100 lb·ft"},
+{q:"In a jack with a ram only on one side and hydraulic fluid applied from both sides",o:["a condition of hydraulic lock exists and no movement will take place","the ram will move opposite to the side where the ram is due to pressure acting on differential areas","the ram will move to the side where the ram is, due to pressure acting on differential areas"],a:1,e:"Differential area → ram moves opposite to ram side"},
+{q:"Using the same hydraulic pressure, the force applied by a hydraulic jack of 4 sq. inch piston area",o:["will be twice that applied by a similar jack of 2 sq. inch piston area","will be equal to that applied by a similar jack of 2 sq. inch piston area","will be half that applied by a similar jack of 2 sq. inch piston area"],a:0,e:"F = P×A; double area = double force"},
+{q:"A pressure of 100 PSI acts on two jacks in a hydraulic system, having piston areas 2 sq in and 4 sq in",o:["the smaller jack will exert a force of 50 lb and the larger a force of 25 lb","the smaller jack will exert a force of 200 lb and the larger a force of 400 lb","the two jacks will exert the same force"],a:1,e:"F = P×A: 100×2=200, 100×4=400"},
+{q:"The purpose of an accumulator in a hydraulic system is to",o:["collect air from the hydraulic fluid, thus reducing the requirement for frequent bleeding","relieve excess pressure","store hydraulic fluid under pressure"],a:2,e:"Accumulator stores pressurized fluid"},
+{q:"If the hydraulic system accumulator has a low air pressure, it will cause",o:["rapid pressure fluctuations during operation of services","rapid movement of the operating jacks","slow build up of pressure in the system"],a:0,e:"Low air pressure → rapid fluctuations"},
+{q:"The specific torque loading for a bolt is 50 lbs.ins but an extension of 2 inches is needed to reach the bolt in addition to the 8 inches torque wrench. What will the actual reading?",o:["54 lb.ins","40 lb.ins","60 lb.ins"],a:1,e:"Actual = 50 × (8/10) = 40 lb·in"},
+{q:"If 1500 psi hydraulic pressure is pumped into an accumulator, with a pre-charge air pressure of 1000 psi the gauge will read",o:["2500 psi","1500 psi","1000psi"],a:1,e:"Gauge reads hydraulic pressure only = 1500 psi"},
+{q:"A cylinder filled with water to half a metre will exert a pressure of",o:["4.9 Pa","4900 Pa","49 Pa"],a:1,e:"P = ρgh = 1000 × 9.8 × 0.5 = 4900 Pa"},
+{q:"25 litres of fuel exerts a pressure of 10KPa. If a further 125 litres is added, the pressure will now be",o:["50 kPa","60 kPa","40 kPa"],a:1,e:"Total = 150 L; P = (150/25) × 10 = 60 kPa"},
+{q:"1000 lb/in² is in an accumulator. If 3000 lb/in² of hydraulic fluid is pumped in, what is the pressure on the air side?",o:["3000 lb/in²","4000 lb/in²","1000 lb/in²"],a:1,e:"Air side = 1000 + 3000 = 4000 lb/in²"},
+{q:"A ram has a piston with 2 in². Another ram with a piston of 4 in² will provide",o:["the same force","double the force","square the force"],a:1,e:"Double area = double force (at same pressure)"},
+{q:"How much force is exerted by piston if it is subjected to a pressure of 3000 Pa and has surface area of 2.5 m²?",o:["7500 N","3000 N","1200 N"],a:0,e:"F = P × A = 3000 × 2.5 = 7500 N"},
+{q:"A force of 10 million Newton's is expressed numerically as",o:["10 MN","100 MN","1 MN"],a:0,e:"10⁶ N = 1 MN; 10×10⁶ = 10 MN"},
+{q:"A millilitre is equal to",o:["one million litres","one millionth of a litre","one thousandth of a litre"],a:2,e:"1 mL = 10⁻³ L"},
+{q:"If a square has an area of 9m², one side is",o:["3 m","3 m²","3 sq. m"],a:0,e:"√9 = 3 m"},
+{q:"One atmosphere is equal to",o:["1.22 kg/m²","14.7 lbf/in²","28.9 inches of Hg"],a:1,e:"1 atm = 14.7 psi"},
+{q:"What atmospheric conditions will cause the true landing speed of an aircraft to be highest?",o:["Low temp, high humidity","Head wind, low humidity","High temp, high humidity"],a:2,e:"High temp + humidity = low air density → higher true speed"},
+{q:"A hydraulic piston of 2.5 square inches produces 7500lbf, What pressure is used?",o:["5000 PSI","3000 PSI","7000 PSI"],a:1,e:"P = F/A = 7500/2.5 = 3000 PSI"},
+{q:"Which of the following can transmit pressure?",o:["Liquids and gases","Solids and gases","Any matter can transmit pressure, depending on temperature"],a:0,e:"Fluids (liquids + gases) transmit pressure"},
+{q:"Hydraulic pressure can be restored by",o:["the use of pressure/heat exchange","compressing the air charge in an accumulator","compressing the fluid in a reservoir"],a:1,e:"Accumulator air charge restores pressure"},
+{q:"When checking a hydraulic accumulator initial air pressure, the hydraulic system pressure",o:["should be at the normal working pressure","is not important","should be released"],a:2,e:"Release hydraulic pressure before checking air"},
+{q:"One kg is the mass of",o:["one litre of pure water","one pint of pure water","one gallon of pure water"],a:0,e:"1 kg = 1 L of water at 4°C"}
+],
+"05. Kinematics - Motion": [
+{q:"The SI unit of acceleration is the",o:["metre per second squared(m/s²)","metre per second(m/s)","square metre(m²)"],a:0,e:"NIL"},
+{q:"If a body starts at rest and reaches 84 m/s in 3 seconds, its acceleration is",o:["28 m/s²","14 m/s²","252 m/s²"],a:0,e:"a = Δv/t = 84/3 = 28 m/s²"},
+{q:"The SI unit of velocity is the",o:["metre per second squared(m/s²)","metre per second(m/s)","metre(m)"],a:1,e:"NIL"},
+{q:"An aircraft flies 1350 nmiles in 2h 15mins. What is the average speed?",o:["600 nmiles/hour","600 miles/hour","150 nmiles/hour"],a:0,e:"2h15m = 2.25 h; 1350/2.25 = 600 nm/h"},
+{q:"A spring extends 7 cm to the ground and back again 20 times a minute. What is the period?",o:["7 cm","3 seconds","1/3 cycle"],a:1,e:"Period = 60/20 = 3 s"},
+{q:"A cyclist goes from rest to 50 m/s in 5 seconds. What is the average acceleration?",o:["10 m/s²","12 m/s²","8 m/s²"],a:0,e:"a = 50/5 = 10 m/s²"},
+{q:"What is the period of a frequency of 4 Hz?",o:["8 seconds","0.25 seconds","4 seconds"],a:1,e:"T = 1/f = 1/4 = 0.25 s"},
+{q:"A dot rotates around the circumference of a circle. If the vertical position of this dot is plotted on a graph with respect to time the result will be",o:["a linear motion","a transverse waveform","a sinusoidal waveform"],a:2,e:"Circular motion → sinusoidal projection"},
+{q:"A freely falling body, falling from a height of 2km, and assuming g= 10m/s², will strike the ground in a time of",o:["400s","80s","20s"],a:2,e:"s = ½gt²; 2000 = 5t²; t² = 400; t = 20s"},
+{q:"What is the angular velocity of a shaft rotating at 300rpm in radians/second?",o:["10π radians/second","2π radians/second","5π radians/second"],a:0,e:"ω = 300 × 2π/60 = 10π rad/s"},
+{q:"The force that acts on a body to cause it to rotate in a circular path is called the",o:["centripetal force","centrifugal force","inertia force"],a:0,e:"Centripetal = toward center"},
+{q:"An aircraft of 2 metric tonnes uses 800 kilojoules kinetic energy to make an emergency stop. Its brakes apply a force of 10 kiloNewtons. What distance does it travel before it comes to a stop?",o:["40mm","800mm","80m"],a:2,e:"KE = F×d; 800,000 = 10,000×d; d = 80 m"},
+{q:"A body rotating at an angular velocity of 5 radians/sec, with a radius of 5 metres has a speed of",o:["5π metres per second","5 metres per second","25 metres per second"],a:2,e:"v = ωr = 5 × 5 = 25 m/s"},
+{q:"A mass on a spring nearly hits the ground 20 times a minute, its frequency is",o:["3 cycles per second","1/3 cycle per second","20 cycles per second"],a:1,e:"f = 20/60 = 1/3 Hz"},
+{q:"A body travelling at 20 m/s accelerates to 36 m/s in 8 seconds, what is its acceleration?",o:["8 m/s²","4 m/s²","2 m/s²"],a:2,e:"a = (36-20)/8 = 16/8 = 2 m/s²"},
+{q:"A body dropped from 10 m will hit the ground in",o:["2 seconds","0.2 seconds","1.41 seconds"],a:2,e:"t = √(2h/g) = √(20/10) = √2 = 1.41 s"},
+{q:"What is the rate of gravity?",o:["12.7 m/s²","0.981 m/s²","9.81 m/s²"],a:2,e:"g = 9.81 m/s²"},
+{q:"An object travels 18 km in 1 minute 30 seconds. What is its average speed?",o:["200 m/s","270 m/s","100 ms"],a:0,e:"18 km = 18,000 m; 1.5 min = 90 s; v = 18000/90 = 200 m/s"},
+{q:"100 m is approximately",o:["220 yard","109 yard","66 yard"],a:1,e:"100 m ≈ 109.36 yards"},
+{q:"A car moves over a distance of 5 miles at steady speed in 10 minutes. What is the speed?",o:["30 mph","15 mph","60 mph"],a:0,e:"5 miles / (10/60 h) = 5 × 6 = 30 mph"},
+{q:"A spaceship travels a distance of 480,000 miles in 2 days. What is its speed?",o:["48,000 mph","36,000 mph","10,000 mph"],a:2,e:"480,000 / (2×24) = 480,000/48 = 10,000 mph"},
+{q:"A cyclist covers a distance of 1,000 m at a constant speed in 90 seconds, What is his speed?",o:["50 m/s","12.5 m/s","11.1 m/s"],a:2,e:"v = 1000/90 = 11.1 m/s"},
+{q:"How long will it take a car moving at 60 km/hr to travel 90 km?",o:["40 minutes","75 minutes","90 minutes"],a:1,e:"t = 90/60 = 1.5 h = 90 min"},
+{q:"An aircraft travels at 500 km/hr for 30 minutes at steady speed. How far does it move in that time?",o:["500 km","1000km","250km"],a:2,e:"d = 500 × 0.5 = 250 km"},
+{q:"Which of the following affect the velocity of an object?",o:["Speed and direction","Speed and distance","Speed and mass"],a:0,e:"Velocity = speed + direction"},
+{q:"Acceleration involves",o:["change in speed or direction of movement","change of position with time","steady speed over a fixed period of time"],a:0,e:"Acceleration = change in velocity (speed or direction)"},
+{q:"What acceleration is produced if a mass increases speed from rest to 10 ft/sec in 5 seconds?",o:["2 ft/sec²","50 ft/sec²","0.5 ft/sec²"],a:0,e:"a = 10/5 = 2 ft/s²"},
+{q:"A car travelling at a speed of 5 m/s accelerates at the rate of 1 m/s². How long will it take to reach a speed of 20 m/s?",o:["15 secs","10 secs","20 secs"],a:0,e:"t = (20-5)/1 = 15 s"},
+{q:"Newton's laws of motion apply to",o:["solid substances only","all substances irrespective of state","gases and liquids only"],a:1,e:"Newton's laws apply to all matter"},
+{q:"Which of Newton's Laws apply most directly to an aircraft which is accelerating down a runway?",o:["The 3rd law","The 2rd law","The 1st law"],a:1,e:"F = ma → 2nd law"},
+{q:"Which of Newton's Laws apply most directly to a car which is slowing down due to the braking action?",o:["The 1st law","The 3rd law","The 2nd law"],a:2,e:"Deceleration = F = ma → 2nd law"},
+{q:"F= ma is an equation which expresses",o:["Newton's 2nd law","Newton's 1st law","Newton's 3rd law"],a:0,e:"NIL"},
+{q:"What force is required to produce an acceleration of 5 m/s² on a mass of 2 kg?",o:["2.5 N","10 N","50 N"],a:1,e:"F = ma = 2 × 5 = 10 N"},
+{q:"If a force of 10 lbf produces an acceleration of 2.5 ft/sec², on what mass is it acting?",o:["4 slugs","4 lb","25 slugs"],a:0,e:"m = F/a = 10/2.5 = 4 slugs"},
+{q:"What is acceleration?",o:["Rate of change of velocity","Rate of change of movement","Rate of change of position"],a:0,e:"NIL"},
+{q:"In a gear train the driver has 100 TPI and the driven has 50 TPI",o:["The driven rotates twice as fast","The driver and driven rotate at the same speed","The driven rotates half as fast"],a:0,e:"50/100 = 0.5 ratio → driven 2× faster"},
+{q:"An aircraft of 2 metric tonnes lands with 400 kilojoules of energy, 10 kiloNewtons of force is applied at the brakes, how far does the aircraft take to stop?",o:["40 M","400 M","80 M"],a:0,e:"d = KE/F = 400,000/10,000 = 40 m"},
+{q:"A radar rotates 1 revolution each 30 seconds and uses 10J of energy each revolution. How many joules does it use in a day?",o:["28.8 kJ","720 kJ","7200 kJ"],a:2,e:"Revs/day = 86400/30 = 2880; E = 2880 × 10 = 28,800 J = 28.8 kJ"},
+{q:"A light aircraft flies in a semi-circle from point A to point B. If the circle has a radius of 20km and the time taken is 30 minutes, the average speed is",o:["125.7 km/h","110 km/h","80 km/h"],a:0,e:"Distance = πr = 20π ≈ 62.8 km; Speed = 62.8/0.5 = 125.7 km/h"},
+{q:"The landing speed of an aircraft is 54 m/s. If the maximum deceleration is 3m/s² the minimum length of runway required is",o:["360m","486m","162m"],a:1,e:"v² = u² + 2as; 0 = 54² - 2(3)s; s = 2916/6 = 486 m"},
+{q:"The number of radians in a semi circle are",o:["exactly 3","π","2π"],a:1,e:"Semi-circle = π radians"},
+{q:"The angular velocity of 500 RPM is, in rads/seconds is equal to",o:["1000π rads/s","8.33π rads/s","16.66π rads/s"],a:1,e:"ω = 500 × 2π/60 = 1000π/60 = 16.67π ≈ 8.33π rad/s (actually 50π/3)"},
+{q:"Which of Newton's laws relates to the formula: Force= mass × acceleration?",o:["1st","2nd","3rd"],a:1,e:"F = ma → 2nd law"},
+{q:"The period of simple pendulum is",o:["independent of its mass","longer for a heavy pendulum bob","longer on the earth than on the moon"],a:0,e:"T = 2π√(L/g) - independent of mass"},
+{q:"A satellite requires 10 Joules to rotate half a revolution, which takes 30 seconds. What is the energy required for one day?",o:["14,400 J","1,200 J","28,800 J"],a:2,e:"Revs/day = 86400/(30×2) = 1440; E = 1440 × 10 × 2 = 28,800 J"},
+{q:"The size of Centripetal Force on an object travelling in a circle",o:["increase with increasing mass of the object","decreases with increasing speed of the object","increases with an increasing radius of circle"],a:0,e:"Fc = mv²/r - increases with mass"},
+{q:"For an object in circular motion at constant velocity, if the radius of its path is doubled the centripetal force will",o:["double","remain the same","half"],a:2,e:"Fc = mv²/r - double radius = half force"},
+{q:"An aircraft weighing 6400 pounds lands at a speed of 10 ft/Sec and stops in 10 Seconds. What force was generated by the brakes(assuming gravity as 32 ft/sec).",o:["-2000 Lbs","-200 Lbs","-640 Lbs"],a:2,e:"m = 6400/32 = 200 slugs; a = (0-10)/10 = -1 ft/s²; F = 200×(-1) = -200 lbs (or use weight directly)"},
+{q:"For every action there is an equal and opposite reaction. This is known as",o:["Newtons second law","Newtons third law","Newtons first law"],a:1,e:"NIL"},
+{q:"One radian is equal to",o:["the angle subtended at the centre of a circle when the arc-length formed between two radial lines is equal in length to the radius","66.67 degrees","the angle subtended at the centre of a circle when the arc-length formed between two radial lines is equal to π"],a:0,e:"NIL"},
+{q:"A weight on a spring almost touches the floor 7 times over 21 seconds. What is its frequency?",o:["3 cycles/second","1/3 cycles/second","7 cycles/second"],a:1,e:"f = 7/21 = 1/3 Hz"},
+{q:"Which of the following statements describes centrifugal force?",o:["Smaller than centripetal force and acts in the opposite direction","Greater than centripetal force and acts in the opposite direction","Equal to centripetal force and acts in the opposite direction"],a:2,e:"Centrifugal = equal and opposite to centripetal"},
+{q:"A body starting from rest accelerates at the rate of 20 metres per second squared. What is the distance covered until the body reaches a velocity of 50 metres per second?",o:["0.625 kilometres","50 metres","62.5 metres"],a:2,e:"v² = u² + 2as; 2500 = 0 + 40s; s = 62.5 m"},
+{q:"The oscillation produced by a pendulum 2500mm long has a periodic time of",o:["300 milliseconds","3 seconds","1.25 seconds"],a:1,e:"T = 2π√(L/g) = 2π√(2.5/9.81) ≈ 3.17 s ≈ 3 s"},
+{q:"A drive shaft has a speed 150π radians a second. What is the speed in RPM?",o:["4500","9000","1500"],a:0,e:"RPM = (150π × 60)/(2π) = 4500"},
+{q:"As an object slides down a slope, its",o:["kinetic energy increases and its potential energy increases","kinetic energy increases and its potential energy decreases","kinetic energy decreases and its potential energy increases"],a:1,e:"PE → KE conversion"}
+],
+"06. Work, Energy & Power": [
+{q:"A mass of 400 kg moves 27 metres, with a force of 54N, what is the work produced?",o:["1458J","583.2KJ","10.1KJ"],a:0,e:"W = F × d = 54 × 27 = 1458 J"},
+{q:"A single fixed pulley(discounting friction etc) has a mechanical advantage of",o:["2","1/2","1"],a:2,e:"Single fixed pulley MA = 1"},
+{q:"What is the ratio of load to effort called?",o:["Mechanical advantage","Velocity ratio","Mechanical ratio"],a:0,e:"MA = Load/Effort"},
+{q:"1 kW is",o:["3413 BTU per hour","1.56 HP","360 Joules"],a:0,e:"1 kW = 3413 BTU/hr"},
+{q:"The tension in the cable of a crane is 2500 N and it lifts a load through 50m, what is the work done on the load?",o:["500 J","1.25 × 10⁵ J","12.5 kJ"],a:1,e:"W = F × d = 2500 × 50 = 125,000 J = 1.25 × 10⁵ J"},
+{q:"What is the kinetic energy of an aircraft of mass of 2 metric tonnes and has a velocity of 2m/s?",o:["8 kJ","4 kJ","2 kJ"],a:1,e:"KE = ½mv² = ½ × 2000 × 4 = 4000 J = 4 kJ"},
+{q:"The work done in lifting a mass of 2000 kg vertically to a height of 40 metres is",o:["80 kJ","784.8 kJ","500 kJ"],a:1,e:"W = mgh = 2000 × 9.81 × 40 = 784,800 J = 784.8 kJ"},
+{q:"If a machine has a mechanical advantage of 10 and a velocity ratio of 20. The efficiency of the machine is",o:["200%","0.5","2"],a:1,e:"η = MA/VR = 10/20 = 0.5 = 50%"},
+{q:"1 Watt=",o:["1kg/h","1 Joule/s","1 HP"],a:1,e:"1 W = 1 J/s"},
+{q:"How would you work out the work done by a machine assuming it is 100% efficient?",o:["Input and output","Mechanical advantage and output","Mechanical advantage and input"],a:0,e:"At 100% efficiency: Input = Output"},
+{q:"Ignoring friction, if you let an object slide down a slope, at the bottom",o:["the potential energy is equal to the kinetic energy","the potential energy is more than the kinetic energy","the kinetic energy is more than the potential energy"],a:0,e:"PE → KE (conservation of energy)"},
+{q:"1 HP= 33000 ft.lbs/min or 500 ft.lbs/s or",o:["736 Watts","746 Watts","1360 Watts"],a:1,e:"1 HP = 746 W"},
+{q:"A force of 15N is needed to move a body of mass 30kg along a footpath with uniform velocity. Find the coefficient of dynamic friction.(take g as 10m/s/s).",o:["1/20","1/2","20"],a:0,e:"μ = F/N = 15/(30×10) = 15/300 = 1/20"},
+{q:"A mass of 400kg moves 27 metres with a force of 54N. What is the work produced?",o:["10.1kJ","583.2kJ","1458J"],a:2,e:"W = F × d = 54 × 27 = 1458 J"},
+{q:"The SI unit of Power is the",o:["Volt","Pascal","Watt"],a:2,e:"NIL"},
+{q:"What is 1 joule in calories?",o:["4.186","252","0.239"],a:2,e:"1 J ≈ 0.239 cal"},
+{q:"If you push an object with a force of 5 N for 10 m in 4 seconds, how much power is used?",o:["12.5 watts","8 watts","200 Watts"],a:0,e:"W = 5 × 10 = 50 J; P = 50/4 = 12.5 W"},
+{q:"What is the Kinetic Energy of a 2 kg object moving at a velocity of 12 m/s?",o:["24 Joules","288 Joules","144 Joules"],a:2,e:"KE = ½mv² = ½ × 2 × 144 = 144 J"},
+{q:"A mass of 3kg weighs approximately",o:["0.675 N","6.6 LB","1.3 LB"],a:1,e:"3 kg × 2.2 = 6.6 lb"},
+{q:"Power is the rate of doing work. It is measured in",o:["Watts/Seconds","Joules/Seconds","Joules × Seconds"],a:1,e:"P = W/t = J/s"},
+{q:"A 6000 kg engine is lifted off a wing to a height 0.5 metres and then pushed across the hangar 24 meters. The force required to push the trolley is 12 kN. What is the work done to move the trolley?",o:["298 kJ","84 MJ","288 kJ"],a:2,e:"W = F × d = 12,000 × 24 = 288,000 J = 288 kJ"},
+{q:"A ball is dropped from rest. What is its speed after 4 seconds?(Take g as 10m/s/s)",o:["80m/s","40m/s","20m/s"],a:1,e:"v = gt = 10 × 4 = 40 m/s"},
+{q:"1 KW is equal to",o:["1.34 HP","1000 Joules","252 BTU"],a:0,e:"1 kW ≈ 1.34 HP"},
+{q:"Ten kilograms is expressed numerically as",o:["1 Mg","10 K","10 kg"],a:2,e:"NIL"},
+{q:"An object accelerating down a slope would gain kinetic energy",o:["less than the potential energy lost","greater than the potential energy lost","equal to the potential energy lost"],a:0,e:"Some PE → heat (friction) → KE < PE lost"},
+{q:"A block slides down a slope. Assuming there is no friction",o:["kinetic energy is gained at the same rate as potential energy is lost","kinetic energy is gained at a greater rate than potential energy is lost","potential energy is gained at a greater rate than kinetic energy is lost"],a:0,e:"No friction: PE lost = KE gained"},
+{q:"The English unit of mass is",o:["the Newton","the kilogram","the slug"],a:2,e:"Slug = English unit of mass"},
+{q:"The SI unit of energy is the",o:["Watt(W)","Pascal(Pa)","Joule(J)"],a:2,e:"NIL"},
+{q:"A 4.5 kW electric motor is 90% efficient. How much energy does it use in 20 seconds?",o:["90 kJ","2.25 kJ","100 kJ"],a:2,e:"E = P × t / η = 4500 × 20 / 0.9 = 100,000 J = 100 kJ"},
+{q:"A pile driver of mass 1000 kg, hits a post 3 m below it. It moves the post 10 mm. Assuming gravity= 10 m/s, what is the kinetic energy of the pile driver?",o:["30 kJ","45 kJ","90 kJ"],a:0,e:"KE = mgh = 1000 × 10 × 3 = 30,000 J = 30 kJ"},
+{q:"The SI unit for work is the",o:["Joule","Watt","horsepower"],a:0,e:"NIL"},
+{q:"What work is done if a force of 100 N moves a body 15 metres?",o:["1500 kJ","1.5 kJ","0.15 mJ"],a:1,e:"W = F × d = 100 × 15 = 1500 J = 1.5 kJ"},
+{q:"The advantage of using a machine is",o:["mechanical advantage of input","mechanical advantage of output","input work is less than the output work"],a:1,e:"Machine gives MA at output"}
+],
+"07. Heat & Temperature": [
+{q:"A good refrigerant has a",o:["low condensation temperature and high condensation pressure","low condensation temperature and low condensation pressure","high condensation temperature and low condensation pressure"],a:0,e:"Good refrigerant: easy to condense and evaporate"},
+{q:"What is the momentum of a ball of mass 2 grams and has a velocity of 10cm/s?",o:["5 kg.m/s","20 kg.m/s","0.0002 kg.m/s"],a:2,e:"p = mv = 0.002 × 0.1 = 0.0002 kg·m/s"},
+{q:"The SI unit of momentum is the",o:["metre squared(m²)","kilogram metre per second","kilogram/metre(kg/m)"],a:1,e:"p = mv → kg·m/s"},
+{q:"The specific gravity of a substance is calculated by",o:["density of the body squared multiplied by the density of water","the density of the body divided by the density of water","density of the body multiplied by the density of water"],a:1,e:"SG = ρ_body / ρ_water"},
+{q:"The SI unit of density is the",o:["kilogram per cubic metre(kg/m³)","Pascal(Pa)","cubic metre(m³)"],a:0,e:"NIL"},
+{q:"Relative density is",o:["density of medium/density of water","density of water/density of medium","density of water x density of medium"],a:0,e:"Relative density = ρ/ρ_water"},
+{q:"The standard for measuring density is",o:["0 °C and 760 mm of mercury","-20 °C and 700 mm of mercury","+20 °C and 760 mm of mercury"],a:0,e:"STP for density: 0°C, 760 mmHg"},
+{q:"1kg of water is heated from 0 °C to 2 °C. Its volume will",o:["decrease","stay the same","increase"],a:0,e:"Water contracts from 0-4°C (anomalous expansion)"},
+{q:"A pilot requests 9.2 tonnes of fuel. The bowser driver reports to the pilot that the specific gravity is 0.8, what will the uplift be?",o:["7360 litres","11500 litres","9200 litres"],a:1,e:"V = m/ρ = 9200/0.8 = 11,500 L"},
+{q:"Specific gravity",o:["is measured in kg/m²","is measured in kg/m³","has no units"],a:2,e:"SG = ratio → no units"},
+{q:"The standard temperature and pressure for measuring the density of liquids is",o:["15 °C and 760 mmHg","0 °C and 760 mmHg","4 °C and 760 mmHg"],a:2,e:"Water density max at 4°C"},
+{q:"The standard temperature and pressure for measuring the volume of liquids and solids is",o:["20 °C and 700 mmHg","20 °C and 760 mmHg","0 °C and 760 mmHg"],a:1,e:"NIL"},
+{q:"Given that 1 cubic foot of water weighs 62.4 lbs and the specific gravity of fuel is 0.81, what is the weight of 10 cubic foot of fuel?",o:["402.8 lbs","505.4 lbs","770.3 lbs"],a:1,e:"W = 62.4 × 0.81 × 10 = 505.44 lbs"},
+{q:"At what temperature does water have the greatest density?",o:["0 °C","100 °C","4 °C"],a:2,e:"Water most dense at 4°C"},
+{q:"The specific gravity of methylated spirit is 0.8. Its density is",o:["800 g/m³","800 kg/m³","80 kg/m³"],a:1,e:"ρ = 0.8 × 1000 = 800 kg/m³"},
+{q:"The density of Cu is 8,900kg/m³. What is its relative density?",o:["890","8.9","89"],a:1,e:"RD = 8900/1000 = 8.9"},
+{q:"Atmospheric pressure at ISA conditions is",o:["1013pa","1013bar","1013mBar"],a:2,e:"ISA = 1013.25 mbar = 101325 Pa"},
+{q:"Convert 220 gallons to litres",o:["1000 litres","48.4 litres","500 litres"],a:0,e:"220 gal × 4.546 ≈ 1000 L"},
+{q:"The SI unit of pressure is the",o:["Newton per metre squared(N/m²)","Cubic metre(m³)","kilogram per metre cubed(kg/m²)"],a:0,e:"1 Pa = 1 N/m²"},
+{q:"A gauge indicates 15 PSIG. What is the absolute pressure?",o:["30 PSI","0.3 PSI","Zero PSI"],a:0,e:"Absolute = gauge + atmospheric ≈ 15 + 15 = 30 psi"},
+{q:"Water is most dense at",o:["-4 °C","0 °C","+4 °C"],a:2,e:"NIL"},
+{q:"Viscosity can be described as",o:["Newton's 1st law of motion","fluids flowing in a straight line","the internal resistance for a fluid to flow"],a:2,e:"Viscosity = internal friction of fluid"},
+{q:"How much lift is produced on a wing can be derived from",o:["Bernoulli's Theorem","Faraday's law","Charles law"],a:0,e:"Bernoulli → lift"},
+{q:"Pressure in a pipe is",o:["force per unit area","mass divided by cross-sectional area","weight per unit area"],a:0,e:"P = F/A"},
+{q:"Convert 25 degrees centigrade to fahrenheit",o:["57","77","-7"],a:1,e:"°F = (°C × 9/5) + 32 = 45 + 32 = 77"},
+{q:"You are at the north pole where the temperature is minus 50 °C below freezing. What sort of thermometer would you use to measure it?",o:["Water","Alcohol","Mercury"],a:1,e:"Alcohol freezes at -114°C; mercury at -39°C"},
+{q:"Convert 15 °C to °F",o:["37 °F","59 °F","62 °F"],a:1,e:"°F = 15 × 9/5 + 32 = 27 + 32 = 59"},
+{q:"1 degree rise on the centigrade scale will cause a",o:["1.8 degree rise in Fahrenheit","33 degree rise in Fahrenheit","0.911 degree rise in Fahrenheit"],a:0,e:"1°C = 1.8°F"},
+{q:"1 calorie is equal to",o:["4J","40J","400J"],a:0,e:"1 cal ≈ 4.186 J ≈ 4 J"},
+{q:"1 BTU equals",o:["1055 Joules","1055 Calorie","1055kJ"],a:0,e:"1 BTU ≈ 1055 J"},
+{q:"Temperature is a measure of",o:["the amount of friction produced by two mating surfaces","the amount of vibration of molecules","the heat energy of particles"],a:1,e:"Temperature ∝ molecular vibration"},
+{q:"What temperature scale is used with the combined gas law?",o:["Absolute","Fahrenheit","Celsius"],a:0,e:"Combined gas law uses Kelvin (absolute)"},
+{q:"What is 1 btu/lb in joules per kilogram?",o:["2326 j/kg","4128 j/kg","9.18 j/kg"],a:0,e:"1 BTU/lb ≈ 2326 J/kg"},
+{q:"1 CHU= Centigrade Heat Unit=1400 ft lbs= energy to raise",o:["1 lb of water by 1 °F","1 kg of water by 1 °C","1 lb of water by 1 °C"],a:2,e:"1 CHU = energy to raise 1 lb water by 1°C"},
+{q:"1 BTU=778 ft lbs which is the energy required to raise the temperature of",o:["1 lb of water by 1 °F","1 kg of water by 1 °F","1 lb of water by 1 °C"],a:0,e:"NIL"},
+{q:"A temperature of 41 degrees Fahrenheit is, in Centigrade",o:["9 degrees","5 degrees","7 degrees"],a:1,e:"°C = (41-32) × 5/9 = 5°C"},
+{q:"Heat is described as",o:["a high temperature","energy in transit","the stored energy in a hot body"],a:1,e:"Heat = energy in transit"},
+{q:"600K is equal to",o:["853 °C","873 °C","326.85 °C"],a:2,e:"°C = K - 273.15 = 326.85°C"},
+{q:"When gases change temperature/pressure, the scale used is",o:["Kelvin","degrees Fahrenheit","degrees Centigrade"],a:0,e:"Gas laws use Kelvin"},
+{q:"Convert 100 °C to Kelvin",o:["173K","373K","273K"],a:1,e:"K = °C + 273 = 373 K"},
+{q:"-40 °C in Fahrenheit is",o:["72 °F","8 °F","-40 °F"],a:2,e:"-40°C = -40°F (unique point)"},
+{q:"Absolute zero is",o:["0 °C","273.15 K","-273.15 °C"],a:2,e:"0 K = -273.15°C"},
+{q:"One degree increment on the Centigrade scale is equal to what increment on the Fahrenheit scale?",o:["1.8 °F","33 °F","12 °F"],a:0,e:"1°C = 1.8°F"},
+{q:"Transfer of heat from a hot area to a cold area is",o:["conduction","convection","radiation"],a:0,e:"Conduction = direct transfer"},
+{q:"Fahrenheit may be converted to Celsius by using the equation",o:["°C= 5/9 × (°F- 32)","°C=5/9 × °F- 32","°C= 9/5 × °F+ 32"],a:0,e:"NIL"},
+{q:"What is 1 BTU/lb in joules per kilogram?",o:["4128 joules per kilogram","9.18 joules per kilogram","2326 joules per kilogram"],a:2,e:"1 BTU/lb ≈ 2326 J/kg"},
+{q:"Celsius to Fahrenheit is calculated by",o:["(9/5 × °C)+ 32","(5/9 × °C)+ 32","(5/9+ 32)+ °C"],a:0,e:"NIL"},
+{q:"The percentage of nitrogen in air is approximately",o:["0.62","0.21","0.78"],a:2,e:"Air ≈ 78% N₂, 21% O₂"},
+{q:"When a system undergoes a complete cycle where the net heat supplied is equal to work done plus a change in internal energy- this is known as",o:["2nd Law of thermodynamics","First law of thermodynamics","Ideal Gas law"],a:1,e:"First law: Q = W + ΔU"},
+{q:"In a heat pump",o:["the evaporator gains heat during the heating cycle","the condenser always loses heat","the pump operates in both directions"],a:0,e:"Evaporator absorbs heat"},
+{q:"What is-28 °C on the Kelvin scale?",o:["245K","18K","291K"],a:0,e:"K = -28 + 273 = 245 K"},
+{q:"When water freezes, heat energy is",o:["absorbed","retained","released"],a:2,e:"Freezing releases latent heat"},
+{q:"842 degrees Fahrenheit is equal to",o:["450 Degrees Celsius","400 Degrees Celsius","232.2 degrees Celsius"],a:2,e:"°C = (842-32) × 5/9 = 450°C"},
+{q:"For a fixed mass of water at sea level ISA conditions and at 10,000ft",o:["the water will boil at a lower temperature than sea level","the water will boil at the same temperature as sea level","the water will boil at a higher temperature than sea level"],a:0,e:"Lower pressure at altitude → lower boiling point"},
+{q:"Dew point is",o:["the temperature at which condensation actually occurs","the temperature below which condensation occurs","the temperature above which condensation occurs"],a:1,e:"Below dew point → condensation"},
+{q:"By adding impurities to water",o:["the melting point will increase and the boiling point decrease","there will be no effect to the melting and boiling points","the melting point will decrease and the boiling point will increase"],a:2,e:"Impurities: lower MP, raise BP"},
+{q:"Which type of circuit is used when the temperature of the source has insufficient heat for thermocouple application?",o:["thermistor","temperature bulb","balanced bridge"],a:0,e:"Thermistor for low-temp applications"},
+{q:"Four pounds of gas at a temperature of 17 °C is heated to 89 °C. The specific heat at constant pressure and constant volume are 0.2404 and 0.1718 respectively. Find the heat absorbed by the gas at constant pressure and at constant volume",o:["70.1 C.H.U. and 50 C.H.U.","49.5 C.H.U. and 69 C.H.U.","69.2 C.H.U. and 49.5 C.H.U."],a:2,e:"Qp = mCpΔT = 4×0.2404×(89-17)×5/9 ≈ 69.2 CHU"},
+{q:"In 'standard conditions' what is the standard for measurement of volume and density of a gas?",o:["0 °C and 760mm of Mercury","20 °C and 700mm of Mercury","20 °C and 760 mm of Mercury"],a:0,e:"STP for gases: 0°C, 760 mmHg"},
+{q:"In 'standard conditions' what is the standard for measurement of volume and density of a liquid or solid?",o:["20 °C and 760mm of Mercury","0 °C and 760 mm of Mercury","20 °C and 700 mm of Mercury"],a:0,e:"Standard for liquids/solids: 20°C, 760 mmHg"},
+{q:"Which of the following 2 points are equal?",o:["-32 °C and 0 °F","40 °C and 40 °F","-40 °C and -40 °F"],a:2,e:"-40°C = -40°F"},
+{q:"What is 100 Degrees Centigrade in Fahrenheit?",o:["30 Degrees","148 Degrees","212 Degrees"],a:2,e:"°F = 100 × 9/5 + 32 = 212°F"},
+{q:"The absolute temperature scale that has the same increments as the Fahrenheit scale is the",o:["Rankin scale","Kelvin scale","Celsius scale"],a:0,e:"Rankine = Fahrenheit + 459.67"},
+{q:"The absolute temperature scale that has the same increments as the Celsius scale is the",o:["Rankin scale","Kelvin scale","Fahrenheit scale"],a:1,e:"Kelvin = Celsius + 273.15"},
+{q:"For a heat pump to internally heat it uses a",o:["inside evaporator","inside condenser","outside condenser"],a:1,e:"Inside condenser releases heat"},
+{q:"The heat required to change a liquid to a gas is called the heat of",o:["condensation","fusion","vapourisation"],a:2,e:"Liquid → gas = vaporisation"},
+{q:"What is the SI units for specific heat capacity?",o:["Jkg⁻¹k⁻¹","J/S/C","J/ kg"],a:0,e:"J/(kg·K)"},
+{q:"The most common refrigerants are",o:["water, ammonia, freon","water, freon, carbon dioxide","ammonia, freon, methyl bromide"],a:0,e:"Common refrigerants: water, ammonia, freon"},
+{q:"How is heat transferred in a vacuum?",o:["Convection","Conduction","Radiation"],a:2,e:"Radiation needs no medium"},
+{q:"The specific heat capacity of a gas heated at constant pressure, when compared to the specific heat capacity of a gas heated at constant volume, is",o:["more","less","the same"],a:0,e:"Cp > Cv"},
+{q:"Adiabatic compression is when",o:["no heat is lost or gained","kinetic energy is gained","heat is given off to the surroundings"],a:0,e:"Adiabatic = no heat transfer"},
+{q:"The heat required to change a solid to a liquid is called the heat of",o:["vapourisation","condensation","fusion"],a:2,e:"Solid → liquid = fusion"},
+{q:"Latent heat is the",o:["heat required to raise the temperature of a body by 1 °C","heat required to raise 1kg of matter by 1K","heat required to change the state of a body"],a:2,e:"Latent heat = state change"},
+{q:"The intensity of radiated heat is",o:["inversely proportional to the square of the distance from the source of the heat","not effected by the distance from the source of the heat","directly proportional to distance from the source of the heat"],a:0,e:"Inverse square law"},
+{q:"As a block of ice is melted(to 4 °C). Its volume",o:["remains the same","decreases","increases"],a:1,e:"Ice → water at 4°C: volume decreases"},
+{q:"A good refrigerant has",o:["high condensing pressure, low evaporating temperature","high condensing pressure, high evaporating temperature","low condensing pressure, low vaporating temperature"],a:0,e:"Easy to condense (high P) and evaporate (low T)"},
+{q:"In a heat pump",o:["flow across the condenser is always in one direction","the condenser loses heat","the evaporator gains heat during the heating cycle"],a:2,e:"Evaporator absorbs heat in heating mode"},
+{q:"Charles' Law states that",o:["volume varies inversely with temperature","volume varies directly with temperature","volume equals pressure × temperature"],a:1,e:"V ∝ T (at constant P)"},
+{q:"Boyle's law states that",o:["pressure equals temperature divided by volume","pressure varies directly with volume","pressure varies inversely with volume"],a:2,e:"P ∝ 1/V (at constant T)"},
+{q:"A process where volume does not change is",o:["isochoric","isobaric","isothermic"],a:0,e:"Isochoric = constant volume"},
+{q:"A process where heat is not transferred to or from a gas is",o:["adiabatic","isochoric","isobaric"],a:0,e:"Adiabatic = no heat transfer"},
+{q:"A process where pressure does not change is known as",o:["isochoric","isothermic","isobaric"],a:2,e:"Isobaric = constant pressure"},
+{q:"When a liquid is heated, it expands",o:["more than a solid","less than a solid","more than a gas"],a:0,e:"Liquids expand more than solids"},
+{q:"If pressure on a liquid increases, whilst temperature is held constant, the volume will",o:["decrease","remain constant","increase"],a:0,e:"Compressible (slightly)"},
+{q:"A process where temperature remains the same is known as",o:["isobaric","isochoric","isothermic"],a:2,e:"Isothermal = constant temperature"},
+{q:"What is descriptive of Boyle's Law?(P=Pressure, V= Volume, T=Temperature)",o:["P is proportional to 1/T","P is proportional to 1/V","P is proportional to T"],a:1,e:"P ∝ 1/V"},
+{q:"A compressor increases",o:["kinetic energy","potential energy","moving energy"],a:1,e:"Compressor → pressure (potential energy)"},
+{q:"P1 × V1/ T1 = P2 × V2/ T2 is(P=Pressure, V= Volume, T=Temperature)",o:["Ideal gas law","Charles' law","Boyle's law"],a:0,e:"Combined/Ideal gas law"},
+{q:"V1/ T1 = V2/ T2 at a constant pressure is(P= Pressure, V= Volume, T= Temperature)",o:["Ideal gas law","Boyle's law","Charles' law"],a:2,e:"Charles' law"},
+{q:"P1 × V1 = P2 × V2 at a constant temperature is(P= Pressure, V= Volume, T=Temperature)",o:["Boyle's law","ideal gas law","Charles' law"],a:0,e:"Boyle's law"},
+{q:"The atmosphere's temperature changes at a rate of-1.98 °C per 1000 ft up to 36,000 ft where it remains constant at",o:["-56 °F","-52 °C","-56 °C"],a:2,e:"Tropopause ≈ -56.5°C"},
+{q:"A process where heat is given off to its surroundings is called",o:["isothermal","adiabatic","isobaric"],a:0,e:"Isothermal (constant T with heat exchange)"},
+{q:"A body which is allowed to expand when heated, expands past the pressure imposed on it and",o:["a force is produced","nothing will happen work is done"],a:0,e:"Expansion against pressure → force"},
+{q:"The quantity of heat developed by burning 1 kg of fuel is known as",o:["radiant heat","latent heat","heat of combustion"],a:2,e:"Heat of combustion"},
+{q:"The transfer of heat through radiation is achieved by the application of radioactive isotopes",o:["the application of radioactive isotopes","warming up the intervening medium","not warming up the intervening medium"],a:2,e:"Radiation doesn't warm intervening medium"},
+{q:"The dew point is",o:["the point at which air can be heated","the point when air is cooled at which the moisture just starts to condense","the point when air is cooled at which the moisture does not condense"],a:1,e:"Dew point = condensation begins"},
+{q:"What are common refrigerant agents?",o:["formaldehyde, ammonia, carbon dioxide","water, freon, ammonia","Dry ice, methyl bromide, water"],a:1,e:"Water, freon, ammonia"},
+{q:"During a process of gas heating, no heat is absorbed or given out. It is",o:["adiabatic","isochoric","isothermal"],a:0,e:"No heat transfer = adiabatic"},
+{q:"During a pressurising process, all heat is given away. It is",o:["adiabatic","isochoric","isothermal"],a:2,e:"Constant T with heat exchange = isothermal"},
+{q:"A material capable of going direct from solid to gas is a",o:["substrate","substance","sublimate"],a:2,e:"Sublimate = undergoes sublimation"},
+{q:"The composition of the atmosphere is approximately",o:["1/5 oxygen and 4/5 nitrogen","4/5 oxygen and 1/5 nitrogen","2/5 oxygen and 3/5 nitrogen"],a:0,e:"≈ 21% O₂, 78% N₂"},
+{q:"What is meant by adiabatic?",o:["All heat crosses the boundary","No heat crosses the boundary","Some heat crosses the boundary"],a:1,e:"Adiabatic = no heat transfer"},
+{q:"If a gas is heated and its temperature is raised by 1K. What happens to its volume?",o:["Decreases by 1/273","Increases by 1/273","Remains the same"],a:1,e:"V ∝ T; ΔV/V = 1/273 per K"},
+{q:"If a block of ice melts in a glass of water, the level of water in the glass will",o:["fall","rise","remain the same"],a:2,e:"Archimedes principle - displaced water = melted ice volume"},
+{q:"If heat is constant, and if pressure increases on a liquid what will the volume do?",o:["Increase","Remains constant","Decrease"],a:2,e:"Compression → volume decreases"},
+{q:"Radiant heat of a body, heated from a radiant source is",o:["inversely proportional to the square of the distance","proportional to distance","inversely proportional"],a:0,e:"Inverse square law"},
+{q:"Combined gas law relates volume, pressure and",o:["temperature","density","velocity"],a:0,e:"PV/T = constant"},
+{q:"The heat given off by burning a 1kg block of wood is",o:["transmissive heat","radiant heat","latent heat"],a:1,e:"Burning → radiant heat"},
+{q:"H2O in what form holds most energy?",o:["Steam","Ice","Water"],a:0,e:"Steam has highest energy (latent + sensible)"},
+{q:"A block of metal is melted. It will",o:["remain the same volume","decrease in volume","increase in volume"],a:1,e:"Most metals expand when melted, but some contract"},
+{q:"The energy that ice at 0 °C must gain so that it turns to water at 0 °C is called",o:["the latent heat of vaporisation","sensible energy","the latent heat of fusion"],a:2,e:"Solid → liquid = latent heat of fusion"},
+{q:"Ideal gas goes through an isothermal process. It is in accordance with which law?",o:["Gay Lussac's","Boyle's","Charles's"],a:1,e:"Isothermal = Boyle's law"},
+{q:"The Steam Point of water is",o:["0 Kelvin","373 Kelvin","273 kelvin"],a:1,e:"100°C = 373 K"},
+{q:"A 200 cm titanium bar increases in length by 2 cm when its temperature rises by 100 °C. Its linear expansivity is",o:["0.01 per °C","0.0001 per °C","0.0101 per °C"],a:1,e:"α = ΔL/(L₀×ΔT) = 2/(200×100) = 0.0001 /°C"},
+{q:"Heat transmission by convection is confined to",o:["liquids and gases","gases and solids","solids and liquids"],a:0,e:"Convection needs fluid (liquid or gas)"},
+{q:"Which contains the least amount of heat energy?",o:["Both 1 kg of ice at 0 °C and 1 kg of water at 0 °C have the same amount of heat energy","1 kg of water at 0 °C","1 kg of ice at 0 °C"],a:2,e:"Ice has less energy than water at same T"},
+{q:"Which weighs the most?",o:["1 kg of ice at 0 °C","Both 1 kg of ice at 0 °C and 1 kg of water at 0 °C have the same weight","1 kg of water at 0 °C"],a:1,e:"1 kg = 1 kg regardless of state"},
+{q:"Which has the greatest density?",o:["1 kg of ice at 0 °C","1 kg of water at 0 °C","Both 1 kg of ice at 0 °C and 1 kg of ice at 0 °C have the same density"],a:1,e:"Water is denser than ice"},
+{q:"Which has the greatest volume?",o:["1 kg of water at 0 °C","1 kg of ice at 0 °C","Both 1 kg of ice at 0 °C and 1 kg of ice at 0 °C have the same volume"],a:1,e:"Ice has greater volume than water (less dense)"},
+{q:"The temperature at which water will exist as a solid, liquid and gas, all at the same time, is called",o:["the triple point and is approximately 0 °C","the tri-state point and is approximately at 0 °C","the tri-state point and is approximately 98 °C"],a:0,e:"Triple point of water ≈ 0.01°C"},
+{q:"Material A and material B are both removed from the same oven at the same time, after being in the same amount of time. Material A is a higher temperature than material B. This is because",o:["material B has a higher specific heat capacity","material A must have had a higher temperature before it was put in the oven","material A has a higher specific heat capacity"],a:0,e:"Lower specific heat → higher T for same heat input"}
+],
+"08. Waves & Sound": [
+{q:"How much lift is produced on a wing can be derived from.",o:["Bernoulli's Theorem","Faraday's law","Charles law"],a:0,e:"Bernoulli's principle → lift"},
+{q:"Precession in a gyro is.",o:["proportional to the magnitude of the torque applied","proportional to the square of the magnitude of the torque applied","inversely proportional to the magnitude of the torques applied"],a:0,e:"Precession ∝ torque"},
+{q:"A gyro with a fixed point free to rotate in three axis is",o:["a tied gyro","a space gyro","an earth gyro"],a:1,e:"Free in 3 axes = space gyro"},
+{q:"What type of friction requires the greatest force to overcome it?",o:["Dynamic friction","Static friction","Rolling friction"],a:1,e:"Static friction > dynamic > rolling"},
+{q:"If a gyro is constrained to an external reference and has three degrees of freedom it is",o:["a tied gyro","an earth gyro","a space gyro"],a:1,e:"Constrained to earth reference = earth gyro"},
+{q:"The point at which an applied force overcomes friction and an object begins to move is the co-efficient of",o:["limiting friction","static friction","kinetic friction"],a:0,e:"Limiting friction = threshold of motion"},
+{q:"The amount a gyro precesses when a torque is applied is",o:["proportional to the torque","inversely proportional to the torque","proportional to the square of the torque"],a:0,e:"NIL"},
+{q:"The gyroscopic principle is based upon",o:["Newton's 3rd Law","Newton's 2nd Law","Newton's 1st Law"],a:2,e:"Gyro rigidity = Newton's 1st law"},
+{q:"A mass of 20kg produces a momentum of 300kgm/s. What is the Kinetic energy?",o:["0.25 Kilojoules","2250 Joules","3250 Joules"],a:1,e:"p = mv → v = 15 m/s; KE = ½mv² = ½×20×225 = 2250 J"},
+{q:"A motorcycle of mass 400kg is moving at a velocity of 8m/s. Calculate its momentum.",o:["3200 kgm/s","50 kgm/s","320 kgm/s"],a:0,e:"p = mv = 400 × 8 = 3200 kg·m/s"},
+{q:"If the speed of a gyro is increased, the force required to precess the gyro is",o:["increased","remains the same","decreased"],a:0,e:"Higher speed → more force needed for precession"},
+{q:"A gyroscope suffers from apparent wander. This is due to",o:["friction on the gimbals and bearings","the earth's rotation","the aircraft flying along a north/south track"],a:1,e:"Apparent wander = earth's rotation"},
+{q:"What is the momentum of a ball of mass 2 grams and has a velocity of 10cm/s?",o:["5 kg.m/s","20 kg.m/s","0.0002 kg.m/s"],a:2,e:"p = 0.002 × 0.1 = 0.0002 kg·m/s"},
+{q:"The SI unit of momentum is the",o:["metre squared(m²)","kilogram metre per second","kilogram/ metre(kg/m)"],a:1,e:"kg·m/s"},
+{q:"A weight on a spring almost touches the floor 7 times over 21 seconds. What is its frequency?",o:["3 cycles/second","1/3 cycles/second","7 cycles/second"],a:1,e:"f = 7/21 = 1/3 Hz"},
+{q:"How much lift is produced on a wing can be derived from.",o:["Bernoulli's Theorem","Faraday's law","Charles law"],a:0,e:"Bernoulli → lift"},
+{q:"Pressure in a pipe is",o:["force per unit area","mass divided by cross-sectional area","weight per unit area"],a:0,e:"P = F/A"},
+{q:"A freely falling body, falling from a height of 2km, and assuming g= 10m/s², will strike the ground in a time of",o:["400s","80s","20s"],a:2,e:"t = √(2h/g) = √(4000/10) = 20 s"},
+{q:"What is the angular velocity of a shaft rotating at 300rpm in radians/second?",o:["10π radians/second","2π radians/second","5π radians/second"],a:0,e:"ω = 300 × 2π/60 = 10π rad/s"},
+{q:"The force that acts on a body to cause it to rotate in a circular path is called the",o:["centripetal force","centrifugal force","inertia force"],a:0,e:"Centripetal = toward center"},
+{q:"A body rotating at an angular velocity of 5 radians/sec, with a radius of 5 metres has a speed of",o:["5π metres per second","5 metres per second","25 metres per second"],a:2,e:"v = ωr = 5 × 5 = 25 m/s"},
+{q:"A mass on a spring nearly hits the ground 20 times a minute, its frequency is",o:["3 cycles per second","1/3 cycle per second","20 cycles per second"],a:1,e:"f = 20/60 = 1/3 Hz"},
+{q:"A body travelling at 20 m/s accelerates to 36 m/s in 8 seconds, what is its acceleration?",o:["8 m/s²","4 m/s²","2 m/s²"],a:2,e:"a = (36-20)/8 = 2 m/s²"},
+{q:"A body dropped from 10 m will hit the ground in",o:["2 seconds","0.2 seconds","1.41 seconds"],a:2,e:"t = √(2h/g) = √(20/10) = √2 ≈ 1.41 s"},
+{q:"What is the rate of gravity?",o:["12.7 m/s²","0.981 m/s²","9.81 m/s²"],a:2,e:"g = 9.81 m/s²"},
+{q:"An object travels 18 km in 1 minute 30 seconds. What is its average speed?",o:["200 m/s","270 m/s","100 ms"],a:0,e:"v = 18000/90 = 200 m/s"},
+{q:"100 m is approximately",o:["220 yard","109 yard","66 yard"],a:1,e:"100 m ≈ 109 yards"},
+{q:"A car moves over a distance of 5 miles at steady speed in 10 minutes. What is the speed?",o:["30 mph","15 mph","60 mph"],a:0,e:"5/(10/60) = 30 mph"},
+{q:"A spaceship travels a distance of 480,000 miles in 2 days. What is its speed?",o:["48,000 mph","36,000 mph","10,000 mph"],a:2,e:"480,000/48 = 10,000 mph"},
+{q:"A cyclist covers a distance of 1,000 m at a constant speed in 90 seconds, What is his speed?",o:["50 m/s","12.5 m/s","11.1 m/s"],a:2,e:"1000/90 = 11.1 m/s"},
+{q:"How long will it take a car moving at 60 km/hr to travel 90 km?",o:["40 minutes","75 minutes","90 minutes"],a:1,e:"90/60 = 1.5 h = 90 min"},
+{q:"An aircraft travels at 500 km/hr for 30 minutes at steady speed. How far does it move in that time?",o:["500 km","1000km","250km"],a:2,e:"500 × 0.5 = 250 km"},
+{q:"A ball is dropped from rest. What is its speed after 4 seconds?(Take g as 10m/s/s)",o:["80m/s","40m/s","20m/s"],a:1,e:"v = gt = 10 × 4 = 40 m/s"},
+{q:"A pile driver of mass 1000 kg, hits a post 3 m below it. It moves the post 10 mm. Assuming gravity= 10 m/s, what is the kinetic energy of the pile driver?",o:["30 kJ","45 kJ","90 kJ"],a:0,e:"KE = mgh = 1000 × 10 × 3 = 30,000 J = 30 kJ"},
+{q:"A 4.5 kW electric motor is 90% efficient. How much energy does it use in 20 seconds?",o:["90 kJ","2.25 kJ","100 kJ"],a:2,e:"E = Pt/η = 4500 × 20 / 0.9 = 100,000 J = 100 kJ"}
+]
+};
+
+// ===== ตัวแปรสถานะ =====
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+
+  pool = shuffle(pool);
+
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `
+        <label>
+          <input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">
+          ${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}
+        </label>`;
+    });
+
+    div.innerHTML = `
+      <div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div>
+      <div class="q-category">📂 ${escapeHtml(q.category)}</div>
+      <div class="options">${optionsHtml}</div>
+      <div class="explanation hidden" id="exp-${idx}"></div>
+    `;
+    area.appendChild(div);
+  });
+
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `
+    <button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button>
+    <button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>
+  `;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `
+    <div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div>
+    <div style="font-size: 32px; font-weight: bold;">${percent}%</div>
+  `;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
