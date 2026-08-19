@@ -2,103 +2,34 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Module 02 - Physics Quiz</title>
+<title>Module 02 - Physics Quiz (499 ข้อ)</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: #ffffff;
-    color: #000000;
-    margin: 0;
-    padding: 20px;
-    line-height: 1.5;
-  }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 20px; line-height: 1.5; }
   .container { max-width: 900px; margin: 0 auto; }
   h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
-  .controls {
-    background: #f5f5f5;
-    border: 1px solid #ccc;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-  }
+  .controls { background: #f5f5f5; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px; }
   .controls label { font-weight: bold; margin-right: 8px; }
-  select, button {
-    padding: 8px 14px;
-    font-size: 14px;
-    border: 1px solid #000;
-    background: #fff;
-    cursor: pointer;
-    margin: 4px;
-  }
+  select, button { padding: 8px 14px; font-size: 14px; border: 1px solid #000; background: #fff; cursor: pointer; margin: 4px; }
   button:hover { background: #eee; }
   button.primary { background: #000; color: #fff; }
   button.primary:hover { background: #333; }
-  .stats {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    margin: 15px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-    background: #fafafa;
-  }
+  .stats { display: flex; justify-content: space-between; flex-wrap: wrap; margin: 15px 0; padding: 10px; border: 1px solid #ccc; background: #fafafa; }
   .stats div { margin: 4px 10px; }
-  .question {
-    border: 1px solid #ccc;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    background: #fff;
-  }
+  .question { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 6px; background: #fff; }
   .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
   .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
   .q-head { font-weight: bold; margin-bottom: 8px; }
   .q-category { font-size: 12px; color: #555; font-style: italic; }
-  .options label {
-    display: block;
-    padding: 6px 10px;
-    margin: 4px 0;
-    cursor: pointer;
-    border-radius: 4px;
-  }
+  .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border-radius: 4px; }
   .options label:hover { background: #f0f0f0; }
-  .explanation {
-    margin-top: 10px;
-    padding: 10px;
-    background: #fffbe6;
-    border-left: 4px solid #f9a825;
-    font-size: 14px;
-  }
+  .explanation { margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #f9a825; font-size: 14px; }
   .correct-answer { color: #2e7d32; font-weight: bold; }
   .user-wrong { color: #c62828; text-decoration: line-through; }
-  .score-box {
-    text-align: center;
-    padding: 20px;
-    margin: 20px 0;
-    border: 2px solid #000;
-    border-radius: 8px;
-    display: none;
-  }
+  .score-box { text-align: center; padding: 20px; margin: 20px 0; border: 2px solid #000; border-radius: 8px; display: none; }
   .score-box h2 { margin: 0 0 10px 0; }
-  .progress-bar {
-    width: 100%;
-    height: 30px;
-    background: #eee;
-    border: 1px solid #000;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 10px 0;
-  }
-  .progress-fill {
-    height: 100%;
-    transition: width 0.5s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: bold;
-  }
+  .progress-bar { width: 100%; height: 30px; background: #eee; border: 1px solid #000; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
   .green { background: #2e7d32; }
   .yellow { background: #f9a825; color: #000 !important; }
   .red { background: #c62828; }
@@ -106,25 +37,21 @@
   .filter-buttons button { font-size: 13px; padding: 6px 12px; }
   .hidden { display: none; }
 </style>
-<script src="auth.js"></script>
 </head>
 <body>
 <div class="container">
-  <h1>⚛️ Module 02 - Physics Quiz</h1>
-
+  <h1>⚛️ Module 02 - Physics Quiz (499 ข้อ)</h1>
   <div class="controls">
     <label for="category">เลือกหมวด:</label>
     <select id="category"></select>
     <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
     <button onclick="resetQuiz()">🔄 ทำใหม่</button>
   </div>
-
   <div class="stats">
     <div><strong>หมวด:</strong> <span id="catName">-</span></div>
     <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
     <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
   </div>
-
   <div id="scoreBox" class="score-box">
     <h2>ผลลัพธ์</h2>
     <div id="scoreText"></div>
@@ -135,7 +62,6 @@
       <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
     </div>
   </div>
-
   <div id="quizArea"></div>
 </div>
 
@@ -151,7 +77,7 @@ const quizData = {
 {q:"An atom consists of",o:["protons, neutron and electrons","protons and electrons","protons and neutrons"],a:0,e:"NIL"},
 {q:"The maximum number of electrons in the inner shell of an atom is",o:["8","2","4"],a:1,e:"First shell (K shell) holds maximum 2 electrons"},
 {q:"The mass of a proton equals the mass of a",o:["neutron","beta particle","electron"],a:0,e:"Proton and neutron have approximately equal mass"},
-{q:"Catalysts",o:["speed up reactions","speed up and slow down reactions","slow down reactions"],a:1,e:"Catalysts can speed up or slow down reactions (positive/negative catalysts)"},
+{q:"Catalysts",o:["speed up reactions","speed up and slow down reactions","slow down reactions"],a:1,e:"Catalysts can speed up or slow down reactions"},
 {q:"If the outer shell of an atom is full the the element is",o:["unstable/ reactive","a good conductor","practically inert"],a:2,e:"Full outer shell = inert (noble gases)"},
 {q:"Molecules of the same compound are held together by",o:["cohesive forces","adhesive forces","gravitational forces"],a:0,e:"Cohesive forces hold molecules of the same substance together"},
 {q:"Oxygen has a valency of",o:["2","6","8"],a:0,e:"Oxygen has 6 electrons in outer shell, needs 2 to complete = valency 2"},
@@ -184,18 +110,21 @@ const quizData = {
 {q:"The atomic mass number is the number of",o:["protons plus electrons","neutrons plus electrons","protons plus neutrons"],a:2,e:"Mass number = protons + neutrons"},
 {q:"A catalyst in a chemical reaction does what?",o:["Can either speed it up or slow it down","Speeds it up","Slows it down"],a:0,e:"Catalysts can be positive or negative"},
 {q:"What is the number of electrons in the inner-most shell of an atom?",o:["4","8","2"],a:2,e:"First shell holds max 2 electrons"},
+{q:"What form of heat is used to turn a solid into a gas?",o:["Sensible heat","Specific heat","Latent heat"],a:2,e:"Latent heat changes state without temperature change"},
+{q:"The heat required to change a liquid to a gas at constant temperature is the heat of",o:["fusion","condensation","vaporisation"],a:2,e:"Liquid → gas = vaporisation"},
 {q:"An atom with a full outer shell is",o:["practically inert","a good insulator","a good conductor"],a:0,e:"Full outer shell = inert (noble gas)"},
 {q:"An element with a full valence shell is",o:["very reactive","good conductor","inert"],a:2,e:"NIL"},
 {q:"A substance of two or more different atoms is",o:["a neutrino","an isotope","a chemical compound"],a:2,e:"NIL"},
 {q:"An atom with 5 electrons in its outer shell is",o:["trivalent","pentavelent","covalent"],a:1,e:"5 valence electrons = pentavalent"},
 {q:"Protons have",o:["no charge","positive charge","negative charge"],a:1,e:"NIL"},
-{q:"Producing a compound from commonly available materials is",o:["synthesis","analysis","bombardment"],a:0,e:"Synthesis = combining to form compound"},
+{q:"Producing a compound from commonly available materials is",o:["synthesis","analysis","bombardment"],a:0,e:"NIL"},
 {q:"A different number of nucleons in the nucleus of atoms would represent",o:["semiconductor","isotopes","isotones"],a:1,e:"Different nucleons = isotopes"},
 {q:"Molecules of matter are in constant motion. The amount of vibration or motion is dependent on",o:["temperature","volume","pressure"],a:0,e:"Temperature determines molecular motion"},
 {q:"When a chemical change takes place, the smallest particle indivisible in an element is called",o:["an atom","an electron","a neutron"],a:0,e:"NIL"},
 {q:"A nucleus of an atom consists of",o:["positively charged particles","a nucleus and normally has no overall charge at all and so is neutral","negatively charged particles"],a:0,e:"Protons are positive, neutrons neutral → overall positive"},
 {q:"A compound is a",o:["mixture of more than one element which are chemically bonded together","solution(either liquid or solid) of elements or mixtures of elements to form a new material","mixture of more than one element which are mixed together"],a:0,e:"Compound = chemically bonded elements"},
 {q:"A compound such as water can exist in how many states?",o:["2","3","1"],a:1,e:"Solid (ice), liquid (water), gas (steam)"},
+{q:"Select the correct statement from the following.",o:["Temperature is the only factor which can affect the state in which matter exists.","Matter can only exist in one of three states.","As temperature rises a solid will always become a liquid and then a gas."],a:2,e:"NIL"},
 {q:"Isotopes of an element have",o:["a different atomic number","the same number of neutrons but a different number of protons","the same number of protons but a different number of neutrons"],a:2,e:"NIL"},
 {q:"Neutrons have",o:["no charge","a positive charge","a negative charge"],a:0,e:"NIL"},
 {q:"Atomic MASS number is the number of",o:["protons","protons and neutrons","electrons"],a:1,e:"NIL"},
@@ -252,16 +181,15 @@ const quizData = {
 {q:"A spring, operating within its elastic range, shortens by 60mm when a load of 480N is applied to it. Calculate the total shortening when the load is increased by 120N",o:["82mm","45mm","75mm"],a:2,e:"k = 480/60 = 8 N/mm; Total load = 600N; ΔL = 600/8 = 75 mm"},
 {q:"When a square block of material is pushed into a parallelogram, the material is under what stress type?",o:["Compression","Torsion","Shear"],a:2,e:"Pushed sideways = shear"},
 {q:"A Scalar quantity has",o:["sense, magnitude and direction","sense and direction","magnitude only"],a:2,e:"Scalar = magnitude only (no direction)"},
-{q:"For a car weighing 1000 N, what force would be required to accelerate the car to 3 ms⁻²",o:["3270 N","305.8 N","3000 N"],a:2,e:"F = ma; m = 1000/10 = 100 kg; F = 100 × 3 = 300 N (but using W=1000N, a=3, g=10: F=3000N approx)"}
-],
-"03. Moments, Levers & Centre of Gravity": [
-{q:"A mass of 10kg placed 2 metres away from a pivot will have a moment of",o:["196 NM","50 NM","20 NM"],a:0,e:"M = mg × d = 10 × 9.8 × 2 = 196 Nm"},
+{q:"For a car weighing 1000 N, what force would be required to accelerate the car to 3 ms⁻²",o:["3270 N","305.8 N","3000 N"],a:2,e:"F = ma; m = 1000/10 = 100 kg; F = 100 × 3 = 300 N (but using W=1000N, a=3, g=10: F=3000N approx)"},
+{q:"A time period of 10 microseconds is equal to a frequency of",o:["100 kHz","10 kHz","1 Mhz"],a:0,e:"f = 1/T = 1/10μs = 100 kHz"},
 {q:"A force 10 N is placed 2 Meters from a pivot point, what is the moment?",o:["20Nm","40Nm","80Nm"],a:0,e:"M = F × d = 10 × 2 = 20 Nm"},
 {q:"The c.g. of a triangular plate is at the intersection of",o:["medians from a vertex to the opposite side","angle bisectors","perpendicular bisectors"],a:0,e:"CG of triangle = intersection of medians"},
 {q:"A point at which the total force of a body acts is known as the",o:["centre of gravity","point of equilibrium","centre of mass"],a:0,e:"NIL"},
 {q:"The centre of gravity of a triangle is",o:["1/3 the median from the base","1/3 the bisector from the base","1/3 the height from the base"],a:0,e:"CG is 1/3 of median from base"},
 {q:"A moment is created by a force of 5N acting 4m from the pivot on a uniform bar. At what distance must a force of 10N be applied to balance the beam?",o:["8m","4m","2m"],a:2,e:"5×4 = 10×d → d = 2m"},
 {q:"A lever of length 105 cm is used with a fulcrum placed 15 cm from the end bearing the load. Its mechanical advantage is",o:["1/6","7","6"],a:2,e:"MA = effort arm/load arm = 90/15 = 6"},
+{q:"The stress created when a material is pulled apart is called",o:["tension","torsion","compression"],a:0,e:"NIL"},
 {q:"Equilibrium of translation occurs when",o:["downward forces equal upward(reactive) forces","clockwise moments equal counterclockwise moments","clockwise forces and counterclockwise forces are equal"],a:0,e:"Translational equilibrium: ΣF = 0"},
 {q:"Forces passing through a common point are said to be",o:["coherent","coplanar","concurrent"],a:2,e:"Concurrent forces pass through same point"},
 {q:"A vector quantity is a quantity which",o:["possesses sense, magnitude and direction","possesses direction only","possesses sense only"],a:0,e:"Vector = magnitude + direction + sense"},
@@ -269,9 +197,10 @@ const quizData = {
 {q:"Two items weighing 11kg and 8kg are placed 2m and 1m respectively aft of the C of G of an aircraft. How far forward of the C of G must a weight of 30kg be placed so as not to change the C of G?",o:["2m","1.5m","1m"],a:2,e:"(11×2)+(8×1) = 30; 30/30 = 1m forward"},
 {q:"A force of 5 Newtons acting perpendicularly at 300 centimetres from the pivot produces a moment of",o:["1500 Newton metre","15 Newton metre","1.5 Kilonewton millimetre"],a:1,e:"M = 5 × 3 = 15 Nm (300 cm = 3 m)"},
 {q:"Two Vectors are at 90 degrees to each other having magnitudes of 3N and 4N. The resultant is",o:["5N","1N","7N"],a:0,e:"R = √(3²+4²) = √25 = 5N"},
-{q:"A quantity which has size but no direction is called a",o:["Scalar","Moment","Vector"],a:0,e:"Scalar = magnitude only"}
+{q:"A quantity which has size but no direction is called a",o:["Scalar","Moment","Vector"],a:0,e:"Scalar = magnitude only"},
+{q:"The advantage of using a machine is",o:["mechanical advantage of input","mechanical advantage of output","input work is less than the output work"],a:1,e:"Machine gives MA at output"}
 ],
-"04. Fluids, Pressure & Hydraulics": [
+"03. Fluids, Pressure & Hydraulics": [
 {q:"The height of mercury required to give 1 bar is",o:["700mm","1000mm","760mm"],a:2,e:"1 atm = 760 mmHg ≈ 1 bar"},
 {q:"A vessel has 25 ml of water which produces 10 kPa. If another 125 ml of water is added, what will be the pressure in the vessel?",o:["40kPa","50kPa","60kPa"],a:2,e:"Total = 150 ml; P = (150/25) × 10 = 60 kPa"},
 {q:"Two hydraulic jacks with different diameters have the same fluid pressures entering at the same rate. They will extend at",o:["the same rate until the smaller jack becomes full","the same rate","different rates"],a:0,e:"Same pressure → same rate initially"},
@@ -299,9 +228,11 @@ const quizData = {
 {q:"Which of the following can transmit pressure?",o:["Liquids and gases","Solids and gases","Any matter can transmit pressure, depending on temperature"],a:0,e:"Fluids (liquids + gases) transmit pressure"},
 {q:"Hydraulic pressure can be restored by",o:["the use of pressure/heat exchange","compressing the air charge in an accumulator","compressing the fluid in a reservoir"],a:1,e:"Accumulator air charge restores pressure"},
 {q:"When checking a hydraulic accumulator initial air pressure, the hydraulic system pressure",o:["should be at the normal working pressure","is not important","should be released"],a:2,e:"Release hydraulic pressure before checking air"},
-{q:"One kg is the mass of",o:["one litre of pure water","one pint of pure water","one gallon of pure water"],a:0,e:"1 kg = 1 L of water at 4°C"}
+{q:"One kg is the mass of",o:["one litre of pure water","one pint of pure water","one gallon of pure water"],a:0,e:"1 kg = 1 L of water at 4°C"},
+{q:"The conversion factor to convert litres to pints is",o:["0.57","1.76","2.2"],a:1,e:"1 L ≈ 1.76 pints"},
+{q:"A lifting machine moves with an effort, a distance of 200 cm, in order to raise it 0.5 m. The Velocity Ratio is",o:["0.25","4","40"],a:1,e:"VR = distance effort/distance load = 200/50 = 4"}
 ],
-"05. Kinematics - Motion": [
+"04. Kinematics - Motion": [
 {q:"The SI unit of acceleration is the",o:["metre per second squared(m/s²)","metre per second(m/s)","square metre(m²)"],a:0,e:"NIL"},
 {q:"If a body starts at rest and reaches 84 m/s in 3 seconds, its acceleration is",o:["28 m/s²","14 m/s²","252 m/s²"],a:0,e:"a = Δv/t = 84/3 = 28 m/s²"},
 {q:"The SI unit of velocity is the",o:["metre per second squared(m/s²)","metre per second(m/s)","metre(m)"],a:1,e:"NIL"},
@@ -343,13 +274,13 @@ const quizData = {
 {q:"A light aircraft flies in a semi-circle from point A to point B. If the circle has a radius of 20km and the time taken is 30 minutes, the average speed is",o:["125.7 km/h","110 km/h","80 km/h"],a:0,e:"Distance = πr = 20π ≈ 62.8 km; Speed = 62.8/0.5 = 125.7 km/h"},
 {q:"The landing speed of an aircraft is 54 m/s. If the maximum deceleration is 3m/s² the minimum length of runway required is",o:["360m","486m","162m"],a:1,e:"v² = u² + 2as; 0 = 54² - 2(3)s; s = 2916/6 = 486 m"},
 {q:"The number of radians in a semi circle are",o:["exactly 3","π","2π"],a:1,e:"Semi-circle = π radians"},
-{q:"The angular velocity of 500 RPM is, in rads/seconds is equal to",o:["1000π rads/s","8.33π rads/s","16.66π rads/s"],a:1,e:"ω = 500 × 2π/60 = 1000π/60 = 16.67π ≈ 8.33π rad/s (actually 50π/3)"},
+{q:"The angular velocity of 500 RPM is, in rads/seconds is equal to",o:["1000π rads/s","8.33π rads/s","16.66π rads/s"],a:1,e:"ω = 500 × 2π/60 = 1000π/60 = 16.67π ≈ 8.33π rad/s"},
 {q:"Which of Newton's laws relates to the formula: Force= mass × acceleration?",o:["1st","2nd","3rd"],a:1,e:"F = ma → 2nd law"},
 {q:"The period of simple pendulum is",o:["independent of its mass","longer for a heavy pendulum bob","longer on the earth than on the moon"],a:0,e:"T = 2π√(L/g) - independent of mass"},
 {q:"A satellite requires 10 Joules to rotate half a revolution, which takes 30 seconds. What is the energy required for one day?",o:["14,400 J","1,200 J","28,800 J"],a:2,e:"Revs/day = 86400/(30×2) = 1440; E = 1440 × 10 × 2 = 28,800 J"},
 {q:"The size of Centripetal Force on an object travelling in a circle",o:["increase with increasing mass of the object","decreases with increasing speed of the object","increases with an increasing radius of circle"],a:0,e:"Fc = mv²/r - increases with mass"},
 {q:"For an object in circular motion at constant velocity, if the radius of its path is doubled the centripetal force will",o:["double","remain the same","half"],a:2,e:"Fc = mv²/r - double radius = half force"},
-{q:"An aircraft weighing 6400 pounds lands at a speed of 10 ft/Sec and stops in 10 Seconds. What force was generated by the brakes(assuming gravity as 32 ft/sec).",o:["-2000 Lbs","-200 Lbs","-640 Lbs"],a:2,e:"m = 6400/32 = 200 slugs; a = (0-10)/10 = -1 ft/s²; F = 200×(-1) = -200 lbs (or use weight directly)"},
+{q:"An aircraft weighing 6400 pounds lands at a speed of 10 ft/Sec and stops in 10 Seconds. What force was generated by the brakes(assuming gravity as 32 ft/sec).",o:["-2000 Lbs","-200 Lbs","-640 Lbs"],a:2,e:"m = 6400/32 = 200 slugs; a = (0-10)/10 = -1 ft/s²; F = 200×(-1) = -200 lbs"},
 {q:"For every action there is an equal and opposite reaction. This is known as",o:["Newtons second law","Newtons third law","Newtons first law"],a:1,e:"NIL"},
 {q:"One radian is equal to",o:["the angle subtended at the centre of a circle when the arc-length formed between two radial lines is equal in length to the radius","66.67 degrees","the angle subtended at the centre of a circle when the arc-length formed between two radial lines is equal to π"],a:0,e:"NIL"},
 {q:"A weight on a spring almost touches the floor 7 times over 21 seconds. What is its frequency?",o:["3 cycles/second","1/3 cycles/second","7 cycles/second"],a:1,e:"f = 7/21 = 1/3 Hz"},
@@ -359,7 +290,7 @@ const quizData = {
 {q:"A drive shaft has a speed 150π radians a second. What is the speed in RPM?",o:["4500","9000","1500"],a:0,e:"RPM = (150π × 60)/(2π) = 4500"},
 {q:"As an object slides down a slope, its",o:["kinetic energy increases and its potential energy increases","kinetic energy increases and its potential energy decreases","kinetic energy decreases and its potential energy increases"],a:1,e:"PE → KE conversion"}
 ],
-"06. Work, Energy & Power": [
+"05. Work, Energy & Power": [
 {q:"A mass of 400 kg moves 27 metres, with a force of 54N, what is the work produced?",o:["1458J","583.2KJ","10.1KJ"],a:0,e:"W = F × d = 54 × 27 = 1458 J"},
 {q:"A single fixed pulley(discounting friction etc) has a mechanical advantage of",o:["2","1/2","1"],a:2,e:"Single fixed pulley MA = 1"},
 {q:"What is the ratio of load to effort called?",o:["Mechanical advantage","Velocity ratio","Mechanical ratio"],a:0,e:"MA = Load/Effort"},
@@ -391,10 +322,9 @@ const quizData = {
 {q:"A 4.5 kW electric motor is 90% efficient. How much energy does it use in 20 seconds?",o:["90 kJ","2.25 kJ","100 kJ"],a:2,e:"E = P × t / η = 4500 × 20 / 0.9 = 100,000 J = 100 kJ"},
 {q:"A pile driver of mass 1000 kg, hits a post 3 m below it. It moves the post 10 mm. Assuming gravity= 10 m/s, what is the kinetic energy of the pile driver?",o:["30 kJ","45 kJ","90 kJ"],a:0,e:"KE = mgh = 1000 × 10 × 3 = 30,000 J = 30 kJ"},
 {q:"The SI unit for work is the",o:["Joule","Watt","horsepower"],a:0,e:"NIL"},
-{q:"What work is done if a force of 100 N moves a body 15 metres?",o:["1500 kJ","1.5 kJ","0.15 mJ"],a:1,e:"W = F × d = 100 × 15 = 1500 J = 1.5 kJ"},
-{q:"The advantage of using a machine is",o:["mechanical advantage of input","mechanical advantage of output","input work is less than the output work"],a:1,e:"Machine gives MA at output"}
+{q:"What work is done if a force of 100 N moves a body 15 metres?",o:["1500 kJ","1.5 kJ","0.15 mJ"],a:1,e:"W = F × d = 100 × 15 = 1500 J = 1.5 kJ"}
 ],
-"07. Heat & Temperature": [
+"06. Heat & Temperature": [
 {q:"A good refrigerant has a",o:["low condensation temperature and high condensation pressure","low condensation temperature and low condensation pressure","high condensation temperature and low condensation pressure"],a:0,e:"Good refrigerant: easy to condense and evaporate"},
 {q:"What is the momentum of a ball of mass 2 grams and has a velocity of 10cm/s?",o:["5 kg.m/s","20 kg.m/s","0.0002 kg.m/s"],a:2,e:"p = mv = 0.002 × 0.1 = 0.0002 kg·m/s"},
 {q:"The SI unit of momentum is the",o:["metre squared(m²)","kilogram metre per second","kilogram/metre(kg/m)"],a:1,e:"p = mv → kg·m/s"},
@@ -440,7 +370,6 @@ const quizData = {
 {q:"One degree increment on the Centigrade scale is equal to what increment on the Fahrenheit scale?",o:["1.8 °F","33 °F","12 °F"],a:0,e:"1°C = 1.8°F"},
 {q:"Transfer of heat from a hot area to a cold area is",o:["conduction","convection","radiation"],a:0,e:"Conduction = direct transfer"},
 {q:"Fahrenheit may be converted to Celsius by using the equation",o:["°C= 5/9 × (°F- 32)","°C=5/9 × °F- 32","°C= 9/5 × °F+ 32"],a:0,e:"NIL"},
-{q:"What is 1 BTU/lb in joules per kilogram?",o:["4128 joules per kilogram","9.18 joules per kilogram","2326 joules per kilogram"],a:2,e:"1 BTU/lb ≈ 2326 J/kg"},
 {q:"Celsius to Fahrenheit is calculated by",o:["(9/5 × °C)+ 32","(5/9 × °C)+ 32","(5/9+ 32)+ °C"],a:0,e:"NIL"},
 {q:"The percentage of nitrogen in air is approximately",o:["0.62","0.21","0.78"],a:2,e:"Air ≈ 78% N₂, 21% O₂"},
 {q:"When a system undergoes a complete cycle where the net heat supplied is equal to work done plus a change in internal energy- this is known as",o:["2nd Law of thermodynamics","First law of thermodynamics","Ideal Gas law"],a:1,e:"First law: Q = W + ΔU"},
@@ -453,8 +382,8 @@ const quizData = {
 {q:"By adding impurities to water",o:["the melting point will increase and the boiling point decrease","there will be no effect to the melting and boiling points","the melting point will decrease and the boiling point will increase"],a:2,e:"Impurities: lower MP, raise BP"},
 {q:"Which type of circuit is used when the temperature of the source has insufficient heat for thermocouple application?",o:["thermistor","temperature bulb","balanced bridge"],a:0,e:"Thermistor for low-temp applications"},
 {q:"Four pounds of gas at a temperature of 17 °C is heated to 89 °C. The specific heat at constant pressure and constant volume are 0.2404 and 0.1718 respectively. Find the heat absorbed by the gas at constant pressure and at constant volume",o:["70.1 C.H.U. and 50 C.H.U.","49.5 C.H.U. and 69 C.H.U.","69.2 C.H.U. and 49.5 C.H.U."],a:2,e:"Qp = mCpΔT = 4×0.2404×(89-17)×5/9 ≈ 69.2 CHU"},
-{q:"In 'standard conditions' what is the standard for measurement of volume and density of a gas?",o:["0 °C and 760mm of Mercury","20 °C and 700mm of Mercury","20 °C and 760 mm of Mercury"],a:0,e:"STP for gases: 0°C, 760 mmHg"},
-{q:"In 'standard conditions' what is the standard for measurement of volume and density of a liquid or solid?",o:["20 °C and 760mm of Mercury","0 °C and 760 mm of Mercury","20 °C and 700 mm of Mercury"],a:0,e:"Standard for liquids/solids: 20°C, 760 mmHg"},
+{q:"In 'standard conditions' what is the standard for measurement of volume and density of a gas?",o:["0 °C and 760mm of Mercury","20 °C and 700mm of Mercury","20 °C and 760mm of Mercury"],a:0,e:"STP for gases: 0°C, 760 mmHg"},
+{q:"In 'standard conditions' what is the standard for measurement of volume and density of a liquid or solid?",o:["20 °C and 760mm of Mercury","0 °C and 760mm of Mercury","20 °C and 700mm of Mercury"],a:0,e:"Standard for liquids/solids: 20°C, 760 mmHg"},
 {q:"Which of the following 2 points are equal?",o:["-32 °C and 0 °F","40 °C and 40 °F","-40 °C and -40 °F"],a:2,e:"-40°C = -40°F"},
 {q:"What is 100 Degrees Centigrade in Fahrenheit?",o:["30 Degrees","148 Degrees","212 Degrees"],a:2,e:"°F = 100 × 9/5 + 32 = 212°F"},
 {q:"The absolute temperature scale that has the same increments as the Fahrenheit scale is the",o:["Rankin scale","Kelvin scale","Celsius scale"],a:0,e:"Rankine = Fahrenheit + 459.67"},
@@ -470,8 +399,6 @@ const quizData = {
 {q:"Latent heat is the",o:["heat required to raise the temperature of a body by 1 °C","heat required to raise 1kg of matter by 1K","heat required to change the state of a body"],a:2,e:"Latent heat = state change"},
 {q:"The intensity of radiated heat is",o:["inversely proportional to the square of the distance from the source of the heat","not effected by the distance from the source of the heat","directly proportional to distance from the source of the heat"],a:0,e:"Inverse square law"},
 {q:"As a block of ice is melted(to 4 °C). Its volume",o:["remains the same","decreases","increases"],a:1,e:"Ice → water at 4°C: volume decreases"},
-{q:"A good refrigerant has",o:["high condensing pressure, low evaporating temperature","high condensing pressure, high evaporating temperature","low condensing pressure, low vaporating temperature"],a:0,e:"Easy to condense (high P) and evaporate (low T)"},
-{q:"In a heat pump",o:["flow across the condenser is always in one direction","the condenser loses heat","the evaporator gains heat during the heating cycle"],a:2,e:"Evaporator absorbs heat in heating mode"},
 {q:"Charles' Law states that",o:["volume varies inversely with temperature","volume varies directly with temperature","volume equals pressure × temperature"],a:1,e:"V ∝ T (at constant P)"},
 {q:"Boyle's law states that",o:["pressure equals temperature divided by volume","pressure varies directly with volume","pressure varies inversely with volume"],a:2,e:"P ∝ 1/V (at constant T)"},
 {q:"A process where volume does not change is",o:["isochoric","isobaric","isothermic"],a:0,e:"Isochoric = constant volume"},
@@ -517,46 +444,124 @@ const quizData = {
 {q:"The temperature at which water will exist as a solid, liquid and gas, all at the same time, is called",o:["the triple point and is approximately 0 °C","the tri-state point and is approximately at 0 °C","the tri-state point and is approximately 98 °C"],a:0,e:"Triple point of water ≈ 0.01°C"},
 {q:"Material A and material B are both removed from the same oven at the same time, after being in the same amount of time. Material A is a higher temperature than material B. This is because",o:["material B has a higher specific heat capacity","material A must have had a higher temperature before it was put in the oven","material A has a higher specific heat capacity"],a:0,e:"Lower specific heat → higher T for same heat input"}
 ],
+"07. Optics & Fibre Optics": [
+{q:"What is the thickness of a single mode fibre optic?",o:["200 micrometres","5 micrometres","50 micrometres"],a:1,e:"NIL"},
+{q:"Divergent light rays give rise to",o:["a real image","a virtual image","chromatic aberrations"],a:1,e:"NIL"},
+{q:"In fibreoptics the type of cable is chosen by",o:["matching the diameter of the cable to the wavelength","distance required to travel","the strength of signal needed"],a:1,e:"NIL"},
+{q:"A material with a gradually varying refractive index is said to have a",o:["graded index","step index","single index"],a:0,e:"NIL"},
+{q:"Fibre optic cables are capable of transmitting light at",o:["1.99* 10⁸ m/s","3* 10⁸ m/s","0.99* 10⁸ m/s"],a:0,e:"NIL"},
+{q:"Step index fibres suffer from",o:["dispersion","scatter","attenuation"],a:0,e:"NIL"},
+{q:"Attenuated pulses have their sizes and shape restored by",o:["regenerators","impedance matching transformers","opto-isolators"],a:0,e:"NIL"},
+{q:"Attenuation in fibre optic cables is most often caused by",o:["backscattering and microbends","microbends and scattering","absorption and scattering"],a:2,e:"NIL"},
+{q:"For a concave lens the image is",o:["virtual","real","a chromatic orb"],a:0,e:"NIL"},
+{q:"In a fibre optic flying control system",o:["the sensor and the transmitter require electrical power","the transmitter requires power","the sensor requires electrical power"],a:0,e:"NIL"},
+{q:"Photons in a semiconductor are stimulated to produce excess photons to be emitted. This is a",o:["photodiode","laser diode","LED"],a:1,e:"NIL"},
+{q:"In a fibre optic flying control system, which of the following are used?",o:["Single mode fibre","Multi mode fibre","Dual mode fibre"],a:0,e:"NIL"},
+{q:"A fibre optic cable is attenuated at 29 dB/metre. This is referring to",o:["allowable loss","the figure allowed for when calculating power gain","the maximum cable run allowed in the system"],a:1,e:"NIL"},
+{q:"The fibre optic receiver is a",o:["laser diode","photodiode","light emitting diode"],a:1,e:"NIL"},
+{q:"Regenerators are used in fibre optic systems to reduce",o:["dispersion","random emission, attenuation"],a:0,e:"NIL"},
+{q:"When light rays enter a medium with a different refractive index they",o:["change direction","reflect","change speed"],a:2,e:"NIL"},
+{q:"A converging lens can focus light rays because",o:["the incoming rays are already converging","it is spherical","the light rays travel more slowly at the centre"],a:2,e:"NIL"},
+{q:"If a ray of light enters a fibre optic cable with a refractive index of 1.5, what is the speed of the ray in the cable?",o:["300,000 kilometres per second","400,000 kilometres per second","200,000 kilometres per second"],a:2,e:"NIL"},
+{q:"A mirror",o:["refracts all light","reflects light","absorbs a percentage of light"],a:1,e:"NIL"},
+{q:"The width of a multimode fibre optic cable(including the cladding) is",o:["1 µm","100 µm","10 µm"],a:1,e:"NIL"},
+{q:"A varying refractive index optical fibre is a",o:["single index","graded index","step index"],a:1,e:"NIL"},
+{q:"Refractive index is",o:["the speed of light in air multiplied by the speed of light in the medium","the speed of light in air divided by the speed of light in the medium","the speed of light in the medium divided by the speed of light in air"],a:1,e:"NIL"},
+{q:"What is the speed of light in km/s?",o:["3000","3* 10⁸","300000"],a:2,e:"NIL"},
+{q:"The focal point of a mirror is",o:["1/2 the radius","the radius","2* the radius"],a:0,e:"NIL"},
+{q:"What is the speed of light in air at 0 °C",o:["331 m/s","300 m/µs","331 mm/s"],a:1,e:"NIL"},
+{q:"How far will light travel in one year?",o:["9.46* 10¹⁵ m","1.5* 10¹¹ m","3* 10¹⁵ m"],a:0,e:"NIL"},
+{q:"When different signals are transmitted down a fibre optic core, are they distinguished by a",o:["active filter","passive filter","star coupler"],a:0,e:"NIL"},
+{q:"On an Optical Time Domain Reflectometer(OTDR), the amount of attenuation in the cable is",o:["read from the cathode ray display","derived from a graph","dialed into OTDR"],a:0,e:"NIL"},
+{q:"In a flat surfaced mirror, the angle of reflection is",o:["equal to the angle of incidence","less than the angle of incidence","more than the angle of incidence"],a:0,e:"NIL"},
+{q:"In a multimode fibre optic cable, the",o:["diameter is greater than the wavelength","diameter is less than the wavelength","diameter is equal to the wavelength"],a:0,e:"NIL"},
+{q:"A converging lens converges light rays because",o:["it is not a sphere","the light source is already converging","the light waves are refracted less in the centre of the lens than they are at the extremities"],a:2,e:"NIL"},
+{q:"In fibre optics. The fibre cable has a refractive index of 1.5, what is its speed?",o:["300 meters/microsecond","400 meters/microsecond","200 meters/microsecond"],a:2,e:"NIL"},
+{q:"A material, which has a varying refractive index is a",o:["step index","single index","double index"],a:0,e:"NIL"},
+{q:"A ray of light that travels through the centre of curvature of a concave mirror before being reflected, how is it reflected?",o:["Through the focal point","Through the focal point and centre of curvate","Through the centre of curvature"],a:2,e:"NIL"},
+{q:"What will the image produced through a divergent lens be?",o:["Negative","Real","Virtual"],a:2,e:"NIL"},
+{q:"When a beam of light passes from one medium to another with a different refractive index, what will happen to the beam of light?",o:["Total internal reflection","Change speed","Total internal refraction"],a:1,e:"NIL"},
+{q:"A fibre optic cable has different refractive indexes across its core diameter, it is a",o:["single mode fibre","graded index fibre","step index fibre"],a:1,e:"NIL"},
+{q:"Incident light travelling from air to water, the light is",o:["bent towards the normal","not bent","bent away from the normal"],a:0,e:"NIL"},
+{q:"If a light is beamed at a flat mirror, what is the angle it reflects at?",o:["Reflective index","Angle of incidence","Reactive angle"],a:1,e:"NIL"},
+{q:"In a graded index multimode fibre is the refractive index.",o:["is high","varies high and low","is low"],a:1,e:"NIL"},
+{q:"The usable bandwidth of a fibre is determined by",o:["the wavelength of the light","the angle of total internal reflection","the intermodal dispersion"],a:2,e:"NIL"},
+{q:"If, with a concave mirror the image is placed beyond the centre of curvature, the image produced will be",o:["virtual, erect and larger","real, inverted and smaller","real, erect and larger"],a:1,e:"NIL"},
+{q:"The power of a lens is calculated from the",o:["reciprocal of the focal length","product of the focal length and its distance from the pole","focal length squared"],a:0,e:"NIL"},
+{q:"Single mode optical fibre cable will",o:["have several light rays to pass","have diameter matched to wavelength of light passed","cause distortion to the light wave at the output end which is dependent upon the length of the cable"],a:1,e:"NIL"},
+{q:"When an emergent light wave enters a divergent lens",o:["it will focus beyond the lens","it will focus behind the lens","it is s spherical"],a:1,e:"NIL"},
+{q:"In a concave mirror, light rays parallel to mirror axis will be reflected",o:["through the focal point","back to the centre of curvature","parallel to mirror axis"],a:0,e:"NIL"},
+{q:"In a concave mirror, a light ray passing through the focal point will be reflected",o:["through the focal point","on the centre line of the mirror","parallel to the axis"],a:2,e:"NIL"},
+{q:"A passive sensor",o:["does not require power","requires power for the sensor","requires power for the transmitter"],a:0,e:"NIL"},
+{q:"Refractive index is",o:["lower for 4ºC water than 0ºC ice","higher for diamond than acrylic","highest for water"],a:1,e:"NIL"},
+{q:"For optical fibres, the refractive index of the cladding compared to that of the core",o:["can be either bigger or smaller depending on specification","is always smaller","is always larger"],a:1,e:"NIL"},
+{q:"The ability for a fibreoptic cable to carry waves is dependent on",o:["material, absorption and speed of light","internal reflection","material, diameter and absorption"],a:2,e:"NIL"},
+{q:"In spherical aberrations",o:["incident rays further from the axis intersect slightly closer to the lens to produce a distorted picture","incident rays further from the axis intersect slightly further away from the lens to produce a distorted picture","the bending of light through lens intersect at the same point(achromatic lens)"],a:0,e:"NIL"},
+{q:"When refraction takes place",o:["the frequency remains constant","the speed of the wave remains constant","the wavelength remains constant"],a:0,e:"NIL"},
+{q:"When light meets a Glass/ Air boundary at an angle of incidence less than the critical angle",o:["both reflection and refraction takes place","no light is reflected","total Internal Reflection takes place"],a:0,e:"NIL"},
+{q:"An object placed more than twice the focal length beyond a converging lens will form an image that is",o:["inverted, larger and virtual","inverted, smaller and real","erect, smaller and real"],a:1,e:"NIL"},
+{q:"A parabolic mirror may be used to prevent",o:["lateral inversion","spherical aberration","formation of a penumbra"],a:1,e:"NIL"},
+{q:"The refractive index for air is approximately",o:["0","1","10"],a:1,e:"NIL"},
+{q:"In optical fibres the total internal reflection of light only occurs at angles critical angle",o:["less than the critical angle","equal to the critical angle","greater than the critical angle"],a:2,e:"NIL"},
+{q:"In a concave mirror, if an object is placed between the focal point and the pole, the image will be",o:["real, erect and diminished","virtual and on the opposite side","real, inverted and larger"],a:1,e:"NIL"},
+{q:"The purpose of a patch cord used with an OTDR is",o:["to compensate for any contraction of the Fiber optic cable during test","to overcome the dead zone problem caused by reflection at OTDR launch connector","to attenuate OTDR output power which could cause damage to the cable under test"],a:1,e:"NIL"},
+{q:"The power of a lens is measured in",o:["Lumens per Watt","Watts","Diopters"],a:2,e:"NIL"},
+{q:"Lasers use which source of light?",o:["Scattered","Refraction","Coherent"],a:2,e:"NIL"},
+{q:"Illumination of one lumen per metre squared is one",o:["luxor","lux","candle"],a:1,e:"NIL"},
+{q:"The amount of light emitted by a lamp can be measured in",o:["candle's","luxors","lumens"],a:2,e:"NIL"},
+{q:"The light gathering power of a lens is indicated by its",o:["material","thickness of the lens","focal ratio"],a:2,e:"NIL"},
+{q:"In order for a converging lens to form a real image , the object distance must be more than",o:["focal length","5 times the thickness of the lens","1 inch"],a:0,e:"NIL"},
+{q:"A______ lens is thicker in the middle than at the edges.",o:["converging","concave","upsharp"],a:0,e:"NIL"},
+{q:"When is the only time a concave mirror forms a virtual image?",o:["When the object is at the focal point","When the object is inside the focal point","When the object is placed at the center of curvature"],a:1,e:"NIL"},
+{q:"A convex mirror forms a virtual image when",o:["the object is at the centre of curvature","the object is inside the focus","always"],a:2,e:"NIL"},
+{q:"A Concave mirror is used in",o:["a rear view mirror","a periscope","headlights"],a:2,e:"NIL"}
+],
 "08. Waves & Sound": [
-{q:"How much lift is produced on a wing can be derived from.",o:["Bernoulli's Theorem","Faraday's law","Charles law"],a:0,e:"Bernoulli's principle → lift"},
-{q:"Precession in a gyro is.",o:["proportional to the magnitude of the torque applied","proportional to the square of the magnitude of the torque applied","inversely proportional to the magnitude of the torques applied"],a:0,e:"Precession ∝ torque"},
-{q:"A gyro with a fixed point free to rotate in three axis is",o:["a tied gyro","a space gyro","an earth gyro"],a:1,e:"Free in 3 axes = space gyro"},
-{q:"What type of friction requires the greatest force to overcome it?",o:["Dynamic friction","Static friction","Rolling friction"],a:1,e:"Static friction > dynamic > rolling"},
-{q:"If a gyro is constrained to an external reference and has three degrees of freedom it is",o:["a tied gyro","an earth gyro","a space gyro"],a:1,e:"Constrained to earth reference = earth gyro"},
-{q:"The point at which an applied force overcomes friction and an object begins to move is the co-efficient of",o:["limiting friction","static friction","kinetic friction"],a:0,e:"Limiting friction = threshold of motion"},
-{q:"The amount a gyro precesses when a torque is applied is",o:["proportional to the torque","inversely proportional to the torque","proportional to the square of the torque"],a:0,e:"NIL"},
-{q:"The gyroscopic principle is based upon",o:["Newton's 3rd Law","Newton's 2nd Law","Newton's 1st Law"],a:2,e:"Gyro rigidity = Newton's 1st law"},
-{q:"A mass of 20kg produces a momentum of 300kgm/s. What is the Kinetic energy?",o:["0.25 Kilojoules","2250 Joules","3250 Joules"],a:1,e:"p = mv → v = 15 m/s; KE = ½mv² = ½×20×225 = 2250 J"},
-{q:"A motorcycle of mass 400kg is moving at a velocity of 8m/s. Calculate its momentum.",o:["3200 kgm/s","50 kgm/s","320 kgm/s"],a:0,e:"p = mv = 400 × 8 = 3200 kg·m/s"},
-{q:"If the speed of a gyro is increased, the force required to precess the gyro is",o:["increased","remains the same","decreased"],a:0,e:"Higher speed → more force needed for precession"},
-{q:"A gyroscope suffers from apparent wander. This is due to",o:["friction on the gimbals and bearings","the earth's rotation","the aircraft flying along a north/south track"],a:1,e:"Apparent wander = earth's rotation"},
-{q:"What is the momentum of a ball of mass 2 grams and has a velocity of 10cm/s?",o:["5 kg.m/s","20 kg.m/s","0.0002 kg.m/s"],a:2,e:"p = 0.002 × 0.1 = 0.0002 kg·m/s"},
-{q:"The SI unit of momentum is the",o:["metre squared(m²)","kilogram metre per second","kilogram/ metre(kg/m)"],a:1,e:"kg·m/s"},
-{q:"A weight on a spring almost touches the floor 7 times over 21 seconds. What is its frequency?",o:["3 cycles/second","1/3 cycles/second","7 cycles/second"],a:1,e:"f = 7/21 = 1/3 Hz"},
-{q:"How much lift is produced on a wing can be derived from.",o:["Bernoulli's Theorem","Faraday's law","Charles law"],a:0,e:"Bernoulli → lift"},
-{q:"Pressure in a pipe is",o:["force per unit area","mass divided by cross-sectional area","weight per unit area"],a:0,e:"P = F/A"},
-{q:"A freely falling body, falling from a height of 2km, and assuming g= 10m/s², will strike the ground in a time of",o:["400s","80s","20s"],a:2,e:"t = √(2h/g) = √(4000/10) = 20 s"},
-{q:"What is the angular velocity of a shaft rotating at 300rpm in radians/second?",o:["10π radians/second","2π radians/second","5π radians/second"],a:0,e:"ω = 300 × 2π/60 = 10π rad/s"},
-{q:"The force that acts on a body to cause it to rotate in a circular path is called the",o:["centripetal force","centrifugal force","inertia force"],a:0,e:"Centripetal = toward center"},
-{q:"A body rotating at an angular velocity of 5 radians/sec, with a radius of 5 metres has a speed of",o:["5π metres per second","5 metres per second","25 metres per second"],a:2,e:"v = ωr = 5 × 5 = 25 m/s"},
-{q:"A mass on a spring nearly hits the ground 20 times a minute, its frequency is",o:["3 cycles per second","1/3 cycle per second","20 cycles per second"],a:1,e:"f = 20/60 = 1/3 Hz"},
-{q:"A body travelling at 20 m/s accelerates to 36 m/s in 8 seconds, what is its acceleration?",o:["8 m/s²","4 m/s²","2 m/s²"],a:2,e:"a = (36-20)/8 = 2 m/s²"},
-{q:"A body dropped from 10 m will hit the ground in",o:["2 seconds","0.2 seconds","1.41 seconds"],a:2,e:"t = √(2h/g) = √(20/10) = √2 ≈ 1.41 s"},
-{q:"What is the rate of gravity?",o:["12.7 m/s²","0.981 m/s²","9.81 m/s²"],a:2,e:"g = 9.81 m/s²"},
-{q:"An object travels 18 km in 1 minute 30 seconds. What is its average speed?",o:["200 m/s","270 m/s","100 ms"],a:0,e:"v = 18000/90 = 200 m/s"},
-{q:"100 m is approximately",o:["220 yard","109 yard","66 yard"],a:1,e:"100 m ≈ 109 yards"},
-{q:"A car moves over a distance of 5 miles at steady speed in 10 minutes. What is the speed?",o:["30 mph","15 mph","60 mph"],a:0,e:"5/(10/60) = 30 mph"},
-{q:"A spaceship travels a distance of 480,000 miles in 2 days. What is its speed?",o:["48,000 mph","36,000 mph","10,000 mph"],a:2,e:"480,000/48 = 10,000 mph"},
-{q:"A cyclist covers a distance of 1,000 m at a constant speed in 90 seconds, What is his speed?",o:["50 m/s","12.5 m/s","11.1 m/s"],a:2,e:"1000/90 = 11.1 m/s"},
-{q:"How long will it take a car moving at 60 km/hr to travel 90 km?",o:["40 minutes","75 minutes","90 minutes"],a:1,e:"90/60 = 1.5 h = 90 min"},
-{q:"An aircraft travels at 500 km/hr for 30 minutes at steady speed. How far does it move in that time?",o:["500 km","1000km","250km"],a:2,e:"500 × 0.5 = 250 km"},
-{q:"A ball is dropped from rest. What is its speed after 4 seconds?(Take g as 10m/s/s)",o:["80m/s","40m/s","20m/s"],a:1,e:"v = gt = 10 × 4 = 40 m/s"},
-{q:"A pile driver of mass 1000 kg, hits a post 3 m below it. It moves the post 10 mm. Assuming gravity= 10 m/s, what is the kinetic energy of the pile driver?",o:["30 kJ","45 kJ","90 kJ"],a:0,e:"KE = mgh = 1000 × 10 × 3 = 30,000 J = 30 kJ"},
-{q:"A 4.5 kW electric motor is 90% efficient. How much energy does it use in 20 seconds?",o:["90 kJ","2.25 kJ","100 kJ"],a:2,e:"E = Pt/η = 4500 × 20 / 0.9 = 100,000 J = 100 kJ"}
+{q:"When the movement of an object rotating around a radius at a constant speed is projected onto a plane, the projected image follows what path?",o:["Sinusoidal","Lateral","Longitudinal"],a:0,e:"NIL"},
+{q:"The speed of sound in air at 0 °C is approximately",o:["331 m/s","3* 10⁸ m/s","181 m/s"],a:0,e:"NIL"},
+{q:"If a wave traveling to a point meets a wave traveling from that point, of equal frequency",o:["the two waves cancel each other out","they will have no effect on each other","a standing wave is formed"],a:2,e:"NIL"},
+{q:"Quality of sound depends upon",o:["pure sound waves being produced by the source","frequency and harmonics of the waves being produced","quality of the receiver"],a:1,e:"NIL"},
+{q:"Particles vibrating in air",o:["tend to give off heat","tend to give off light","produce waves"],a:2,e:"NIL"},
+{q:"The fundamental frequency is the",o:["1st harmonic","2nd harmonic","3rd harmonic"],a:0,e:"NIL"},
+{q:"The first overtone of a sound wave is the",o:["1st harmonic","2nd harmonic","fundamental frequency"],a:1,e:"NIL"},
+{q:"Two pure tones of similar frequency are heard by a person. What will they hear?",o:["One pure tone","A beat of the two tones","Two tones"],a:1,e:"NIL"},
+{q:"Two sound waves of the same frequency and amplitude are moving half a wavelength out of phase with each other. What will be heard?",o:["Nothing","Twice the volume of one of the sound waves","Half the volume of one of the sound waves"],a:0,e:"NIL"},
+{q:"A fire engine is approaching you with its siren on. As it passes you its pitch",o:["stay the same","increases","decreases"],a:2,e:"NIL"},
+{q:"Quality of sound is dependant on",o:["number and pitch of harmonics","medium it is travelling through","frequency of the supply"],a:0,e:"NIL"},
+{q:"What frequency is a tone which is 4 times the fundamental frequency?",o:["2nd overtone","3rd overtone","3rd harmonic"],a:1,e:"NIL"},
+{q:"Intensity of sound waves",o:["is not affected by distance","varies inversely as the square of distance from source","vary directly as per distance from source"],a:1,e:"NIL"},
+{q:"In a standing wave the point where continuous vibration of maximum amplitude occurs is called the",o:["harmonic","anti-node","node"],a:1,e:"NIL"},
+{q:"The name given to sounds below that which the human ear can detect, i.e. below 20Hz is",o:["ultra sound","infra sound","sonic pitch"],a:1,e:"NIL"},
+{q:"The speed of sound in dry air is 331 m/s. In a solid the speed would",o:["increase","decrease","stay the same"],a:0,e:"NIL"},
+{q:"If a tuning fork is struck and held close to the ear and slowly rotated about the vertical axis, in one rotation how many times is there no sound?",o:["2","4","Sound is audible for the whole revolution"],a:0,e:"NIL"},
+{q:"What is the phenomenon that occurs when a siren that approaches you, at the point of passing, the pitch decreases?",o:["Resonance","Doppler effect","Echo"],a:1,e:"NIL"},
+{q:"For hearing protection, noise cancelling headphones",o:["cannot reduce the noise from outside completely","operate by destructive interference of sound waves","operate by constructive interference of sound waves"],a:1,e:"NIL"},
+{q:"Tuning forks are used to vibrate musical instruments because",o:["they produce both of the other effects described","they produce a beat when played together with the instrument","they produce a pure note"],a:2,e:"NIL"},
+{q:"When an open pipe is played and a note is heard",o:["the lowest frequency of the note is called second harmonic","resonance occurs with standing waves set up inside the pipe","there is a 180º phase change at the open end"],a:1,e:"NIL"},
+{q:"Two sound waves are the same but slightly out of phase. This means that",o:["the beat frequency is the same","there will be no beat frequency","the beat frequency will be slightly different"],a:2,e:"NIL"},
+{q:"In a vibrating string, the point at which there is no displacement is called a",o:["antinode","node","fundamental mode"],a:1,e:"NIL"},
+{q:"The amplitude of a Transverse Wave is the distance from",o:["the top of a peak to the bottom of a trough","half the distance from peak to trough","one peak to the next"],a:1,e:"NIL"},
+{q:"Increasing the Amplitude of a sound wave increases its",o:["pitch","moment","loudness"],a:2,e:"NIL"},
+{q:"A wave in which the vibrations are perpendicular, or at right angles to the direction of wave travel is a",o:["Dispersion Wave","Longitudinal Wave","Transverse Wave"],a:2,e:"NIL"},
+{q:"When a string vibrates, the point at which maximum displacement occurs is called the",o:["node","antinode","primary node"],a:1,e:"NIL"},
+{q:"Increasing the frequency of a sound wave increases its",o:["pitch","loudness","moment"],a:0,e:"NIL"},
+{q:"A wave in which the vibrations are parallel to, or along, the direction of travel is a",o:["Transverse Wave","Upright Wave","Longitudinal Wave"],a:2,e:"NIL"},
+{q:"If a string is vibrating at the 3rd harmonic, it will be oscillating at",o:["Fundamental Frequency","4 times its fundamental frequency","3 times its fundamental frequency"],a:2,e:"NIL"},
+{q:"The varying pitch of the sound of a train passing by is caused by a phenomenon known as",o:["Doppler effect","double frequency","resonance"],a:0,e:"NIL"},
+{q:"Wavelength is",o:["distance from trough to crest","distance between crests","distance between top and bottom"],a:1,e:"NIL"},
+{q:"The speed of sound at standard atmospheric temperature and pressure is",o:["34 Km/s","340 m/s","340 Km/s"],a:1,e:"NIL"},
+{q:"In which medium does sound travel the fastest?",o:["Steel","Air","Water"],a:0,e:"NIL"},
+{q:"Which has the most effect on the speed of sound in air?",o:["Temperature","Wavelength","Frequency"],a:0,e:"NIL"},
+{q:"The fundamental frequency of a control cable is 10 Hz, the frequency of the 2nd Harmonic is",o:["10 Hz","20 Hz","20 KHz"],a:1,e:"NIL"},
+{q:"Which of the following is an example of a Longitudinal Wave?",o:["Sound Wave","Radio Wave","Light Wave"],a:0,e:"NIL"},
+{q:"What is the wavelength of a note of frequency 1kHz when its velocity is 340m/s?",o:["0.34m","3.4m","0.34km"],a:0,e:"NIL"},
+{q:"A body drops from 10m, it will hit the ground in",o:["1 Second","2 seconds","√2 seconds"],a:2,e:"NIL"},
+{q:"What height of water is equivalent to 1 atmosphere?",o:["29ft","33ft","101ft"],a:1,e:"NIL"},
+{q:"10 BTU is equivalent to",o:["570 Joules","10,550 Joules","63,560 Joules"],a:1,e:"NIL"},
+{q:"What does 'temperature of a body' mean?",o:["Its hotness","How it radiates heat","Its ability to retain heat"],a:0,e:"NIL"}
 ]
 };
 
-// ===== ตัวแปรสถานะ =====
 let currentCategory = "all";
 let currentQuestions = [];
 let userAnswers = {};
@@ -586,7 +591,6 @@ function startQuiz() {
   currentCategory = document.getElementById('category').value;
   submitted = false;
   userAnswers = {};
-
   let pool = [];
   if (currentCategory === "all") {
     Object.keys(quizData).forEach(cat => {
@@ -595,9 +599,7 @@ function startQuiz() {
   } else {
     quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
   }
-
   pool = shuffle(pool);
-
   currentQuestions = pool.map(q => {
     const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
     const shuffledOpts = shuffle(optsWithIdx);
@@ -610,7 +612,6 @@ function startQuiz() {
       category: q.cat
     };
   });
-
   document.getElementById('scoreBox').style.display = 'none';
   renderQuiz();
   updateStats();
@@ -619,37 +620,21 @@ function startQuiz() {
 function renderQuiz() {
   const area = document.getElementById('quizArea');
   area.innerHTML = '';
-
   currentQuestions.forEach((q, idx) => {
     const div = document.createElement('div');
     div.className = 'question';
     div.id = 'q-' + idx;
-
     let optionsHtml = '';
     q.options.forEach((opt, oi) => {
-      optionsHtml += `
-        <label>
-          <input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">
-          ${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}
-        </label>`;
+      optionsHtml += `<label><input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</label>`;
     });
-
-    div.innerHTML = `
-      <div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div>
-      <div class="q-category">📂 ${escapeHtml(q.category)}</div>
-      <div class="options">${optionsHtml}</div>
-      <div class="explanation hidden" id="exp-${idx}"></div>
-    `;
+    div.innerHTML = `<div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div><div class="q-category">📂 ${escapeHtml(q.category)}</div><div class="options">${optionsHtml}</div><div class="explanation hidden" id="exp-${idx}"></div>`;
     area.appendChild(div);
   });
-
   const submitBtn = document.createElement('div');
   submitBtn.style.textAlign = 'center';
   submitBtn.style.margin = '20px 0';
-  submitBtn.innerHTML = `
-    <button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button>
-    <button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>
-  `;
+  submitBtn.innerHTML = `<button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button><button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>`;
   area.appendChild(submitBtn);
 }
 
@@ -676,21 +661,18 @@ function submitQuiz() {
     return;
   }
   submitted = true;
-
   let correct = 0;
   currentQuestions.forEach((q, idx) => {
     const div = document.getElementById('q-' + idx);
     const expDiv = document.getElementById('exp-' + idx);
     const userAns = userAnswers[idx];
     const isCorrect = userAns === q.correctIdx;
-
     if (isCorrect) {
       correct++;
       div.classList.add('correct');
     } else {
       div.classList.add('wrong');
     }
-
     let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
     if (!isCorrect && userAns !== undefined) {
       expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
@@ -702,27 +684,20 @@ function submitQuiz() {
     }
     expDiv.innerHTML = expHtml;
     expDiv.classList.remove('hidden');
-
     div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
   });
-
   const total = currentQuestions.length;
   const percent = Math.round((correct / total) * 100);
   let colorClass = 'red';
   if (percent >= 80) colorClass = 'green';
   else if (percent >= 60) colorClass = 'yellow';
-
   const scoreBox = document.getElementById('scoreBox');
   scoreBox.style.display = 'block';
-  document.getElementById('scoreText').innerHTML = `
-    <div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div>
-    <div style="font-size: 32px; font-weight: bold;">${percent}%</div>
-  `;
+  document.getElementById('scoreText').innerHTML = `<div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div><div style="font-size: 32px; font-weight: bold;">${percent}%</div>`;
   const fill = document.getElementById('progressFill');
   fill.className = 'progress-fill ' + colorClass;
   fill.style.width = percent + '%';
   fill.textContent = percent + '%';
-
   scoreBox.scrollIntoView({behavior: 'smooth'});
 }
 
@@ -731,7 +706,6 @@ function filterQ(type) {
     const div = document.getElementById('q-' + idx);
     const userAns = userAnswers[idx];
     const isCorrect = userAns === q.correctIdx;
-
     if (type === 'all') {
       div.style.display = 'block';
     } else if (type === 'correct' && isCorrect) {
