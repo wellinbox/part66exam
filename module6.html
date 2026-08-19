@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 06 - Materials & Hardware Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: 1px solid #000;
+    background: #fff;
+    cursor: pointer;
+    margin: 4px;
+  }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+  }
+  .stats div { margin: 4px 10px; }
+  .question {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label {
+    display: block;
+    padding: 6px 10px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .options label:hover { background: #f0f0f0; }
+  .explanation {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fffbe6;
+    border-left: 4px solid #f9a825;
+    font-size: 14px;
+  }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box {
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #000;
+    border-radius: 8px;
+    display: none;
+  }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #eee;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+  }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📘 Module 06 - Materials & Hardware Quiz</h1>
+
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+
+  <div id="quizArea"></div>
+</div>
+
+<script>
+// ===== ข้อมูลข้อสอบทั้งหมด =====
+const quizData = {
+"01a. Aircraft Materials- Ferrous": [
+{q:"When drilling stainless steel, use",o:["drill ground to 120°, slow cutting speed","drill ground to 90°, fast cutting speed","drill ground to 90°, slow cutting speed"],a:0,e:"NIL"},
+{q:"How is a material galvanised?",o:["Sprayed with nickel solution","Packed in a drum containing zinc dust and heated","Dipped in a bath of molten zinc"],a:2,e:"NIL"},
+{q:"What temperature would steel be tempered at?",o:["At the annealing temperature","Above the annealing temperature","Below the annealing temperature"],a:2,e:"NIL"},
+{q:"Tempering steel gives",o:["greater brittleness","greater hardness","relief of internal stress after hardening"],a:2,e:"Tempering is done to relieve internal stresses."},
+{q:"The addition of chromium to steel will produce",o:["toughness","hardness","ductility"],a:1,e:"Chromium is alloyed with steel to make it harder."},
+{q:"Chromium added to plain carbon steel",o:["increits resistance to corrosion","turns it into a non-ferrous alloy","makes the metal softer"],a:0,e:"Chromium, when added to steel increases its hardness and corrosion resistance (hence CRS)."},
+{q:"The purpose of case hardening is to",o:["produce a hard case over a tough core","reduce the carbon in the steel","introduce carbon into the steel"],a:0,e:"Case hardening hardens the surface only."},
+{q:"At normal temperatures HC steel is harder because",o:["it has more austenite","of the % of carbon in the granules","it has less austenite"],a:1,e:"NIL"},
+{q:"Nitriding is",o:["tempering","anodising","case hardening"],a:2,e:"Nitriding is a form of case hardening."},
+{q:"Medium carbon steels have a carbon content of",o:["0.3-0.5%","0.5-0.8%","0.8-1.05%"],a:0,e:"Medium carbon steel is 0.3-0.6% (approx). FAA AC 43 4-1."},
+{q:"A ferrous metal contains",o:["aluminium","iron","magnesium"],a:1,e:"'Ferrous' is from the Latin for iron."},
+{q:"With respect to ferrous metals which of the following is true?",o:["Iron is not any element of ferrous metals","Iron is a main element and most ferrous metal are magnetic","Iron is a main element and ferrous metals are not magnetic"],a:1,e:"The Latin for iron is 'Ferrum'. Most are paramagnetic with the exception of some stainless steels."},
+{q:"The annealing process on steel is required sometimes as it",o:["provides a corrosion resistant layer that prevents oxidation","allows the material a greater stress per unit area","relieves internal stress suffered after engineering processes"],a:2,e:"Annealing is to relieve internal stresses."},
+{q:"Cobalt steel tested on the Brinell test would have a BHN number between",o:["100 to 175","300 to 400","600 to 700"],a:2,e:"Cobalt steel (used in cobalt drills) has a very high hardness (600-700 BHN or 60-65 Rockwell C)."},
+{q:"If a material is found to be in the tertiary phase of creep the following procedure should be implemented:",o:["The component should undergo dye penetrant process and condition monitored","The crack should be stop drill, condition monitoring should be applied","The component should be replaced immediately"],a:2,e:"The tertiary phase of creep occurs just before complete failure of the component."},
+{q:"What is used for marking out steels?",o:["Engineers blue","Wax crayon","Copper sulphate"],a:2,e:"Copper sulphate is used for marking steel."},
+{q:"Phosphating of steels is carried out by immersing the steel into a solution of",o:["phosphoric acid and metal phosphates","nitric acid and sulphur","metal phosphates and sulphuric acid"],a:0,e:"CAIPs BL/7-4 1.1."},
+{q:"Tempering entails",o:["heating under the UCP and slow cooling","heating over the UCP and fast cooling","heating over the UCP and slow cooling"],a:0,e:"To temper steel, heat to BELOW the Lower Critical Temperature (LCT) and cool either slowly or quench in water."},
+{q:"Austenitic stainless steels are",o:["magnetic","non-magnetic","hardened by heat treatment"],a:1,e:"Austenitic stainless steel is non-magnetic."},
+{q:"The formation of steel depends upon",o:["the formation of pearlite into austenite","the formation of austenite into pearlite","the presence of pearlite in the structure"],a:1,e:"Austenite exists above the LCT and turns into pearlite as the steel cools."},
+{q:"How is residual magnetism removed after an NDT examination?",o:["EMI","EMC","Degaussing"],a:2,e:"Degaussing is another name for demagnetising."},
+{q:"The hardness of steel depends upon",o:["formation of pearlite into austenite","formation of cementite","the iron austenite grain structure"],a:1,e:"Cementite (iron carbide) is the hard grain structure that precipitates from the austenite as high carbon steel cools from above the UCT."},
+{q:"The difference between annealing and normalizing is",o:["both are heated above the UCT, cool slowly to anneal, cool in air to normalize","both are heated below the UCT, cool in air to anneal, cool slowly to normalize","both are heated above the UCT, cool in air to anneal, cool slowly to normalize"],a:0,e:"Both are heated above the UCT, but the only difference is, cool slowly (in the furnace) to anneal, cool in air to normalize."},
+{q:"Normalizing of steel is done to",o:["remove residual stress of the manufacturing process","make steel softer","restore the fatigue life of steel"],a:0,e:"NIL"},
+{q:"When normalising, the material is",o:["quenched immediately","left to cool in room temperature","cooled slowly"],a:1,e:"Cool in air when normalising."},
+{q:"Cast iron is",o:["very malleable","tough","heavy and brittle"],a:2,e:"NIL"},
+{q:"Case hardening can be carried out on",o:["titanium","any ferrous metal","duralumin"],a:1,e:"NIL"},
+{q:"Exhaust systems are usually made from stainless steel which is susceptible to",o:["surface corrosion","filiform corrosion","intergranular corrosion"],a:2,e:"NIL"},
+{q:"When metal is first heated slightly above its critical temperature and then cooled rapidly it is common that the metal will increase in",o:["brittleness","both of the above","hardness"],a:1,e:"This is the process of hardening (ferrous) metals."},
+{q:"Steel is tempered",o:["after hardening","before hardening","to increase hardening"],a:0,e:"Tempering is to reduce the brittleness caused by hardening."},
+{q:"If a steel component is operated below the fatigue limit. The fatigue life is",o:["finite","infinite","depend on its proof stress"],a:1,e:"NIL"},
+{q:"A low carbon steel would normally be case hardened using",o:["the nitriding process","flame or induction hardening","pack or gas carburising"],a:2,e:"NIL"},
+{q:"After a product has been manufactured and all heat treatment has been carried out the stress remaining if any is termed as",o:["residual stress","working stress","applied stress"],a:0,e:"NIL"},
+{q:"Annealing steels",o:["toughens the metal","makes the metal malleable","makes the metal brittle"],a:1,e:"NIL"},
+{q:"Tempering of hardened steel is carried out to",o:["retain surface hardness, but soften the core","retain core hardness, but soften the surface","significantly reduce the brittleness without suffering a major drop in its strength"],a:2,e:"NIL"},
+{q:"High speed steel relies heavily on the following metallic element for its ability to cut other metals, even when it is heated to a dull red colour",o:["Tungsten","Nickel","Vanadium"],a:0,e:"NIL"},
+{q:"When a low carbon steel bolt is stretched beyond its elastic limit without breaking, it will",o:["deform temporarily","become more ductile","deform permanently"],a:2,e:"NIL"},
+{q:"1% Nickel, 1% Carbon, steel is widely used for",o:["exhaust valves","ball and roller bearings","high tensile steel bolts"],a:1,e:"NIL"},
+{q:"Fatigue failure may be defined as",o:["failure caused by stress in excess of the material U.T.S.","failure due to impact","reduction in strength due to alternating loads"],a:2,e:"NIL"},
+{q:"Normalising steels",o:["increases toughness","increases the hardness","relieves the stresses"],a:2,e:"NIL"},
+{q:"Cast iron is",o:["tough","heavy and brittle","very malleable"],a:1,e:"NIL"},
+{q:"Austenitic steel is produced when the material is heated to",o:["above the Upper Critical Point","above the Lower Critical Point","below the Upper Critical Point"],a:0,e:"NIL"},
+{q:"Steel is produced by refining pig iron where air/oxygen is blown through the molten material to remove",o:["carbon","oxides","sulphur"],a:0,e:"Air is to 'decarburise' the pig iron."},
+{q:"During a Rockwell Hardness test, what dimension is measured?",o:["The diameter of the indent","The depth of the indent","The diameter and depth of the indent"],a:1,e:"NIL"},
+{q:"What does the 0 in 2024-T3 mean?",o:["The percentage of impurities in the alloy","The alloy has not been modified","The alloy has been modified"],a:1,e:"NIL"},
+{q:"In most aircraft hydraulic systems, two-piece tube connectors consisting of a sleeve and a nut are used when a tubing flare is required. The use of this type of connector eliminates",o:["the flaring operation prior to assembly","the possibility of reducing the flare thickness by wiping or ironing during the tightening process","wrench damage to the tubing during the tightening process"],a:1,e:"With the two-piece fitting (AN818) there is no relative motion between the fitting and the flare when the nut is being tightened."}
+],
+"01b. Aircraft Materials- Ferrous": [
+{q:"In the tensile strength test",o:["the material is pulled to limit of elasticity","the material is pulled to until it breaks","the material is pulled until it reaches its UTS"],a:1,e:"The material is tested to full destruction."},
+{q:"Impact resistance measures the",o:["material toughness","material hardness","material ductility"],a:0,e:"'Toughness' is resistance to impact."},
+{q:"Specified time of contact between the indentor and test piece in a vickers or brinell hardness test is",o:["20 seconds","10 seconds","15 seconds"],a:2,e:"CAIPs BL/10-3 5.2.8."},
+{q:"In an Izod impact test the striking energy of the striker is approximately",o:["150 J","163 J","300 J"],a:1,e:"CAIPs BL/10-3 6.2."},
+{q:"The Charpy test measures",o:["strain","impact energy","Young's modulus"],a:1,e:"NIL"},
+{q:"The 'Fatigue limit' for steel is generally in the region of, compared to the static U.T.S.",o:["40%-60%","60%-80%","20%-40%"],a:2,e:"NIL"},
+{q:"The ability of mild steel to accept more load after the yield point is reached is due to",o:["necking","strain hardening","plasticisation"],a:1,e:"NIL"},
+{q:"What is a Rockwell tester used for?",o:["Hardness Testing","Tensile Testing","Fatigue Testing"],a:0,e:"NIL"},
+{q:"What type of test involves using a weighted pendulum to strike a material until fracture?",o:["Hardness Test","Impact Resistance Test","Fatigue Testing"],a:1,e:"NIL"},
+{q:"Which of the following are all hardness testing machines?",o:["Rockwell, Brinell and Izod","Rockwell, Vickers and Izod","Rockwell, Brinell and Vickers"],a:2,e:"NIL"}
+],
+"02a. Aircraft Materials- Non-Ferrous": [
+{q:"The most suitable mixture for a salt bath operation is",o:["20% nitrate of soda and 80% sodium nitrate","90% nitrate of soda and 10% sodium nitrate","70% sodium chlorate and 30% sodium nitrate"],a:1,e:"BL/9-1 12."},
+{q:"How many times can clad alloy be heat treated?",o:["Once only","3 times","as many times as required"],a:1,e:"NIL"},
+{q:"The symbol 'W' on a material indicates",o:["it is for use on aircraft mainplanes only","it has been solution treated and will respond effectively to precipitation treatment","it is for workshop use only"],a:1,e:"NIL"},
+{q:"For a particular metal material, what conditions are best to minimise creep?",o:["Low stress, low temperature","Low stress, high temperature","High stress, low temperature"],a:0,e:"NIL"},
+{q:"What is the effect of precipitation heat treatment on aluminium?",o:["It speeds up age hardening process","It delays the age hardening process","It softens the material to allow it to be worked"],a:0,e:"NIL"},
+{q:"Aluminium exposed to air will",o:["oxidise and become weaker","oxidise and become electrically insulated","oxidise and become stronger"],a:1,e:"Oxides of all metals are insulators."},
+{q:"What care should you take with 2024-T3?",o:["Do not scratch or make nicks in it","Do not bend at sharp angles","Do not remove the surface of the sheet metal"],a:0,e:"2024-T3 has a low fatigue resistance."},
+{q:"Composition of silver solder is",o:["tin and lead","tin, lead and silver","tin, lead, silver and antimony"],a:2,e:"BL/6-1 Table 3."},
+{q:"If aluminium alloy is not quenched within the minimum time allowed after heat treatment is it will be",o:["subject to corrosion","malleable","brittle"],a:2,e:"If al. alloy is not quenched, the copper precipitates and it remains hard and brittle."},
+{q:"Anodizing protects alloy metal from corrosion and does what else?",o:["Seals the surface from moisture","Makes a good surface for paint to adhere to","Makes the surface alkaline"],a:1,e:"NIL"},
+{q:"If caustic soda turns a material black what is it?",o:["Aluminium alloy","Alclad","Aluminium"],a:0,e:"Caustic soda turns al.alloy black, and pure aluminium white."},
+{q:"What chemical is used to identify aluminium alloys?",o:["Caustic soda","Copper sulphate","Nitric acid"],a:0,e:"Caustic soda turns al. alloy black, and pure aluminium white."},
+{q:"Pure aluminium is",o:["highly resistant to corrosion","not resistant to corrosion","reasonably resistant to corrosion"],a:0,e:"Pure aluminium is highly resistant to corrosion."},
+{q:"Precipitation treating makes the metal",o:["Precipitation treating makes the metal","less strong and hard","harder, stronger and less ductile"],a:2,e:"NIL"},
+{q:"A material has the code 2024-TH6 on it. Which part of the code indicates the percentage of the alloying element?",o:["H","20","6"],a:1,e:"NIL"},
+{q:"Aluminium alloyed primarily with magnesium is numbered",o:["2025","5025","1025"],a:1,e:"NIL"},
+{q:"Heat treatment is shown on a British aluminium alloy by a",o:["letter and number code","number code","letter code"],a:2,e:"BL/9-1 16.2."},
+{q:"Non heat treatable materials",o:["cannot be hardened","can be hardened by strain hardening or cold working","can be hardened by annealing"],a:1,e:"All materials but a few (eg lead) can be hardened by cold working."},
+{q:"Which of the following metals is an aluminium silicon alloy used mainly for casting?",o:["Alclad","Aldrey","Alpax"],a:2,e:"Trade name for material used mainly for castings. Low density and corrosion resistance. 87% Aluminium 13% Silicon."},
+{q:"Aircraft skin is joggled to",o:["provide smooth airflow at faying surfaces","make a frame lighter but stronger","conform to the aircraft contour"],a:0,e:"A joggle makes a flush surface at a join."},
+{q:"The British system of heat treatment codes is",o:["a series of letters","numbers and letters","a series of numbers"],a:0,e:"CAIP BL/9-1."},
+{q:"In a sheet metal store the following is marked on a sheet of aluminium alloy: L162(sheet 1)., On a different sheet the following marking is found: L172(sheet 2). The following is true:",o:["Sheet one has a shinier surface than sheet 2","Sheet one is more ductile than sheet 2","Sheet two is of a thicker gauge than sheet 1"],a:1,e:"The L numbers are the British al. alloy specs."},
+{q:"Cold working of a material is used to reduce",o:["material hardness","fatigue","wear of manufacturing tools"],a:2,e:"Cold working increases strength and hardness (therefore reduces wear)."},
+{q:"Sheet metal should be stored",o:["above 25 degrees centigrade","on its edge in racks to prevent scratching","stacked flat to prevent bending of sheets"],a:1,e:"CAAIPs Leaflet 1-8."},
+{q:"Clad aluminium alloy (alclad) has a pure aluminium coating of",o:["0.002","1% of alloy thickness","5% of alloy thickness"],a:2,e:"The cladding is 5% each side."},
+{q:"The main metal in monel is",o:["aluminium","nickel","stainless steel"],a:1,e:"Monel is a nickel alloy."},
+{q:"A tube complying to BS T51 is",o:["tungum","HTS tube","high pressure seamless copper tube"],a:2,e:"BL/6-15 3.2.1"},
+{q:"Why is nickel chromium used in many exhaust systems?",o:["Corrosion resistant and high heat conductivity","Lightweight and flexible","Corrosion resistant and low expansion coefficient"],a:2,e:"Nickel and chromium are the alloying elements in Stainless Steel."},
+{q:"Titanium alloys",o:["are cheap to manufacture","have a high strength to weight ratio","are corrosion resistant but heavy"],a:1,e:"NIL"},
+{q:"Which part of the 2017-T36 aluminium alloy designation indicates the primary alloying agent used in its manufacture?",o:["20","2","17"],a:1,e:"NIL"},
+{q:"Clad aluminium alloys are used in aircraft because they",o:["are harder wearing than unclad aluminium alloys","are less subject to corrosion than uncoated aluminium alloys","are stronger than unclad aluminium alloys"],a:1,e:"NIL"},
+{q:"Non heat treatable aluminium alloys",o:["can be hardened by strain hardening","cannot be softened","cannot be hardened"],a:0,e:"NIL"},
+{q:"Solution treatment after manufacturers have performed it once can be carried out a further",o:["1 time","2 times","3 times"],a:1,e:"Solution treatment to Alclad can be carried out only 3 times in total."},
+{q:"Following solution treatment aluminium alloy can be placed into service",o:["after 5 days","straight away","after 24 hours"],a:0,e:"Full hardness is achieved after 4-5 days."},
+{q:"The time between removal from heat treatment furnace and quenching must be not more than",o:["3 seconds","10 seconds","7 seconds"],a:1,e:"NIL"},
+{q:"When buffing surface of Aluminium Alloy, what material are you removing?",o:["Oxide layer","Aluminium","Alloy"],a:0,e:"Polishing al.alloy, pure al. or Alclad, you would be removing the oxide layer."},
+{q:"Why is clad alloy preferred to pure Aluminium?",o:["Less brittle","More ductile","Tougher"],a:2,e:"The important factor is that clad aluminium alloy is 90% aluminium alloy."},
+{q:"Why are aluminium alloys used on aircraft, instead of pure aluminium?",o:["Stronger","Corrosion resistant","Lighter"],a:0,e:"NIL"},
+{q:"The magnesium alloys used in aircraft can be recognized by",o:["shiny surface due to chromium plated on the surface","yellowish surface due to protective treatment","silver surface due to protective coating"],a:1,e:"NIL"},
+{q:"Age hardening of aluminium is",o:["never carried out","a gradual hardening over a period of time","not necessary"],a:0,e:"Aluminium will not age harden like aluminium alloys such as dural as there ars no alloying elements such as copper that will come out of solution over time."},
+{q:"Alclad is",o:["aluminium with duralumin cladding","duralumin with aluminium coating","duralumin with magnesium cladding"],a:1,e:"NIL"},
+{q:"The oxide film on the surface of aluminium is",o:["hard and porous","porous","non porous"],a:2,e:"NIL"},
+{q:"The process of forming a pure layer of aluminium over an aluminium alloy is",o:["metallizing","cladding","electroplating"],a:1,e:"NIL"},
+{q:"Titanium can be identified by placing it on a grinding wheel and looking for",o:["Red Sparks","Yellow Sparks","White Sparks"],a:2,e:"NIL"},
+{q:"The critical process of heat treatment is",o:["temperature, method of heating and cooling","temperature and method of heating only","method of heating only"],a:0,e:"NIL"},
+{q:"Re-treatment of aluminium alloys can be performed by",o:["alocrom treatment","brushing on phosphate treatment followed by paint","selenious acid treatment"],a:0,e:"NIL"},
+{q:"What is generally true for titanium alloy?",o:["It is stronger than the aluminium","It is stronger than the steel","It has lower density than magnesium"],a:0,e:"NIL"},
+{q:"Malleable materials are",o:["easy to forge","easy to cast","highly ductile"],a:0,e:"Malleability does not necessarily mean ductility."},
+{q:"If a material has to undergo deep cold forming operation. The essential property would be",o:["ductility","malleability","elasticity"],a:1,e:"NIL"},
+{q:"The metal which must not be heated in a salt bath is",o:["magnesium alloy","duralumin","rivets made of alclad"],a:0,e:"NIL"},
+{q:"The colour code on sheet metal indicates",o:["only the specification of the material","the spec and gauge of the material","that the material is from an approved source"],a:2,e:"NIL"},
+{q:"When two or more metallic materials are fused together, the combination is known as",o:["a composite material","a thermosetting compound","an alloy"],a:2,e:"Fuse means 'to melt'."},
+{q:"Malleable materials are normally",o:["also highly ductile","easy to cast","easily forged"],a:2,e:"NIL"},
+{q:"The common bonding material for Tungsten Carbide is",o:["Invar","Cobalt","Silicon"],a:1,e:"Cobalt is used to bond tungsten carbide to cutting tools."},
+{q:"Grain size will effect the mechanical properties of metal. Which of the following is true?",o:["Large grain size is attributed to slow cooling rates and will give less tensile strength","Materials with large grain size are more prone to creep","Small grain size is normally attributed to rapid cooling rates and will give less tensile strength"],a:0,e:"NIL"},
+{q:"The cracking of structural members under repeated stress lower than the ultimate tensile load is known as",o:["creep","fatigue failure","stress reversal"],a:1,e:"NIL"},
+{q:"A piece of duralumin has been annealed and bent into shape prior to fitting to an aircraft. Which of the following is correct? It must be",o:["fitted to the aircraft within 24 hours","solution treated, precipitation treated and fitted to the aircraft within 2 hours","solution treated prior to fitting to an aircraft"],a:1,e:"NIL"},
+{q:"A sheet of metal is designated 2024-T4. The code tells us that the material is a copper based aluminium alloy",o:["annealed and Naturally aged","solution treated and naturally aged","solution treated and artificially aged"],a:1,e:"NIL"},
+{q:"A metal is coded 1285 using the IADS coding method. This means the metal is",o:["85% pure aluminium","99.85% pure aluminium","a copper based aluminium alloy i.e. duralumin"],a:1,e:"NIL"},
+{q:"A material containing approximately 66% nickel and 33% copper is known as",o:["Nimonic","Monel metal","Invar"],a:1,e:"NIL"},
+{q:"Monel metal consists of approximately",o:["66% Chromium and 33% Copper","66% Copper and 33% Nickel","66% Nickel and 33% Copper"],a:0,e:"NIL"},
+{q:"Silver solder is composed of the materials",o:["Copper, Tin and Silver","Zinc, Lead and Silver","Copper, Zinc and Silver"],a:2,e:"NIL"},
+{q:"The ease with which a material can be forged, rolled and extruded without fracture is an indication of a material's",o:["malleability","ductility","brittleness"],a:0,e:"NIL"},
+{q:"What is fatigue?",o:["Cyclic stressing of a part","Failure of a component due to corrosion","Constant stressing of a part"],a:0,e:"NIL"},
+{q:"Why is stop drilling carried out at the end of a crack?",o:["To change the direction of the crack","To stop the crack from propagating","To increase the stress concentration at the crack end"],a:1,e:"NIL"},
+{q:"Annealing of aluminium",o:["increases the tensile strength","makes the material brittle","removes stresses caused by forming"],a:2,e:"NIL"}
+],
+"02b. Aircraft Materials- Non-Ferrous": [
+{q:"In the Brinell hardness test, you would measure the indentation's",o:["depth","area","diameter"],a:2,e:"In a Brinell hardness test, the diameter of the indent is used to indicate the hardness."},
+{q:"The impact testing technique is used on a material to test for",o:["hardness","toughness","shear strain"],a:1,e:"The impact test machine measures resistance to impact (i.e. toughness)."},
+{q:"An S-N curve is useful in the design evaluation process for testing",o:["fatigue life","shear force","tension"],a:0,e:"An SN curve is to evaluate a material for fatigue. S=stress level N=number cycles to failure."},
+{q:"What is a fusible material?",o:["The ability of two dissimilar metals to melt together","The ability of a metal to melt","The ability of a metal to be welded"],a:1,e:"'Fuse' simply means to melt."},
+{q:"Brittleness is",o:["the property to resist wear","the property to not deform before cracking","the property to resist deformation"],a:1,e:"NIL"},
+{q:"The proof stress of a material is the stress at which",o:["the material yields","small amount of permanent set takes place","necking of the material begins"],a:1,e:"NIL"},
+{q:"Young's Modulus is a measure of",o:["strain","stress","stiffness"],a:2,e:"NIL"},
+{q:"Hooke's law states that, within the elastic region, elastic strain is",o:["indirectly proportional to stress","directly proportional to stress","directly opposite to stress"],a:1,e:"NIL"},
+{q:"The S.I. unit for strain is",o:["Nmm","P.S.I.","no units"],a:2,e:"NIL"},
+{q:"The value of stress for a given material can be derived by",o:["Cross sectional area/ Load","Load* Cross sectional area","Load/ Cross sectional area"],a:2,e:"NIL"},
+{q:"A material's yield strength is the ability to",o:["withstand a crushing force","resist side loads","resist deformation"],a:2,e:"NIL"},
+{q:"What type of a test involves stretching material until it breaks?",o:["Fatigue Testing","Hardness Testing","Tensile Testing"],a:2,e:"NIL"}
+],
+"03.1a. Composite and Non-Metallic": [
+{q:"Adhesives containing phenol-formaldehyde, to cure, requires",o:["room temperature","high temperature","low temperature"],a:1,e:"NIL"},
+{q:"Two parts of the adhesive process are",o:["wetting and gripping","spreading and setting","wetting and setting"],a:2,e:"NIL"},
+{q:"Types of adhesive joints are",o:["mechanical and cemented","cemented and specific","mechanical and specific"],a:0,e:"NIL"},
+{q:"What material would be used where a high temperature application is required, e.g. a firewall?",o:["Aramid (Kevlar) fibres","Carbon/graphite fibres","Ceramic fibres"],a:2,e:"Ceramic composites retain their strength at high temperatures."},
+{q:"Over extended honeycomb can bend in which direction?",o:["In all directions","Across the ribbon","Along the ribbon"],a:2,e:"NIL"},
+{q:"Fibre weave strength is greatest in the direction of the",o:["weft","warp","bias"],a:1,e:"NIL"},
+{q:"What is Alumina?",o:["An alloy of aluminium","Aluminium ore","A ceramic oxide of aluminium"],a:2,e:"Alumina is aluminium oxide - a ceramic."},
+{q:"Which of these core materials will be used in the making of a composite material flat panel?",o:["Hexagonal core","Rectangular core","Flexible core"],a:0,e:"NIL"},
+{q:"Which of the following could best be manufactured from Perspex panel?",o:["A passenger window","A radome","A cockpit windscreen"],a:0,e:"NIL"},
+{q:"Kevlar and Nomex are types of",o:["glass fibre composite","advanced composite","aluminium alloy"],a:1,e:"Kevlar and Nomex are Aramid materials."},
+{q:"Strength of fibreglass is",o:["either direction","along the fibre","across the fibre"],a:1,e:"NIL"},
+{q:"A composite flap panel has structural damage. What NDT method will you use to detect?",o:["High voltage x-ray","Low voltage x-ray","Coin tap test"],a:2,e:"NIL"},
+{q:"Sound is best absorbed by a material which is",o:["dense","soft and porous","hard"],a:1,e:"'Cellular' materials make good sound insulation. Sound is unaffected by density, nor hardness."},
+{q:"The maximum tensile strength of fibre reinforced plastic is achieved using",o:["fibres uniformly distributed at 45 degrees to each other","unidirectional fibres","chopped strand mat"],a:1,e:"NIL"},
+{q:"Polyester resin and glass fibre cloth, becomes",o:["PTFE","PVC","GRP"],a:2,e:"NIL"},
+{q:"A thermoplastic can be",o:["heated and formed only once","is not affected by even low temperatures","can be reheated and reformed more than once"],a:2,e:"NIL"},
+{q:"An impact adhesive is part of the",o:["thermoplastic group","thermoset group","Anaerobic resin group"],a:0,e:"NIL"},
+{q:"Sandwich panels made of metal honeycomb construction are used on modern aircraft because this type of construction",o:["may be repaired by gluing replacement skin to the inner core material with thermoplastic resin","is lighter than single sheet skin of the same strength and is more corrosion resistant","has a high strength to weight ratio"],a:1,e:"NIL"},
+{q:"A category of plastic material that is capable of softening or flowing when reheated is described as a",o:["thermoset","thermoplastic","thermocure"],a:1,e:"NIL"},
+{q:"The classification of high tensile strength fibreglass used in aircraft structures is",o:["G-glass","E-glass","S-glass"],a:2,e:"NIL"},
+{q:"Which is the identifying characteristic of acrylic plastics?",o:["Acetone will soften the plastic, but will not change its colour","Has a yellowish tint when viewed from the edge","Zinc chloride will have no effect"],a:2,e:"NIL"},
+{q:"The classification for fibre glass reinforcement material that is high resistivity and the most common is",o:["E-glass","S-glass","G-glass"],a:0,e:"NIL"},
+{q:"Composite fabric material is considered to be the strongest in what direction?",o:["Warp","Bias","Weft"],a:0,e:"NIL"},
+{q:"Which of the following are generally characteristic of an aramid fibre (Kevlar) composites?",o:["High tensile strength and flexibility","Flexibility, stiffness and corrosive effect in contact with aluminium","High tensile strength, stiffness and ability to conduct electricity"],a:0,e:"NIL"},
+{q:"Which of the following are generally characteristic of carbon/graphite fibre composites?",o:["Flexibility, High compressive strength and ability to conduct electricity","Flexibility and high compressive strength","Stiffness, high compressive strength and corrosive effect in contact with aluminium"],a:2,e:"NIL"},
+{q:"Which of the following statements is true about thermosetting plastics?",o:["They are also known as Teflon","Once moulded into shape they become set and cannot subsequently be softened by reheating","They become plastic when heat is applied"],a:1,e:"NIL"}
+],
+"03.1b. Composite and Non-Metallic": [
+{q:"Which of the following is susceptible to the ingress of moisture?",o:["Glass fibre","Carbon fibre","Kevlar"],a:2,e:"NIL"},
+{q:"What tests are done on adhesive joints?",o:["Shear and peel","Impact and peel","Impact and shear"],a:0,e:"NIL"},
+{q:"When using a hot bonder to effect a composite repair, you use",o:["inorganic resin adhesives","organic resin adhesives","synthetic resin adhesives"],a:2,e:"NIL"},
+{q:"In a composite repair lay-up, how much should each layer extend beyond the layer below it?",o:["3-4 inches","1-2 inches","2-3 inches"],a:1,e:"FAA AC43 Page 3-5."},
+{q:"What is the effect of heat on a cold cure resin?",o:["No effect on pot life","Decrease pot life","Increase pot life"],a:1,e:"NIL"},
+{q:"If you increase the amount of catalyst in a resin mixture,",o:["the material will become stronger","the material will become weaker","the pot life will be decreased"],a:2,e:"NIL"},
+{q:"What two components of a three part polyester resin are dangerous to mix together directly?",o:["Accelerator and free catalyst","Catalyst and resin","Accelerator and resin"],a:0,e:"CAIP AL/7-6 page 2 para 4."},
+{q:"What is the effect of adding too much hardener to a resin?",o:["No effect","Makes the repair more brittle","The resin will not harden"],a:1,e:"NIL"},
+{q:"What is the largest hole in honeycomb repairable with microballoons?",o:["2.54 inches","2.54 mm","2.54 cm"],a:2,e:"Answer is 1 inch."},
+{q:"An air driven router is used to remove honeycomb material for repairs",o:["when one outer skin is damaged","to stainless steel honeycomb only","when both outer skins are damaged"],a:0,e:"NIL"},
+{q:"Where would you use a Templestic?",o:["For the boundary marking of a composite repair","To indicate temperature when a repaired composite item is cured with heat lamps","As a temporary repair in a glass fibre internal"],a:1,e:"NIL"},
+{q:"The vacuum connections on a fibreglass repair must be placed onto the",o:["top layer of glass fabric directly","breather mat","peel ply"],a:1,e:"The breather mat allows the air to flow from the repair."},
+{q:"What do you do if you forget to add hardener to a composite repair?",o:["Add hardener at the edges and it will cure","It will cure eventually anyway","Remove all resin and start again"],a:2,e:"NIL"},
+{q:"Why would you use microballoons as a filler?",o:["It is the lightest filler material","It is the cheapest filler material","It cross-links with the panel"],a:0,e:"Microballoons is the lightest filler material."},
+{q:"When using a backing former on a composite repair you need to use",o:["a vacuum bag","cellophane","breather cloth"],a:1,e:"NIL"},
+{q:"Heater mats should overlap the repair by",o:["4 inches","6 inches","2 inches"],a:2,e:"NIL"},
+{q:"A thermoplastic fibre reinforced composite is prepared by",o:["a solvent wipe","corona method","etching"],a:1,e:"Corona method is used to prepare a thermoplastic material."},
+{q:"During vacuum bag lay-up the vacuum gauge is placed where?",o:["Next to the vacuum port","Opposite side to the vacuum port","Over the repair"],a:1,e:"NIL"},
+{q:"Stepped curing has",o:["2 or more arrest points","no arrest point","1 arrest point"],a:0,e:"NIL"},
+{q:"Maximum repair dimensions for use of microballoons is",o:["10mm","20mm","30mm"],a:0,e:"Maximum repair with microballoons is approximately 3/8 inch - closest here is 10 mm."},
+{q:"In an autoclave what pressure would the vacuum alarm be set at?",o:["Operating pressure","Higher than operating pressure","Lower than operating pressure"],a:2,e:"An autoclave uses pressure, so the alarm must sound if the pressure drops below normal."},
+{q:"In an autoclave what would you cover the repair in?",o:["High temp nylon","Polypropelene","Polythene"],a:0,e:"NIL"},
+{q:"When mixing resin it is dangerous to add",o:["accelerator and catalyst before resin","catalyst and resin before accelerator","resin and accelerator before catalyst"],a:0,e:"AL/7-6 4."},
+{q:"In an autoclave, to apply pressure",o:["a vacuum bag is used","weights are used","clamps are used"],a:0,e:"NIL"},
+{q:"What does MSDS stand for?",o:["Metal Surface Dimension Sector","Material Safety Data Sheet","Maximum Structural Design System"],a:1,e:"NIL"},
+{q:"Honeycomb for repair can be removed with",o:["a drill","locally manufactured concave knife","a router"],a:2,e:"CAIPs AL/7-6."},
+{q:"The pot life of a cold cured resin",o:["is not reliant upon temperature fluctuations","decreases with an increase in temperature","increases with increase of temperature"],a:1,e:"CAIPs AL/7-6."},
+{q:"Thermosetting adhesive, during their curing cycle give off",o:["static radiation","heat","carbon monoxide"],a:1,e:"plastics (or adhesives) require heat to make them cure. The heat can be applied externally (endothermic) or created internally by a catalyst or hardener (exothermic). The latter gives off heat."},
+{q:"The effect of a lower temperature than ambient during the curing period of a resin, will cause the curing time to",o:["decrease","increase","remain unchanged"],a:1,e:"A colder temperature will cause a resin to take longer to cure."},
+{q:"What is used as the base covering on a honeycomb repair?",o:["Glass cloth or thin aluminium sheet","Thick aluminium sheet","Plywood"],a:0,e:"NIL"},
+{q:"When drilling a carbon fibre reinforced plastic use",o:["a steel drill and car barundum powder","a tungsten drill with a pointed tip","a tungsten carbide drill"],a:2,e:"Airbus A340 SRM - states Carbide or Carbide tipped drill for composite materials."},
+{q:"When laying up a glass fibre repair, the extra layer of fibre is",o:["a sacrificial layer for sanding","for extra strength","for shrinkage"],a:1,e:"AC 43 3-3(3) page 3-4."},
+{q:"Bubbles are removed from a wet composite lay-up by",o:["application of pressure","use of a roller","application of vacuum"],a:1,e:"Bubbles (large ones anyway) are removed with a roller."},
+{q:"Use of excessive hardener in polyester resin leads to",o:["a less stiff joint","reduced pot life","stiffer joint"],a:1,e:"Too much hardener will greatly reduce pot life as well as make the polyester brittle."},
+{q:"When the temperature increases on a hot bond repair is paused it is known as",o:["arrest point","ramping down","ramping up"],a:0,e:"NIL"},
+{q:"Slight waviness on a fibre composite structure",o:["may cause fatigue crack eventually","may be tolerable if lightly loaded","could be reinforce with additional plies over the weakened area"],a:1,e:"NIL"},
+{q:"The maximum length of time a component is held in stores is known as the",o:["package life","storage life","shelf life"],a:2,e:"NIL"},
+{q:"On a pre-preg composite",o:["life can be extended by 12 months if stored below 10°C","life can be extended by 12 months if stored above 40°C","no life extension is allowed, it must be used immediately"],a:1,e:"NIL"},
+{q:"Hot bond composite panel has a crack. When it reaches the ribbon it will",o:["carry on along the ribbon","have no effect on its direction","stop"],a:2,e:"NIL"},
+{q:"In an autoclave the air is removed by",o:["pressure","roller","vacuum"],a:2,e:"Air is removed by vacuum whether an autoclave is used or not."},
+{q:"What is the separation of an aramid panel layers described as?",o:["Delamination","Debonding","Detachment"],a:0,e:"NIL"},
+{q:"Tap testing a sandwich panel construction",o:["is not an approved method of testing","will not give very reliable results","is crude, but works remarkably well"],a:2,e:"NIL"},
+{q:"Which product is a serious health hazard when handling?",o:["Ceramic","Asbestos","Glass fibre"],a:1,e:"NIL"},
+{q:"Aircraft transparent plastics are cleaned using",o:["warm soapy water, rinsed and dried","paraffin and soft cotton pad","clean dry soft leather"],a:0,e:"AL/7-4 6.1."},
+{q:"A thermosetting adhesive",o:["will be resistant to heat","can be re-formed when hot","undergoes a chemical transformation and creates an insoluble substance"],a:2,e:"NIL"},
+{q:"Metal fasteners used with carbon/graphite composite structures",o:["must be made of materials such as titanium or corrosion resistant steel","must be made of high strength aluminium alloy","may be made of any of the metals commonly used in aircraft fasteners"],a:0,e:"NIL"},
+{q:"Which methods can be used to inspect fibreglass/honeycomb structures for entrapped water?",o:["Acoustic emission and X-ray","X-ray and back-lighting","Acoustic emission and back-lighting"],a:1,e:"Acoustic emission will detect corrosion only."},
+{q:"When balsa wood is used to replace a damaged honeycomb core, the plug should be cut so that",o:["it is about 1/8 inch undersize to allow sufficient bonding material to be applied","the grain is parallel to the skin","the grain is perpendicular to the skin"],a:2,e:"NIL"},
+{q:"When repairing puncture-type damage of a metal faced laminated honeycomb panel, the edges of the doubler should be tapered to",o:["whatever is desired for a neat clean appearance","two times the thickness of the metal","100 times the thickness of the metal"],a:2,e:"NIL"},
+{q:"One of the best ways to assure that a properly prepared batch of matrix resin has been achieved is to",o:["test the viscosity of the resin immediately after mixing","have mixed enough for a test sample","perform a chemical composition analysis"],a:1,e:"NIL"},
+{q:"Composite inspections by means of acoustic emissions monitoring",o:["analyse ultrasonic signals transmitted into the parts being inspected","create sonogram pictures of the areas being inspected","pick up the 'noise' of corrosion or other deterioration taking place"],a:1,e:"NIL"},
+{q:"Which of the following are advantages of using microballoons in repairs to laminate honeycomb sandwich panels?",o:["Greater concentrations of resin in edges and corners, improved strength to weight ratio, less density, lower stress concentrations","Less density, lower stress concentrations","Improved strength to weight ratio, less density, lower stress"],a:1,e:"NIL"},
+{q:"The length and time that a catalyzed resin will remain in a workable state is called the",o:["shelf life","service life","pot life"],a:2,e:"CAIP AL/7-6 para 4.2."},
+{q:"One method of inspecting a laminated fibreglass structure that has been subjected to damage is",o:["strip the damaged area of all paint and shine a strong light through the structure","use an eddy current probe on both sides of the damaged area","use dye-penetrant inspection procedures, exposing the entire damaged area to the penetrant solution"],a:0,e:"NIL"},
+{q:"When inspecting a composite panel using the ring test/tapping method, a dull thud may indicate",o:["an area of too much matrix between the fibres","less than full strength curing of the matrix","separation of the laminates"],a:2,e:"NIL"},
+{q:"Superficial scars, scratches, surface abrasion, or rain erosion on fibreglass laminates can generally be repaired by applying",o:["one or more coats of suitable resin (room-temperature catalyzed) to the surface","a sheet of polyethylene over the abraded surface and one or more coats of resin cured with infrared heat lamps","a piece of resin-impregnated glass fabric facing"],a:1,e:"CAIP AL/7-6 para 7.2 a-d."},
+{q:"A potted compound repair on honeycomb can usually be made on damages less than",o:["4 inches in diameter","2 inches in diameter","1 inch in diameter"],a:2,e:"NIL"},
+{q:"What reference tool is used to determine how the fibre is to be oriented for a particular ply or fabric?",o:["Bias clock","Weft clock","Warp clock"],a:2,e:"NIL"},
+{q:"The strength and stiffness of a properly constructed composite lay-up depends primarily on",o:["the ability of the fibres to transfer stress to the matrix","a 60% matrix to 40% fibre ratio","the orientation of the plies to the load direction"],a:2,e:"NIL"},
+{q:"Which fibre to resin (%) ratio for advanced composite wet lay-ups is generally considered the best?",o:["60:40","50:50","40:60"],a:2,e:"NIL"},
+{q:"What is the material layer used within the vacuum bag pressure system to absorb excess resin during curing called?",o:["Breather","Bleeder","Release"],a:1,e:"NIL"},
+{q:"When necessary, what type of cutting fluid is usually acceptable for machining composite laminates?",o:["Water soluble oil","Water only","Water displacing oil"],a:1,e:"NIL"},
+{q:"Fibreglass laminate damage not exceeding the first layer or ply can be repaired by",o:["filling with putty consisting of compatible resin and clean, short glass fibres","sanding the damaged area until aerodynamically smooth","trimming the rough edges and sealing with paint"],a:1,e:"NIL"},
+{q:"Fibreglass damage that extends completely through a laminated sandwich structure",o:["may be filled with resin to eliminate dangerous stress concentrations","must be repaired","may be filled with putty which is compatible with the resin"],a:1,e:"AC43 - must be repaired using a stepped-joint or scarfed repair."},
+{q:"Fibreglass laminate damage that extends completely through one facing and into the core",o:["can be repaired by using a typical facing patch","requires replacement of the damaged core and facing","cannot be repaired"],a:1,e:"AC 43."},
+{q:"Which of the following, when added to wet resins, provide strength for the repair of damaged fastener holes in composite panels?",o:["microballoons, cotton flock and chopped fibres","Cotton flock and chopped fibres","Microballoons and chopped fibres"],a:1,e:"NIL"},
+{q:"The part of a replacement honeycomb core that must line up with the adjacent original is the",o:["cell edge","cell side","ribbon direction"],a:2,e:"NIL"},
+{q:"Which of the following is the definition of cure time?",o:["The period after which the surface of the compound no longer exhibits adhesive properties","The time required for the mixed compound to reach an initial rubbery state","The time taken for the mixed compound to reach a final rubbery state"],a:1,e:"NIL"},
+{q:"In order to prevent dermatitis caused due to contact with polymer resin, one should",o:["avoid inhaling fumes","remember to close the autoclave door during curing","use disposable gloves or barrier cream"],a:2,e:"CAIP AL/7-6 para 4."}
+],
+"03.2. Wooden Structures": [
+{q:"With what would you check the bonded joints of a wooden aircraft structure?",o:["A feeler gauge","A plastic strip","A screwdriver"],a:0,e:"AC43 Chapter 1 Section 3 Para 1-29."},
+{q:"What is an open assembly time?",o:["The time elapsing between the application of the adhesive and the assembly of the joint components","The time between the adhesive being applied to the joint surfaces and their assembly","The time elapsed from the adhesive being applied to the joint surfaces to them being clamped"],a:1,e:"CAAIPs Leaflet 2-4 Page 7."},
+{q:"The defects not allowed at all on wooden structures are",o:["mineral streaks","pitch pockets","checks, shakes and splits"],a:2,e:"NIL"},
+{q:"The basic structure of an aircraft made of wood can be",o:["monocoque","non-monocoque","non-monocoque, monocoque, semi-monocoque"],a:2,e:"NIL"},
+{q:"When a full inspection for corrosion is to be carried out on a wooden aircraft you would",o:["Bring the aircraft into the hangar for 2 to 3 days prior to the inspection","Jack and trestle the aircraft to the rigging position","Remove all the fabric/cloth prior to inspection"],a:2,e:"AC43 Para 1-29."},
+{q:"For fungus to cause wood decay in a wood structure, the moisture content in the wood must be at least",o:["20%","85%","5%"],a:0,e:"AC43 Para 1-28 a."},
+{q:"The normal moisture content in the wood of a wooden aircraft structure is",o:["10-12%","20-30%","0-2%"],a:0,e:"AC 43 Para. 1-29 g."},
+{q:"How is the moisture content within the wood of a wood aircraft structure determined?",o:["By inserting the probe of a moisture meter","By measuring the size of the water stains at joints","By weighing the wood structure before and after drying it"],a:0,e:"AC43 Para. 1-29 g."},
+{q:"Except where specified by the manufacturer, a wooden spar may be spliced",o:["at no point","at any point except under the wing attachment fittings","at any point"],a:1,e:"AC43 Para 1-40."},
+{q:"Replacement of a wooden spar is",o:["only permitted by the manufacturer","a minor repair","a major repair"],a:2,e:"AC43 Para. 1-41."},
+{q:"A crack is found in a wooden spar, you",o:["must replace the spar section","might be able to repair the spar","must replace the entire spar"],a:1,e:"AC43 Para. 1-44."},
+{q:"Wood sealants used on wooden aircraft structures are for",o:["helping to prevent wood cracking","improving aerodynamic efficiency","reducing the requirement for sanding"],a:0,e:"AC43 Para. 1-44 c."},
+{q:"To determine whether an aircraft wooden structure surface is compound curvature, you would use",o:["a curvature gauge","a sheet of paper","a trammel"],a:1,e:"AC43 Para. 1-48."},
+{q:"To assist the bending of plywood, a heated bending former must be heated to a temperature of",o:["300°C","150°C","100°C"],a:1,e:"AC43 Para.1-49 b."},
+{q:"A splayed patch repair may be used on plywood damage which does not exceed",o:["20 times the skin thickness","15 times the skin thickness","10 times the skin thickness"],a:1,e:"AC43 Para.1-51 a."},
+{q:"A surface patch to a plywood structure may be as large as",o:["50 sq.inch area","50 inch perimeter","50 inch diameter"],a:1,e:"AC43 Para.1-51 b."},
+{q:"The steepest slope permitted on the scarf of a scarfed plywood repair is",o:["1 in 20","1 in 4","1 in 12"],a:2,e:"AC 43 Para.1-51 c."},
+{q:"The maximum size damage to plywood skin that may be repaired with a fabric patch is",o:["3.0 inch diameter","0.5 inch diameter","1.0 inch diameter"],a:2,e:"AC43 Para 1-52."},
+{q:"The doubler used to support a scarfed patch plywood repair should be made from plywood of a minimum",o:["1/4 inch thick","1/8 inch thick","3/8 inch thick"],a:0,e:"AC43 Para.1-51 d and Figure 1-16."},
+{q:"An aircraft wooden structure must be surface finished and sealed",o:["on both the outer and inner surfaces","on the inner surfaces only","on the outer surfaces only"],a:0,e:"AC43 Para 1-64."},
+{q:"Pinewood has a strength, compared to that of spruce",o:["less than","exceeding","the same as"],a:0,e:"AC43 Table 1-1."},
+{q:"The standard wood type for aircraft wood structures is",o:["spruce","douglas fir","pine"],a:0,e:"AC 43 Table 1-1."},
+{q:"Hard knots in wood are acceptable",o:["in certain locations","never","up to 3/8 inch diameter in any location"],a:0,e:"AC43 Para 1-2."},
+{q:"A 'shake' in a piece of wood is a crack",o:["across annual rings","induced by artificial stress","between two annual rings"],a:2,e:"AC 43 Para.1-2."},
+{q:"Wood with checks, shakes or splits",o:["can be used providing the damage is repaired by gluing and clamping","can be used for certain secondary structure","must be rejected"],a:2,e:"AC43 Para 1-2."},
+{q:"Compression wood",o:["is a hard-wood","should be rejected","is preferred because of its superior strength qualities"],a:1,e:"AC43 Para 1-2."},
+{q:"Red heart and purple heart",o:["are types of hard-wood","are forms of decay in wood","are harmless natural defects in wood"],a:1,e:"AC43 Para 1-2."},
+{q:"The greatest amount of shrinkage in wood is in which direction?",o:["Tangential","Radial","The shrinkage is equal in tangential and radial directions"],a:0,e:"AC43 Para 1-2."},
+{q:"Shrinkage of wood is",o:["equal along and across the fibres","least along the fibres","least across the fibres"],a:1,e:"AC43 Para 1-2."},
+{q:"Shrinkage of wood is",o:["greatest in the longitudinal direction","negligible in the longitudinal direction","negligible in the radial direction"],a:1,e:"AC43 Para 1-2."},
+{q:"The maximum permissible grain deviation in wood is",o:["1:8","1:20","1:15"],a:2,e:"AC 43 Para 1-1."},
+{q:"Nails used on wood structures should be",o:["50 mm apart","12 mm apart","25 mm apart"],a:2,e:"AC43 Para 1-11 c."},
+{q:"Small (up-to 3/8 inch diameter) hard-knots are allowed in a wooden spar",o:["in the middle 1/3 portion","nowhere","in the outer 1/3 portions"],a:0,e:"AC43 Para 1-1."},
+{q:"If metal fasteners are removed from an aircraft's wood structure, and are found to have corrosion on them, this can indicate",o:["acidity of the adjoining wood structure","deterioration of the fastener","decay of the adjoining wood structure"],a:2,e:"AC43 1-28 j."},
+{q:"Bolt holes through wooden structures should be",o:["sealed, and the sealant allowed to dry before fitting the bolt","left unsealed and unvarnished inside the hole","sealed with varnish and wet-assembled with the bolt before the varnish has dried"],a:0,e:"AC43 1-71."},
+{q:"Wood end-grain",o:["has the same susceptibility to moisture ingress as the side of the grain","is less susceptible to moisture ingress as the side of the grain","is more susceptible to moisture ingress as the side of the grain"],a:2,e:"AC 43 1-69."},
+{q:"In cases of elongated boltholes in a wood spar or cracks in the vicinity of the boltholes",o:["it is permissible to ream the hole, plug with hardwood and re-drill","a new section of spar should be spliced in or the spar entirely replaced","the spar may be reinforced by using hardwood reinforcing plates"],a:1,e:"AC43."},
+{q:"A faint line running across the grain of a wood spar generally indicates",o:["shear failure","decay","compression failure"],a:2,e:"AC43."},
+{q:"The I-beam wooden spar is routed to",o:["obtain uniform strength","decrease weight","increase strength"],a:1,e:"NIL"},
+{q:"Pinknot clusters are permitted in wood aircraft structure provided",o:["they have no mineral streaks","no pitch pockets are within 12 inches","they produce a small effect of grain direction"],a:2,e:"AC43."},
+{q:"Compression failures in wood aircraft structures are characterised by buckling of the fibres that appear as streaks on the surface",o:["parallel to the grain","at right-angles to the growth rings","at right angles to the grain"],a:2,e:"NIL"}
+],
+"03.3. Fabric Covering": [
+{q:"Fabrics may be fitted to airframe structures by",o:["always riveting","wood nails","tying on with string"],a:2,e:"NIL"},
+{q:"Aircraft fabric covering is made from",o:["silk","polyester","nylon"],a:1,e:"AC43 Para 2-3 a."},
+{q:"At manufacture, aircraft fabric is",o:["shrunk","doped","stretched"],a:2,e:"AC43 Para 2-3 b."},
+{q:"Recovering or repairing of an aircraft with a fabric other than the original fabric type is",o:["a major modification and requires approval","prohibited","a minor modification, providing the fabric is the same strength as the original"],a:0,e:"AC43 Para 2-5 NOTE."},
+{q:"Reinforcing tape used on aircraft fabric covering must have a minimum strength of",o:["80 lb","40 lb","120 lb"],a:1,e:"AC 43 Para 2-5 a."},
+{q:"Lacing cord used on aircraft fabric covering must have a minimum breaking strength of",o:["120 lb","80 lb","40 lb"],a:2,e:"AC43 Para 2-5 c."},
+{q:"Fabric seams are preferable",o:["parallel to the line of flight","spanwise to the line of flight","oblique to the line of flight"],a:0,e:"AC43 Para 2-7."},
+{q:"Single stitched machine sewn seams are permissible",o:["at all locations on the aircraft","never","only when positioned over a structure"],a:2,e:"AC43 Para 2-7 a 1."},
+{q:"The minimum pitch of hand-sewn stitch is",o:["1/4 inch","equal to 10 times the thread thickness","4 inches"],a:0,e:"AC43 Para 2-7 a 2."},
+{q:"Hand sewn stitch must be locked at a minimum of",o:["the end of the stitch only","20 stitch intervals","10 stitch intervals"],a:2,e:"AC43 Para 2-7 a 2."},
+{q:"Fabric to be hand sewn must be doubled under at the edge to a minimum distance of",o:["1/2 inch","3/8 inch","1/4 inch"],a:1,e:"AC43 Para 2-7 a 2."},
+{q:"Holes are cut in fabric for inspection panels, spar fittings, drain grommets etc",o:["after doping","before doping","before attaching the fabric to the structure"],a:0,e:"AC 43 Para 2-9 a."},
+{q:"Aircraft fabric lacing cord is reinforced with",o:["epoxy","wax","lanolin"],a:1,e:"AC43 Para 2-10 d 2."},
+{q:"The dope applied to an aircraft's fabric covering causes shrinkage",o:["on the last coat only","on the first coat only","on all coats"],a:2,e:"AC43 Para 2-20."},
+{q:"The two preferred types of dope used on aircraft fabric covering is",o:["cellulose and polyester","cellulose and butyrate","nitrate and butyrate"],a:2,e:"AC43 Para 2-20."},
+{q:"Aircraft dope, during storage in adverse conditions in a store-room, will become",o:["acidic","discoloured","alkaline"],a:0,e:"AC43 Para 2-20 b."},
+{q:"What type of dope is preferred for use on natural fiber aircraft covering?",o:["Nitrate","Any type of dope is suitable","Butyrate"],a:0,e:"AC 43 Para 2-20 c."},
+{q:"Which of the following is true regarding aircraft dope type?",o:["Nitrate dope may be applied over the top of butyrate dope","Butyrate dope may be applied over the top of nitrate dope","Either type of dope may be applied over the top of any type of dope"],a:1,e:"AC43 Para 2-20 c."},
+{q:"What type of shoes should be worn by the technician applying a dope finish to a fabric covered aircraft?",o:["Rubber soled","Leather soled","Plastic uppers"],a:1,e:"AC43 Para 2-20 f table 2-3."},
+{q:"What are the limits of the environmental conditions for applying dope to a fabric covered aircraft?",o:["Relative humidity 50-70%, temperature range 40° to 60°F","Relative humidity 50-75%, temperature range 65° to 75°F","Relative humidity 20-60%, temperature range 65° to 75°F"],a:2,e:"AC43 Para 2-20 f table 2-4."},
+{q:"Applying dope to a fabric covered aircraft should be done by",o:["spraying all coats to avoid brush marks","spray all coats except the first three","brushing all coats to ensure it is absorbed into the fabric"],a:1,e:"AC43 Para 2-20 f table 2-4."},
+{q:"Regarding the thinning of aircraft dope",o:["underthinning is preferred to overthinning","dope should be thinned with automotive thinners","overthinning is preferred to underthinning"],a:2,e:"AC43 Para 2-20 f table 2-4 and 2-20 c NOTE."},
+{q:"A retarder is added to aircraft dope to",o:["to extend the shelf life","produce a smoother finish","to retard the application time"],a:1,e:"AC43 Para 2-20 f table 2-4."},
+{q:"Doped fabric",o:["is not to be treated after application","is treated with varnish","is treated with wax compound"],a:2,e:"AC 43 Para 2-20 f table 2-4."},
+{q:"Dope should be applied to an aircraft's fabric coating in a relative humidity not exceeding",o:["50%","85%","65%"],a:2,e:"AC43 Para 2-21 6."},
+{q:"'Dressing out' of a fabric covering refers to",o:["the trimming of excess fabric after fitting","applying finishing tapes, reinforcing patches, inspection ports etc","laying the fabric out on the floor and cutting it to size prior to fitting to the aircraft"],a:1,e:"AC43 Para 2-21 d."},
+{q:"Coats of clear dope are applied to an aircraft's fabric",o:["before coats of aluminium pigmented dope are applied","before or after coats of aluminium pigmented dope are applied, it does not matter","after coats of aluminium pigmented dope are applied"],a:1,e:"AC 43 Para 2-21."},
+{q:"What is the reason for using aluminium-pigmented dope on a fabric covered aircraft?",o:["To provide an aluminium colour to the aircraft","To block UV radiation","To provide strength"],a:1,e:"AC43 Para 2-21."},
+{q:"Aircraft sheet plywood skins are",o:["sealed and varnished or painted","sealed and doped","covered in fabric"],a:2,e:"AC43 Para 2-22."},
+{q:"'Blushing' of a doped fabric surface is an indication of",o:["moisture entering into the wood/fabric structure during service","moisture condensing on the surface during drying of the dope","oil contamination of the doped fabric"],a:1,e:"AC43 Para 2-23."},
+{q:"Orange peeling of a doped surface may be caused by",o:["dope viscosity too low","dope viscosity too high","air temperature too low"],a:1,e:"AC43 Para 2-23 c."},
+{q:"Orange peeling of a doped surface may be caused by",o:["dope viscosity too low","air temperature too low","spray gun pressure too low"],a:2,e:"AC 43 Para 2-23 c."},
+{q:"Butyrate dope burns",o:["slower than nitrate dope","faster than nitrate dope","the same rate as nitrate dope"],a:0,e:"AC43 Para 2-32."},
+{q:"Fabric coated with nitrate dope can be differentiated from fabric coated in butyrate dope by",o:["carrying out a burn test","smelling the fabric","observing the colour"],a:0,e:"AC 43 Para 2-32."},
+{q:"If the fabric on a wood/fabric aircraft has lost its strength",o:["the fabric can be treated with a rejuvenator","the fabric can be treated with additional coats of the approved type of dope","the fabric must be replaced"],a:1,e:"AC43 Para 2-35."},
+{q:"When repairing a section of aircraft fabric with a new fabric patch",o:["all the dope must be removed from the parent fabric faying surface before the patch is applied","the patch can be applied to the parent fabric without preparation","all the aluminium-pigmented dope layers must be removed from the parent fabric faying surface before the patch is applied"],a:2,e:"AC43 Para 2-42 b."},
+{q:"When does an aircraft fabric covering repair become a major repair?",o:["When the repair extends over a wing rib","When the repair extends over three adjacent wing ribs","When the repair extends over two adjacent wing ribs"],a:1,e:"AC 43 Para 2-42 d."},
+{q:"Where the edge of a new fabric section will be located within 1 inch of a structural member to which the fabric is attached by rib lacing or other methods, the new fabric section should",o:["be extended 3 inches past the structural member","be extended to meet the structural member","be designated a major repair"],a:0,e:"AC43 Para 2-42 f."},
+{q:"What width of finishing tape should be used on a tear in a fabric cover which is 10 inches long?",o:["2 inches","6 inches","4 inches"],a:2,e:"AC43 2-44 a."},
+{q:"What width of finishing tape should be used on a tear in a fabric cover which is 20 inches long?",o:["6 inches","2 inches","4 inches"],a:0,e:"AC43 2-44 c."},
+{q:"Lines of stitching of a fabric repair is locked at the end with",o:["a hitch knot","a half hitch knot","a double half hitch knot"],a:2,e:"AC43 2-43 Figure 2-13."},
+{q:"Wrinkles in a fabric covering of a wood/fabric aircraft are",o:["not permitted","a minor aerodynamic detriment","permitted only if they are temporary due to damp/wet weather conditions"],a:2,e:"AC43 2-30 b(3) NOTE."},
+{q:"The threads per inch of Grade 'A' aircraft fabric is",o:["60-64","80-84","110-115"],a:1,e:"AC43 2-6 Table 2-1."},
+{q:"When and how is finishing tape applied on fabric covered aircraft?",o:["Doped on immediately prior to the finish coat","Sewed or laced on before dope is applied","Doped on after the first or second coat of dope"],a:2,e:"AC43."},
+{q:"The determining factor in the selection of the correct weight of textile fabric to be used in covering any type of aircraft is the",o:["maximum wing loading","speed of the aircraft","speed of the aircraft and the maximum wing loading"],a:2,e:"AC43."},
+{q:"How many fabric thicknesses will be found in a French-fell seam?",o:["Five","Three","Four"],a:2,e:"The edges of the fabric are folded over each other, so the threads of a double row of stitches passes through four thicknesses of fabric."},
+{q:"Finishing tape (surface tape) is used for what purpose?",o:["To prevent 'ripple formation' in covering fabric","To provide additional wear resistance over the edges of fabric forming structures","To provide additional anti-tear resistance under reinforcement tape"],a:1,e:"AC43."},
+{q:"Moisture, mildew, chemicals and acids have no effect on",o:["glass fabric","linen fabric","Dacron fabric"],a:2,e:"NIL"},
+{q:"The strength classification of fabric used in aircraft covering is based upon",o:["bearing strength","shear strength","tensile strength"],a:2,e:"NIL"},
+{q:"Fabric rejuvenator",o:["penetrates the fabric and restores fungicidal resistance","restores fabric strength and tautness to at least the minimum acceptable level","restores the condition of the dope coatings"],a:1,e:"NIL"},
+{q:"When testing the strength of Grade A cotton fabric covering an aircraft that requires only intermediate grade, the minimum acceptable strength the fabric must have is",o:["56 pounds per inch warp and weft","70% of its original strength","70% of the original strength for intermediate fabric"],a:2,e:"NIL"},
+{q:"What is used to slow the drying time of some dope finishes to prevent blush?",o:["Rejuvenator","Reducer","Retarder"],a:2,e:"NIL"},
+{q:"Aluminium-pigment in dope is used primarily to",o:["exclude sunlight from the fabric","provide a silver colour","aid in sealing out moisture from the fabric"],a:0,e:"NIL"}
+],
+"04a. Corrosion": [
+{q:"From the following list of metals, which is most cathodic?",o:["Nickel","Magnesium","Stainless steel"],a:2,e:"NIL"},
+{q:"Intergrannular corrosion is caused by",o:["improperly assembled components","improper heat treatment","dissimilar metal contact"],a:1,e:"NIL"},
+{q:"Corrosion caused by electrolytic action is the result of",o:["contact between two unlike metals","excessive anodization","the wrong quenching agent"],a:0,e:"NIL"},
+{q:"Corrosion may be regarded as the destruction of metal by",o:["electrochemical action","hydroelectric action","electromechanical action"],a:0,e:"Corrosion is electrochemical action."},
+{q:"Exfoliation corrosion is sometimes referred to as",o:["layer corrosion","filiform corrosion","sub-surface corrosion"],a:0,e:"NIL"},
+{q:"When dissimilar metals are brought together, or the same metal in different states, one metal forms the anode and the other the cathode. Which will suffer from corrosion?",o:["Both will corrode equally","The cathode","The anode"],a:2,e:"The anode always corrodes."},
+{q:"In corrosion, the electrode that loses electrons is",o:["the cathode","either the cathode or the anode depending upon the electrolyte","the anode"],a:1,e:"The anode loses electrons."},
+{q:"Which of these is a common cause of corrosion?",o:["Water in fuel","Spilled battery acid","Untreated metal"],a:1,e:"Spilled battery acid is sure to cause corrosion."},
+{q:"What is stress corrosion?",o:["Corrosion in an area under cyclic loading","Corrosion due to fretting","Corrosion in an area under continuous loading"],a:2,e:"Stress corrosion is caused by a stressed area being anodic to a non-stressed area."},
+{q:"Electrochemical reaction is caused by the contact of",o:["bonding","moisture on the surface of the metal","dissimilar metals"],a:1,e:"Dissimilar metals causes galvanic corrosion, but pure metal in contact with water causes electro-chemical corrosion."},
+{q:"Chemical attack is a direct result of",o:["intergranular corrosion","cathodic & anodic changes in the material","filiform corrosion"],a:1,e:"NIL"},
+{q:"Galvanic corrosion is caused by",o:["incorrect heat treatments or incorrect alloying","cyclic stressing and a decrease in cross sectional area","the joining of 2 dissimilar metals"],a:2,e:"NIL"},
+{q:"In the galvanic series, the most noble metal will, if joined to another metal",o:["always be at the top of the table","corrode before the less noble metal","allow the less noble metal to corrode first"],a:2,e:"NIL"},
+{q:"Stress corrosion is associated with",o:["cyclic loading and a corrosion pit","a corrosion pit in a member under a compressive load","a corrosion pit in a member under stress"],a:2,e:"NIL"},
+{q:"Corrosion will spread more rapidly when metals are exposed to",o:["cold climates","high temperatures","dry climates"],a:1,e:"NIL"},
+{q:"Which is the following correct statement?",o:["Selenious acid is used for the re-protection of aluminium alloys","The chemical test for bronze is nitric acid which produces a white precipitate","All corrosion is a chemical action"],a:1,e:"NIL"},
+{q:"In a poorly produced repair to skin structure, where would stress corrosion start?",o:["Radiate from the corner or sharp edges","Along the edges of repair","Form internally to produce surface corrosion"],a:0,e:"NIL"},
+{q:"Some metals are inherently stable. What does this suggest?",o:["They strongly resist corrosion","They are highly prone to corrosion","They try to revert to their natural state"],a:0,e:"NIL"},
+{q:"The oxide film formed on the surface of aluminium is",o:["non-porous","porous","hard and porous"],a:0,e:"That is why aluminium does not corrode."},
+{q:"Corrosion control begins at the",o:["production stage","manufacturing stage","design stage"],a:2,e:"NIL"},
+{q:"Aluminium is",o:["not resistant to corrosion","highly resistant to corrosion","reasonably resistant to corrosion"],a:1,e:"NIL"},
+{q:"When galvanic corrosion takes place, which part corrodes?",o:["Anode","Oxide film coating","Cathode"],a:0,e:"NIL"},
+{q:"Corrosion caused by galvanic action is the result of",o:["contact between two unlike metals","excessive anodization","excessive etching"],a:0,e:"NIL"}
+],
+"04b. Corrosion": [
+{q:"What sort of corrosion would a magneto be likely to encounter if completely enclosed?",o:["None, providing the magneto is completely enclosed","Direct chemical attack","Pitting"],a:1,e:"BL/4-1 3.1.8."},
+{q:"What are the signs of fretting corrosion?",o:["Black powder or cocoa staining","Intergranular cracking","Flaking"],a:0,e:"CAIP BL/4-1 para 3.1.5."},
+{q:"Black streaks back from a rivet hole signify",o:["galvanic corrosion","intergrannular corrosion","fretting"],a:2,e:"Fretting corrosion is identified by black/grey streaks."},
+{q:"When a steel part is welded, corrosion occurs because",o:["it is affected by spatter","the strip has become anodic","paint has been removed"],a:1,e:"BL/4-1 3.1.4."},
+{q:"Intergranular corrosion",o:["can be recognized by a grey powder deposit","may have no visual surface indication","can be recognized by its flaking and lifting of the material layers"],a:1,e:"BL/4-1 2.3.2."},
+{q:"Active flux does what?",o:["Protects","Cleans","Both cleans and protects"],a:1,e:"NIL"},
+{q:"Jointing compound is used for what reason?",o:["To prevent dissimilar metal corrosion","To bond the components together","To make the components easier to disassemble"],a:0,e:"Jointing compound is used to prevent dissimilar metal contact."},
+{q:"Galvanic action caused by dissimilar metal contact may best be prevented by",o:["applying a non-porous dielectric material between the surfaces","Special precautions are not required if they are properly bonded","priming both the surfaces with a light coat of zinc chromate primer"],a:1,e:"Jointing compound is a non-porous dielectric."},
+{q:"After welding, stainless steel is susceptible to a corrosion known as",o:["weld deterioration","weld decay","weld rot"],a:1,e:"Corrosion after welding is called 'weld decay'."},
+{q:"The lifting or flaking of the metal at the surface due to delamination of grain boundaries caused by the pressure of corrosion is",o:["exfoliation","electrolysis","transgranulation"],a:1,e:"NIL"},
+{q:"The electrolytic process that forms an oxide film on the surface of aluminium alloys is known as",o:["galvanizing","anodizing","electroplating"],a:1,e:"NIL"},
+{q:"What is the indication of fretting corrosion on aluminium alloy?",o:["Black powder","Brown powder","White powder"],a:0,e:"Fretting corrosion is identified by a black/grey powder streak."},
+{q:"What action is taken to protect integral tanks from corrosion due to micro-biological growth?",o:["The inside of the tank is coated with yellow chromate","Rubber liners are installed in the tank","A biocidal additive is used in the fuel"],a:2,e:"NIL"},
+{q:"What type of corrosion attacks grain boundaries of aluminium alloys which are improperly or inadequately heat treated?",o:["Stress corrosion","Intergranular corrosion","Surface corrosion"],a:1,e:"NIL"},
+{q:"The artificial production of a film of oxide on the surface of aluminium or any of its alloys is commonly called",o:["alodizing","parco lubrizing","anodizing"],a:2,e:"Anodizing is an artificially produced layer of oxide on the surface of aluminium (or titanium)."},
+{q:"Intergrannular corrosion in structural aluminium alloy parts",o:["are not likely to occur in parts fabricated from heat-treated sheet aluminium","may be detected by the white, powdery deposit formed on the surface of the metal","cannot always be detected by surface indications"],a:1,e:"NIL"},
+{q:"Corrosion will spread more rapidly when metals are exposed to",o:["dry climates","cold climates","high temperatures"],a:2,e:"Higher temperatures always accelerate corrosion."},
+{q:"Magnesium alloy components are protected by",o:["an electroprocess","a chemical process","a painted process"],a:1,e:"NIL"},
+{q:"Corrosion products should be removed from magnesium alloys by the use of",o:["a solution of 10% by weight of chromic acid in distilled water with 0.1% by volume of sulphuric acid","a solution of 10% by volume of chromic acid in distilled water with 1% phosphoric acid","aluminium wool"],a:1,e:"NIL"},
+{q:"If it is necessary to remove corrosion from a steel component in-situ, the base of a suitable solution for this purpose is",o:["chromic acid","phosphoric acid","nitric acid"],a:1,e:"NIL"},
+{q:"A type of protection which is applicable to magnesium alloys is the",o:["phosphate process","chromating process","coslettising process"],a:1,e:"NIL"},
+{q:"Heavy corrosion deposits on clad aluminium alloys should be removed",o:["mechanically using a pneumatic vibrator","chemically by use of trichloroethylene","chemically by use of phosphoric acid"],a:2,e:"BL/4-2 2.4.3(ii)."},
+{q:"What action should be taken on finding intergrannular corrosion?",o:["Replace complete component part","De-corrode and reprotect","Renew corroded area by patching"],a:0,e:"NIL"},
+{q:"Anodic treatment of aluminium alloy gives",o:["a purple finish","a shorter life due to hardening","a pure coating of aluminium oxide on the surface"],a:2,e:"NIL"},
+{q:"Corrosion at the grain boundaries is called",o:["intergrannular","fretting","filiform"],a:0,e:"NIL"},
+{q:"Fretting corrosion occurs where",o:["two material are subject to very slight movement between the two","a deep scratch increases to become fretting corrosion","pitting corrosion is allowed to become more pronounced"],a:0,e:"Fretting is corrosion combined with small relative movement."},
+{q:"What is used to remove corrosion from magnesium?",o:["Phosphate acid solution","Chromic acid solution","Sulphuric acid solution"],a:1,e:"Chromic acid solution is used to remove corrosion from magnesium alloys."},
+{q:"Surface corrosion on stainless steel is identified by",o:["red rust","white film","black pitting"],a:2,e:"Surface corrosion on stainless steel is a black pitting."},
+{q:"Hooks, wires and other suspension devices used in an anodic bath should be made of",o:["brass or copper","aluminium or titanium","steel or copper"],a:1,e:"CAIPs BL/7-1 Para.4."},
+{q:"What are the signs of fretting corrosion on steel?",o:["Dark staining around area","Surface cracking as corrosion breaks through to surface of component","Rust on surface"],a:1,e:"Fretting corrosion is caused when there is some relative movement between parts, causing a fine dark powdery paste of corrosion products."},
+{q:"Spilled mercury on aluminium",o:["increases susceptibility to hydrogen embrittlement","may cause impaired corrosion resistance if left in prolonged contact","causes rapid and severe corrosion in prolonged contact"],a:1,e:"BL/4-10 Para.2."},
+{q:"Intercrystalline corrosion",o:["is detectable by x-rays","is the same as exfoliation corrosion","always appears as small surface cracks"],a:0,e:"NIL"},
+{q:"The usual manufacturers anti-corrosion process to be applied to Fe aircraft parts is",o:["cadmium plating","anodising","metal spraying"],a:0,e:"NIL"},
+{q:"Chromate treatment is applied to",o:["Al alloys","Fe alloys","magnesium alloys"],a:2,e:"NIL"},
+{q:"Anti-corrosion treatment used on Magnesium is",o:["chromating","electro-plating","phosphating"],a:0,e:"BL/4-3 3.1.3."},
+{q:"Fretting corrosion occurs with",o:["water trapped between moving parts","vibration in bolted parts","improper heat treatment"],a:1,e:"BL/4-1 3.1.5."},
+{q:"Intergranular corrosion is also known as what?",o:["Stress corrosion","Exfoliation","Galvanic"],a:1,e:"BL/4-1 2.3.3 '[exfoliation is] A less harmful form of intergranular attack'."},
+{q:"During construction, sharp internal corners and inaccessible places should be avoided to reduce",o:["filiform corrosion","fretting corrosion","crevice corrosion"],a:2,e:"NIL"},
+{q:"To check the interior of tubular members for corrosion attack",o:["any form of test is acceptable","ultra sonic testing is necessary","dye penetrant testing should be used"],a:1,e:"NIL"},
+{q:"Anodising is a form of",o:["artificial protection","metallic coating","sacrificial protection"],a:0,e:"NIL"},
+{q:"The Alocrom 1200 process was designed to treat",o:["chromium plating","small surfaces","surfaces too large for dip treatment"],a:1,e:"NIL"},
+{q:"The artificial production of a film of oxide on the surface of aluminium or any of its alloys is commonly called",o:["anodizing","parco lubrizing","alodizing"],a:0,e:"NIL"},
+{q:"Alodizing protects alloy metal from corrosion and does what else?",o:["Makes a good surface for paint to adhere to","Makes the surface alkaline","Seals the surface from moisture"],a:0,e:"NIL"},
+{q:"When cleaning aircraft faying surfaces, a cause for concern is",o:["corrosion acting on the end faces of panels","sharp corners etc trapping corrosive chemicals","leaks into the fuselage"],a:0,e:"NIL"},
+{q:"The form of corrosion most likely to cause stress concentration is",o:["Surface Corrosion","Fretting Corrosion","Pitting Corrosion"],a:2,e:"NIL"},
+{q:"Lead acid battery fluid has been found to be leaking on the surface of the aircraft structure. What substance would you use to neutralise the acid?",o:["Sulphur and Lime","Hot distilled water","Sodium bicarbonate of soda"],a:2,e:"CAIP BL/4-1 para 4.1.3."},
+{q:"What colour is the corrosion found on the surface of aluminium alloys?",o:["White/Grey","Green/Blue","Black"],a:0,e:"NIL"},
+{q:"Corrosion on copper is identified by",o:["red/brown rust","black powder","green discolouration"],a:2,e:"NIL"},
+{q:"A composite flap panel has corrosion. What NDT method will you use to detect?",o:["Low voltage x-ray","Coin tap test","High voltage x-ray"],a:0,e:"Leaflet 6-9 Appendix 1 Paragraph 4."},
+{q:"When examining a piece of metal through a magnifying glass, hair line cracks would indicate",o:["crevice corrosion","intergrannular corrosion","surface corrosion"],a:1,e:"NIL"},
+{q:"In the anodic film inspection and sealing test, if a good seal has been accomplished",o:["the dye mark will not rub off","the dye mark has no importance","the dye mark will rub off"],a:0,e:"NIL"},
+{q:"Aluminium alloy parts are often protected by the",o:["Alocrom plating","chromium plating process","Alocrom 1200 process"],a:2,e:"NIL"},
+{q:"Corrosion is always completely removed",o:["to prevent further damage","to fit new parts","to permit the extent of damage to be assessed"],a:2,e:"NIL"},
+{q:"Corrosion on a copper alloy can be recognised by",o:["blue/green deposit","white deposit","grey deposit"],a:0,e:"NIL"},
+{q:"Which of the following is a temporary protective measure?",o:["Sacrificial protection","Chromating","Paint finish"],a:1,e:"NIL"},
+{q:"Which anti-corrosion chemical treatment is normally applied to aluminium alloys?",o:["Pure aluminium","Anodising","Cadmium"],a:1,e:"Alclad is not considered a chemical treatment."},
+{q:"Spilled mercury on aluminium causes",o:["greyish powder, fuzzy deposit or whiskery growth","yellowish stains on surface of the metal","black pits going into brown rust"],a:0,e:"BL/4-10 2.3(i)."},
+{q:"A non-electrolytic chemical treatment for aluminium alloys to increase corrosion resistance and paint bonding qualities is called",o:["alodizing","anodizing","dichromating"],a:0,e:"Alodizing is a (non-electrolytic) deposition of oxide film."},
+{q:"Which of the following are acceptable to use in cleaning anodized surfaces?",o:["Steel wool, aluminium wool, fibre bristle brush","Aluminium wool, fibre bristle brush","Brass wire brush, stainless steel wire brush"],a:1,e:"NIL"},
+{q:"A primary cause of intergranular corrosion is",o:["improper heat treatment","improper application of primer","dissimilar metal contact"],a:0,e:"NIL"},
+{q:"Which of these materials is the most anodic?",o:["Magnesium","Cadmium","7075-T6 aluminium alloy"],a:0,e:"NIL"},
+{q:"Which of these materials is the most cathodic?",o:["2024 aluminium alloy","Zinc","Stainless steel"],a:2,e:"NIL"},
+{q:"Galvanic corrosion is most likely to be most rapid and severe when",o:["the surface area of the anodic metal is smaller than the surface area of the cathodic material","the surface area of the cathodic metal and the anodic material are approximately the same","the surface area of the cathodic metal is smaller than the surface area of the anodic material"],a:1,e:"NIL"}
+],
+"05.1. Fasteners- Screw Threads": [
+{q:"The pitch of a screw thread is",o:["crest to root","2* crest to root","crest to crest"],a:2,e:"Pitch is crest to crest."},
+{q:"A single start thread the lead is",o:["2* pitch","1* pitch","½* pitch"],a:1,e:"Lead = pitch * starts."},
+{q:"A wire thread insert tap is",o:["supplied in a fitting kit","slightly larger than the hole","slightly smaller than the hole"],a:0,e:"BL/2-3 2.2.2."},
+{q:"Multi-start threads",o:["increase the lead and decrease the pitch","increase the lead without increasing the pitch","increase the lead and the pitch"],a:1,e:"Lead = pitch * starts."},
+{q:"Buttress threads are used",o:["to transmit power in both directions","to transmit power on one direction","on nuts and bolts"],a:1,e:"Buttress threads are used to transmit power in one direction."},
+{q:"The lead on a single start thread is",o:["1* the pitch","2* the pitch","1/2 the pitch"],a:0,e:"Lead = pitch * starts."},
+{q:"Colour identification of an aluminium rivet is",o:["black","violet","green"],a:0,e:"A pure aluminium rivet is black anodized."},
+{q:"For a wire insert thread repair, the hole is tapped using",o:["the same size","a special tap supplied with the kit","the next size up"],a:1,e:"BL/6-22 3.2.2."},
+{q:"Most commonly used thread form in aviation is",o:["V thread","round thread","buttress"],a:0,e:"V thread is the most commonly used thread form."},
+{q:"Pitch of a screw thread is defined as",o:["distance from the centre of one crest to the next","difference between major diameter and minor diameter","distance between the crest and the root of the thread"],a:0,e:"Pitch is crest to crest."},
+{q:"The angle of a screw thread is",o:["half the inclusive angle of the thread sides","the inclusive angle of the thread sides","the distance the thread moves in one turn"],a:1,e:"NIL"},
+{q:"The tang of a thread insert",o:["may left it in the insert after installation","is removed with a hammer and a punch","must be removed"],a:0,e:"CAP 562 Leaflet 2-10 3.2.5."},
+{q:"A thread insert may be removed by",o:["a blade removal tool","a hammer and punch","a pre-wind insertion tool"],a:0,e:"CAAIPs leaflet 2-10, page 4, paragraph 3.3."},
+{q:"A metric screw thread angle is",o:["7°","57°","60°"],a:2,e:"NIL"},
+{q:"Which thread type has the better vibration resistance?",o:["A fine thread","A course thread","Courseness or fineness of thread has no bearing on the vibration resistance"],a:0,e:"NIL"},
+{q:"Which of the following thread designations is most fatigue resistant?",o:["UNF","UNC","UNJF"],a:2,e:"NIL"},
+{q:"Which thread type has a 55° angle?",o:["Metric","Whitworth","UNF"],a:1,e:"NIL"}
+],
+"05.2. Fasteners- Bolts, studs and screws": [
+{q:"When fitting a hyloks",o:["they should be lubricated","each hylock should be torqued, the torque calculated for each time","the hole should be drilled so it is an interference fit"],a:1,e:"Hiloks are pre-lubricated. Hole is drilled 0.0015 inch interference."},
+{q:"What sort of surface treatment would you find on a magnesium casting?",o:["Anodizing","Phosphating","Chromating"],a:2,e:"NIL"},
+{q:"What is the nominal length of a UNF bolt?",o:["Under head to end of the threads","Under head to screw threads (i.e. plain shank)","The length of the threads"],a:1,e:"Nominal length from head to thread."},
+{q:"Where should you not use a nyloc nut?",o:["Temperatures above 120°C","Temperatures above 200°C","Temperatures above 250°C"],a:0,e:"120°C or 250°F."},
+{q:"What is the nominal screw length?",o:["The overall length of a countersunk screw and the non-threaded portion of a bolt","The overall length of a bolt (from under the head) and the overall length of a screw (including the head)","The length of thread for a bolt, overall length for a countersunk screw"],a:0,e:"BL/2-3."},
+{q:"A unified thread is identified by",o:["an 'X' on the head","a raise ring on the head","2 or 3 rings on the head"],a:2,e:"Contiguous rings."},
+{q:"An AN steel bolt is identified by what marking on the head?",o:["A dash","14E","An 'x'"],a:2,e:"An AN steel bolt is identified with an 'x'."},
+{q:"A British close tolerance bolt is identified by",o:["a raised ring on the head","an 'X' on the head","a dropped collar under the head"],a:0,e:"A British close tolerance bolt is identified with a raised ring on the head."},
+{q:"A blind fastener described as external sleeve and internally threaded would be",o:["a cherry lock","a rivnut","a jobolt"],a:2,e:"A jo-bolt is externally sleeved and internally threaded."},
+{q:"Studs which have a size larger thread at one end are called",o:["stepped studs","shouldered studs","plain studs"],a:0,e:"Stepped studs have a size larger at one end."},
+{q:"A bolt with a raised dash is",o:["AN standard","close tolerance","Corrosion Resistant Steel"],a:2,e:"NIL"},
+{q:"A dowel will take what loads?",o:["shear","tensile","torsion"],a:0,e:"A dowel takes shear loads."},
+{q:"Dzus Fasteners provide",o:["for easy hammering into position","a close tolerance fit","quick release fasteners at inspection panels"],a:2,e:"Dzus fasteners are quick release fasteners."},
+{q:"The initials U.N.C when related to aircraft bolts stands for",o:["United National Countersunk","Unified National Coarse","Unified National Centred"],a:1,e:"UNC = Unified National Coarse. UNF= Unified National Fine."},
+{q:"Capped nuts are used so",o:["to prevent leaks from pipe ends","the part is not over torqued as the bolt touches the captive part first","to ensure that it is dry bolted"],a:1,e:"Capped nuts provide an air/fluid tight seal."},
+{q:"A bolt part number AN25C15 when compared to a bolt part number AN25-15 has",o:["a less expensive design and product costs","a higher resistance to corrosion","a higher pitch thread"],a:1,e:"2= clevis bolt, 5= diameter in 16ths (5/16ths in), C= Corrosion resistant steel, 15= length in 8ths (15/8= 1 7/8 in.)."},
+{q:"The head marking on a close tolerance BSF bolt is",o:["a series of dots on the head face","a raised disk on the head face","a lowered ring under the hexagon"],a:1,e:"A close tolerance bolt has a raised disc on the head."},
+{q:"In the drawing, what letter represents the nominal length of a BSF bolt?",o:["A","B","C"],a:0,e:"BL/2-3 Fig.2."},
+{q:"An aluminium alloy bolt may be identified by",o:["its colour (dyed black)","the letter A stamped on the head","its colour (dyed green)"],a:2,e:"BL/2-3 2.2."},
+{q:"A (British) 3/8 inch dia. UNF bolt will have the diameter code letter",o:["N","G","J"],a:2,e:"BL/2-3 Table 2."},
+{q:"An AN steel bolt is identified by",o:["on head","X on head","plain bolt"],a:1,e:"BL/2-7."},
+{q:"Rivnuts were originally used for",o:["securing structural parts","securing rubber de-icing boots","securing cabin floorings"],a:1,e:"BL/6-28 5.4."},
+{q:"Fork end fittings on control rod ends should have",o:["anti vibration compound","0.002 inch axial movement","bolt heads fitted upwards"],a:2,e:"NIL"},
+{q:"The AN526 truss-head screw",o:["provides a good clamping force","is a widely used recesses head machine screw","is a pan-head screw"],a:2,e:"AC43 Para.7-17."},
+{q:"Capped nuts are used",o:["prevent overtightening due to the threaded portion being restricted by the cap","to provide a dry torque joint","to stop leaks"],a:2,e:"NIL"},
+{q:"A pin in a fork end fitting is subjected to what loading?",o:["Shear","Tensile","Torsion"],a:0,e:"NIL"},
+{q:"Hy locks",o:["require lubrication of the screw part only","are pre-lubricated","do not require lubrication"],a:1,e:"NIL"},
+{q:"UNF means",o:["unified fine","union national fine","united nations fine"],a:0,e:"BL/3-2 Para 1.1.1.(ii)."},
+{q:"A clevis bolt in a control cable fork end would be loaded in",o:["shear","tension","both tension and shear"],a:0,e:"NIL"},
+{q:"Capped nuts are used",o:["to provide dry bolting of the joints","to lock the nut to the bolt","to stop leaks due to metal caps fitted on the heads"],a:2,e:"NIL"},
+{q:"A main difference between Lockbolt/Huckbolt tension and shear fasteners (other than their application) is in the",o:["shape of the head","method of installation","number of locking collar grooves"],a:2,e:"shear lockbolt has two locking grooves, and the tension lockbolt has five grooves."},
+{q:"One of the main advantages of the Hi-Lok type fasteners over earlier generations is that",o:["they can be installed with ordinary hand-tools","they can be removed and reused again","the squeezed on collar installation provides a more secure, tighter fit"],a:0,e:"NIL"},
+{q:"The markings on the head of a Dzus fastener identify the",o:["body diameter, type of head and length of the fastener","body type, head diameter and type of material","manufacturer and type of material"],a:0,e:"A letter identifies type of head, a number identifies body diameter in 1/16 inch increments and another number identifies stud length in 1/100ths inch."},
+{q:"The Dzus turnlock fastener consists of a stud, grommet, and receptacle. The stud length is measured in",o:["sixteenths of an inch","tenths of an inch","hundredths of an inch"],a:2,e:"NIL"},
+{q:"Threaded rivets (Rivnuts) are commonly used to",o:["join two or more pieces of sheet metal where shear strength is desired","attach parts or components with screws to sheet metal","join two or more pieces of sheet metal where bearing strength is desired"],a:1,e:"NIL"},
+{q:"Aircraft bolts with a cross or asterisk marked on the bolt-head are",o:["made of aluminium alloy","a standard steel bolts","close tolerance bolts"],a:1,e:"NIL"},
+{q:"A bolt with a single dash on the head is classified as an",o:["NAS standard aircraft bolt","AN corrosion resistant steel bolt","NAS close tolerance bolt"],a:1,e:"NIL"},
+{q:"A bolt with an 'X' inside a triangle on the head is classified as an",o:["NAS standard aircraft bolt","NAS close tolerance bolt","AN corrosion resistant steel bolt"],a:1,e:"NIL"},
+{q:"Aircraft bolts are usually manufactured with a",o:["class 1 fit for the threads","class 2 fit for the threads","class 3 fit for the threads"],a:2,e:"NIL"},
+{q:"The cage of an Instrument Mounting nut is made from",o:["steel","brass","phosphor bronze"],a:2,e:"NIL"},
+{q:"The speed nut of an Instrument Mounting nut is made from",o:["brass","steel","phosphor bronze"],a:0,e:"NIL"},
+{q:"Instrument Mounting nuts are",o:["soldered in place during manufacture","prevented from dropping behind the instrument panel by magnetism","non-magnetic"],a:1,e:"NIL"},
+{q:"The length of a clevis bolt",o:["includes the head and the thread","is the plain shank portion only","includes the threads but not the head"],a:2,e:"NIL"}
+],
+"05.3. Fasteners- Locking devices": [
+{q:"How many times can a locking plate be used?",o:["indefinitely providing it is a good fit around the component to be locked","once, then discarded","3 times, then discarded"],a:0,e:"CAAIPs Leaflet 2-5 5.1."},
+{q:"The taper of a standard taper pin is",o:["1 in 48","1 in 36","1 in 20"],a:0,e:"1 in 48."},
+{q:"When using a spring washer, the plain washer would be fitted",o:["between spring and part","between head and spring","under the nut"],a:0,e:"The plain washer is to protect the surface of the part from the edge of the spring washer."},
+{q:"How many times can you use a locking plate?",o:["Until all the tabs have been broken off","As long as it remains serviceable","Once only"],a:1,e:"BL/6-13 5."},
+{q:"Wire locking approach angles should not be less than",o:["45°","90°","10°"],a:0,e:"BL/6-13 7."},
+{q:"A spring type washer when used on an aluminium component must be used",o:["with a plain washer","by itself","with a tab washer"],a:0,e:"A spring washer must always be used with a plain washer."},
+{q:"Nickel alloy steel split pins can be used",o:["repeatedly provided they remain a good fit","only once, because the legs are spread and bent","with a spring washer and a stiff nut"],a:1,e:"Split pins can only be used once."},
+{q:"A pre-load indicating washer is correctly loaded when",o:["the inner ring rotates","the inner ring is gripped","the outer ring is gripped"],a:2,e:"A preload washer is correctly loaded when the outer ring is gripped."},
+{q:"The advantage of circlips is",o:["it can be used for both inner and external applications","Both a and b","it is cheap"],a:1,e:"Circlips are cheap and can be used for internal and external applications."},
+{q:"A press fit requires",o:["the hole to be expanded by heat","some sort of driving force","the shaft to be shrunk by cooling"],a:1,e:"A press fit requires some form of driving force."},
+{q:"A non metallic locknut is",o:["never used over 250°F","never torqued","never re-used"],a:0,e:"250°F (120°C) is the maximum temperature for nylon or fibre insert nuts."},
+{q:"Which can be re-used?",o:["Locking plate, circlip, spring washer","Shake proof washer, spring washer, locking plate","Tab washer, circlip, locking plate"],a:0,e:"Leaflet 2-5 3.3."},
+{q:"A tab washer has been removed after fitment for a short time from a non essential system, the tab washer may be",o:["re-used","re-used if a spare is not available","not re-used"],a:2,e:"used unless it is multi-tab and there are unused tabs - old tabs to be broken off."},
+{q:"Taper pins are subject to what loads?",o:["Tensile","Compressive","Shear"],a:2,e:"Taper pins can only take shear loads."},
+{q:"In the drawing, both bolts are correctly wire locked when",o:["both A and B are right hand threads","A is a right hand thread and B is a left hand thread","both A and B are left hand threads"],a:0,e:"The wire locking is maintaining tightness clockwise in both A and B."},
+{q:"A turnbuckle locknut is a",o:["stiff nut","slotted nut","castle nut"],a:0,e:"NIL"},
+{q:"A spring washer",o:["may be used a second time provided it is fitted the reverse way round","maybe used more than once provided it continues to provide an efficient lock","must not be used more than once"],a:1,e:"NIL"},
+{q:"An internal circlip can be used to",o:["retain a ball bearing in a housing","to do both of the above","retain a ball bearing on a shaft"],a:0,e:"NIL"},
+{q:"A washer having both twisted teeth and spring actions is",o:["AN970 large-area flat washer","AN936 shake-proof lock washer","AN935 split-ring lock washer"],a:1,e:"AC 43 Table 7-14."},
+{q:"Split pins",o:["may be used only once","can be used more than once but depends on the material of the split pin","may be used more than once"],a:0,e:"CAAIPs Leaflet 2-5, 2.5."},
+{q:"How is the locking feature of the fibre-type locknut obtained?",o:["By a fibre insert held firmly in place at the base of the load carrying section","By the use of an unthreaded fibre locking insert","By making the threads in the fibre insert slightly smaller than those in the load carrying section"],a:1,e:"NIL"},
+{q:"Split pins are made from",o:["brass or Low carbon steel - cadmium plated","brass or stainless steel","Low carbon steel - cadmium plated, or stainless steel"],a:2,e:"NIL"}
+],
+"05.4. Fasteners- Aircraft rivets": [
+{q:"Forming a solution treated rivet gives it 75% of its hardness. What gives it the other 25%?",o:["Leave at room temperature for four hours","Precipitation treat the component when forming is complete","Put them in a refrigerator"],a:0,e:"NIL"},
+{q:"If D or DD rivets are not formed in time, or removed from the freezer in time, they",o:["must be discarded","must be re-heat treated before use","can be re-heat treated once then discarded"],a:1,e:"NIL"},
+{q:"A joggle in a removed rivet is indication of what type of partial failure?",o:["Bearing","Shear","Compression"],a:1,e:"NIL"},
+{q:"How is a British aluminium rivet identified?",o:["Black anodic finish","Natural anodised finish","Violet anodic finish"],a:0,e:"A British aluminium rivet is black anodised."},
+{q:"A BS rivet made from L36 would be what colour and marking?",o:["Black anodic with an 'A'","Natural anodic with no marking","Green anodic with an 'X'"],a:0,e:"An L36 rivet is anodised black."},
+{q:"What do the letters and numbers on a British rivet mean?",o:["Material specification only","Material and finish","Head shape, material and finish"],a:2,e:"Example SP80 is snap head, al alloy, violet finish."},
+{q:"A natural finish aluminium alloy rivet with a D on it is",o:["hiduminium L86","aluminium L36","duralumin L37"],a:2,e:"L37 is aluminium alloy with a D."},
+{q:"A 5% magnesium rivet is identified by",o:["violet anodise with 'S' on it","green anodise with 'X' or an '8' on it","black anodise with 'A' on it"],a:1,e:"5% magnesium is green anodised with an 'X' or an '8'."},
+{q:"What metal is suitable for riveting magnesium alloy?",o:["Monel metal","5056 aluminium alloy","1100 aluminium alloy"],a:1,e:"BL/6-27 5.1 and AC43 7-1 para.d."},
+{q:"What metal is suitable for riveting alloy steel?",o:["Aluminium alloy","Monel metal","Mild steel"],a:1,e:"BL/6-27 5.1."},
+{q:"An aluminium alloy L37 rivet identification is",o:["X embossed","O embossed","D embossed"],a:2,e:"An aluminium alloy L37 (Duralumin) rivet is identified with an 'D'."},
+{q:"Rivet allowance is",o:["1.5d","1d plus the thickness of the material","1.5d plus the thickness of the material"],a:0,e:"Rivet allowance is 1.5 * diameter."},
+{q:"D and DD rivets are refrigerated to",o:["precipitation harden","increase age hardening","retard age hardening"],a:2,e:"Refrigeration retards age hardening."},
+{q:"What do you do to 2017 and 2024 rivets after heat treatment?",o:["Leave for a minimum of 2 hours before using","refrigerate for a minimum of 2 hours before using","Use immediately or refrigerate"],a:2,e:"NIL"},
+{q:"An American rivet with a cross on the head is",o:["2124 aluminium alloy","2117 aluminium alloy","5056 aluminium alloy"],a:2,e:"A cross on the head of a rivet indicates it is 5056 al.alloy."},
+{q:"A countersunk rivet of the 'SP' series has a head style of",o:["20°","90°","100°"],a:2,e:"SP series rivets are 100 degree csk."},
+{q:"The coding of a British rivet indicates",o:["length and diameter","head type and colour","material and head type"],a:2,e:"Coding such as SP80 means al.alloy and snap head."},
+{q:"A factor which determines the minimum space between rivets is the",o:["thickness of the material being riveted","diameter of the rivets being used","length of the rivets being used"],a:1,e:"Rivet spacing (single row) is 4 * diameter."},
+{q:"Joggles in removed rivet shanks would indicate partial",o:["torsion failure","shear failure","bearing failure"],a:1,e:"NIL"},
+{q:"A rivet that has 5% magnesium is identified as",o:["anodic violet and has an X","anodic green and has an X","natural and has an m"],a:1,e:"5% magnesium rivets are green anodized."},
+{q:"Identification of British aluminium alloy rivets is with",o:["a part number on the head","a letter and number code","a colour and number stamped on the head"],a:2,e:"Aluminium alloy rivets are colour coded with a number or letter on the head."},
+{q:"If you can only gain limited access to both sides of a structure, what would you use to repair the structure?",o:["A hylok","A blind rivet","A pop rivet"],a:0,e:"Pop rivets and blind rivets cannot be used in place of solid rivets."},
+{q:"Alloy rivets are heat treated by",o:["solution treating","annealing","anodising"],a:0,e:"Al.Alloy rivets are solution heat treated."},
+{q:"When a solid rivet is formed it only holds 75% of its shear strength, the other 25% comes from",o:["leaving assembly for 4 days to age harden","heating the completed assembly","cooling completed assembly"],a:0,e:"NIL"},
+{q:"A rivet with no marking has the material code",o:["AD","A","D"],a:1,e:"NIL"},
+{q:"Rivet MS20426 has what head type?",o:["CSK","Universal","Round"],a:0,e:"CAIP BL/6-27 table 4."},
+{q:"What is meant by the term Pitch Ratio?",o:["The area of contact between the two sheets of metal when joining by rivets","The distance between the hole and the edge of the material","The distance between two holes"],a:2,e:"CAIP BL/6-29 (Rivet Pitch)."},
+{q:"The length of solid rivets is in graduations of",o:["1/16 inch","1/8 inch","1/4 inch"],a:0,e:"CAIP BL/6-27."},
+{q:"What would be the diameter and length of a solid rivet if the following markings are given, AS 162-408?",o:["¼ inch dia, ½ inch length","½ inch dia, 1 inch length","1/8 inch dia, ½ inch length"],a:2,e:"CAIP BL/6-27."},
+{q:"What would the marking .5 indicate after the normal part number of a solid rivet?",o:["The rivet length in graduations of 1/8 inch","The diameter of the rivet is half an inch","Indicates close tolerance rivet"],a:2,e:"CAIP BL/6-27 para 3."},
+{q:"What is the pressure range for the Avdel Riveter type F?",o:["60 to 80 psi","20 to 60 psi","40 to 60 psi"],a:0,e:"60 to 80 psi."},
+{q:"What is the length of the operation stroke of the Avdel Riveter type F?",o:["½ inch","7/8 inch","1 inch"],a:0,e:"1/2 inch stroke."},
+{q:"If a sheet of aluminium alloy of 0.032 and 0.064 is to be joined together the rivet should be",o:["0.032 plus 2D","0.096 plus 1.5 D","0.064 plus 1D"],a:1,e:"Rivet allowance is 1.5D. Sheet thickness is 0.032 + 0.064 inches."},
+{q:"Where would a pop rivet with a break stem mandrel be used?",o:["In a closed structure","Where the head can be retrieved","Any situation calling for a pop rivet"],a:0,e:"A pop rivet is not a truly blind rivet because the tail falls away and has to be retrieved. However, the break-stem pop rivet has a head which stays with the rivet after breaking."},
+{q:"A chobert rivet gun may be used",o:["until the end has worn 0.002 inch below nominal diameter","indefinately","once only"],a:0,e:"0.002 inch is the wear limit on a chobert rivet gun."},
+{q:"Avdel rivets are closed by",o:["a tapered mandrel","broaching","squeezing"],a:1,e:"Avdel rivets are closed by broaching."},
+{q:"Countersunk rivets have two angles of countersink, these are",o:["100-115 degrees","125-135 degrees","100-160 degrees"],a:0,e:"NIL"},
+{q:"On a CHERRY MAX rivet, after the riveting process the mandrel section or stem is",o:["is ground down flush to rivet head","discarded","remains in the rivet sleeve to provide mechanical strength"],a:2,e:"The stem remains in the rivet after it is broken off. A collar holds it in place."},
+{q:"A 'HUCK' rivet is similar in design to a",o:["blind rivet","dome head rivet","cherry rivet"],a:2,e:"The Huck rivet is similar in design to the cherry rivet. But both are blind rivets."},
+{q:"On a structural repair, what type of rivet would you use when the back side cannot be accessed?",o:["Pop rivet","Hi-loc rivet","Blind rivet"],a:2,e:"By elimination, no such thing as a hi-loc rivet, and pop rivets may cause a FOD problem due to the stem falling out."},
+{q:"What material is suitable for riveting steel?",o:["Aluminium alloy","Monel","Copper"],a:1,e:"BL/6-27 5.1."},
+{q:"Cadmium plated rivets should not be used where the temperature may exceed",o:["120°C","250°C","200°C"],a:1,e:"BL/6-27 5.1."},
+{q:"What rivets should be used with nickel alloy steel?",o:["Aluminium Alloy","Mild Steel","Monel"],a:2,e:"AC43 Page 7-2 Para.g."},
+{q:"What is an advantage of a double flare on aluminium tubing?",o:["Ease of construction","It is more resistant to the shearing effect of torque","It is less resistant to the shearing effect of torque"],a:1,e:"NIL"},
+{q:"What type loads cause the most rivet failures?",o:["Bearing","Shear","Head"],a:2,e:"NIL"},
+{q:"Rivet's main strength quality is to resist",o:["tensile loads","shear loads","torsion"],a:1,e:"NIL"},
+{q:"A plate 10 inches by 5 inches is to be riveted with 3 rows of rivets, with the normal 4D rivet spacing and 2 D edge distance. The rivets are AN460AD4-6. How many rivets are required?",o:["60","52","56"],a:0,e:"Rivet diameter = 4/32 = 1/8 inch. If it is to be riveted along the 10 inch length, subtract the edge distances (2*1/4 inch) = 9 and a 1/2 inches. 4D = 1/2 inch. You can fit 20 rivets in 9 1/2 inches. 3*20 = 60."},
+{q:"A new rivet made of aluminium alloy is",o:["anodised with 's'","anodised with 'x'","anodised with 'd'"],a:1,e:"Of the aluminium alloy rivets, L86 is violet with an 's' and L58 is green with an 'x', but L86 (hiduminium) is no longer made."},
+{q:"What type of heat treatment can be used on DD rivets?",o:["Annealing","Precipitation","Solution Treatment"],a:2,e:"NIL"},
+{q:"The general rule for finding the proper rivet diameter is",o:["three times the thickness of the thickest sheet","three times the thickness of the material to be joined","two times the rivet length"],a:1,e:"NIL"},
+{q:"Cherrymax and Olympic-Lok rivets",o:["utilize a pulling tool for installation","may be installed with ordinary hand tools","utilize a rivet gun, special rivet set, and bucking bar for installation"],a:2,e:"NIL"},
+{q:"Hole filling fasteners (for example, MS20470 rivets) should not be used in composite structures primarily because of the",o:["increased possibility of fretting corrosion in the fastener","difficulty in forming a proper shop head","possibility of causing delamination"],a:2,e:"NIL"},
+{q:"The dimensions of an MS20430AD-4-8 rivets are",o:["1/8 inch in diameter and 1/2 inch long","4/16 inch in diameter and 8/32 inch long","1/8 inch in diameter and 1/4 inch long"],a:2,e:"AC 43.13-1B Chap 4 fig 4-4 on page 4-16."},
+{q:"The primary alloying agent of 2024-T36 rivets is indicated by the number",o:["20","2","24"],a:1,e:"CAIP BL/6-27 para 4.1."},
+{q:"Most rivets used in aircraft construction have",o:["a raised dot","dimples","smooth heads without markings"],a:1,e:"Most rivets are 2117."},
+{q:"MS20426AD-6-5 indicates a countersunk rivet which has",o:["a shank length of 5/16 inch (excluding head)","an overall length of 5/16 inch","a shank length of 5/32 inch (excluding head)"],a:1,e:"NIL"},
+{q:"Which rivet may be used as received without further treatment?",o:["2017-T3","2117-T3","2024-T4"],a:1,e:"2117 is an 'AD' rivet."},
+{q:"The information on rivet grip length is in which rivet code quadrant?",o:["NW","SE","NE"],a:1,e:"NAS-523."},
+{q:"The NE rivet quadrant gives information on",o:["diameter and manufactured head location","fastener identity","head data"],a:0,e:"NAS-523."},
+{q:"A square around the NW digit in the quadrant of a fastner would indicate",o:["interference fit fastener","hi-lock to be used","fluid tight fastner"],a:2,e:"NIL"},
+{q:"The four quadrants on a quadrant rivet code system are designated",o:["N, S, E, W","top-left, top-right, bottom-left, bottom-right","NW, NE, SE, SW"],a:2,e:"NIL"}
+],
+"06a. Pipes and Unions": [
+{q:"When replacing a hydraulic pipe, where would you find the correct replacement part?",o:["Parts catalogue","Maintenance schedule","Maintenance manual"],a:0,e:"NIL"},
+{q:"How are flexible hoses categorised?",o:["By maximum pressure","By diameter","By length"],a:0,e:"NIL"},
+{q:"What are the rigid pipes on gas turbine engines made from?",o:["Stainless steel","Aluminium alloy","Copper"],a:0,e:"Stainless steel has a high resistance to heat."},
+{q:"How would you test a hydraulic hose?",o:["Pressure test 2.0* working pressure","Pressure test 1.5* working pressure","Pressure test 1.0* working pressure"],a:1,e:"AL/3-13 8.4."},
+{q:"To prevent damage to seals on fitment you would",o:["compress and stretch them","use a cardboard protector over the threaded portions","use grease"],a:1,e:"Use cardboard protection to prevent damage to seals when fitting them."},
+{q:"Flexible pipes are identified by",o:["length","diameter","material"],a:2,e:"NIL"},
+{q:"A pipe carrying lubricant would be identified by the colour",o:["white","yellow","white and yellow"],a:1,e:"NIL"},
+{q:"Which material is a hydraulic fluid hose made from?",o:["Rubber","Butyl","Teflon"],a:2,e:"NIL"},
+{q:"Hydraulic pipes are made from",o:["1100 or 2020 H14","annealed steel","5056 or 7075"],a:1,e:"NIL"},
+{q:"The continuous coloured line on a hose assembly",o:["identifies hose material","will assist in detection of any twist in an installed hose","identifies fluid compatibility of hose"],a:1,e:"The 'lay line' will indicate twist in the hose."},
+{q:"The storage life of a flexible hose can be up to but not exceeding",o:["5 years","2 years","4 years"],a:0,e:"Leaflet 5-5 3.1."},
+{q:"The markings on a flexible hose must include the",o:["internal bore size","manufacturers name","date of manufacture"],a:2,e:"Leaflet 5-5 4."},
+{q:"When fitting a replacement flexible hose",o:["use the old one to apply the 'set'","ensure adequate clearance between the hose and the aircraft structure","always pressure test before fitting"],a:1,e:"NIL"},
+{q:"MIL-H-5606 hydraulic fluid O-rings are identified with a",o:["blue dot","yellow dot","yellow and white dot"],a:0,e:"NIL"},
+{q:"What type of material would hydraulic pipes on an undercarriage leg or bay be made from?",o:["Stainless steel, annealed, 14H","7075, H14","1100, 2024, in half hard state"],a:0,e:"NIL"},
+{q:"A metal pipe has a small indentation. What are the limits?",o:["5% internal diameter","10% of external diameter","No dent on a bend"],a:2,e:"AC43 9-30c."},
+{q:"An aircraft pipe has a number stamped on it. It is the",o:["fluid it is carrying","aircraft system","serial number"],a:2,e:"NIL"},
+{q:"The length of a straight hose assembly is measured",o:["between the outer faces of the union nuts","between the extremities of the two nipples","along the coloured line"],a:1,e:"Leaflet 5-5 2.4."},
+{q:"Metal tubing fluid lines are sized by wall thickness and",o:["outside diameter and 1/32 inch increments","inside diameter and 1/16 inch increments","outside diameter and 1/16 inch increments"],a:2,e:"NIL"},
+{q:"A certain amount of slack must be left in a flexible hose during installation because, when under pressure, it",o:["expands in length and contracts in diameter","contracts in length and expands in diameter","expands in length and diameter"],a:1,e:"NIL"},
+{q:"The term 'cold flow' is generally associated with",o:["welding and sheet metal","rubber hose","vaporizing fuel"],a:1,e:"deep permanent impression left in a flexible hose by the pressure of hose clamps and supports."},
+{q:"Flexible lines must be fitted with a slack",o:["of 5-8% of the length","of at least 10-12% of the length","to allow maximum flexing during operation"],a:0,e:"NIL"},
+{q:"The material specifications for a certain aircraft require that a replacement oil line be fabricated from 3/4 inch, 0.072 5052-0 aluminium alloy tubing. What is the inside dimension of this tubing?",o:["0.688 inch","0.606 inch","0.750 inch"],a:1,e:"Subtract 2x wall thickness from the outside diameter."},
+{q:"Excessive stress on fluid or pneumatic metal tubing caused by expansion and contraction due to temperature changes can best be avoided by",o:["providing bends in the tubing","using short, straight sections of tubing between fixed parts of the structure of the aircraft","not subjecting the aircraft to sudden changes in temperature"],a:1,e:"NIL"},
+{q:"Flexible hose used in aircraft systems is classified in size according to the",o:["outside diameter","inside diameter","wall thickness"],a:1,e:"NIL"},
+{q:"Which tubing have the characteristics (high strength, abrasion resistance) necessary for use in a high pressure (3,000 PSI) hydraulic system for operation of landing gear and flaps?",o:["1100-1/2H or 3003-1/2H aluminium alloy","Corrosion resistant steel annealed 1/4H","2024-T or 5052-0 aluminium alloy"],a:1,e:"NIL"},
+{q:"A gas or fluid line marked with the letters PHDAN",o:["is a high pressure line. The letters mean Pressure High, Discharge at Nacelle","is carrying a substance which may be dangerous to personnel","is carrying a substance which cannot be made non-toxic"],a:1,e:"PHDAN means PHysically DANgerous to personnel."},
+{q:"A 3/8 inch aircraft high pressure flexible hose compared to a 3/8 inch metal tubing used in the same system will",o:["have equivalent flow characteristics","have about the same OD","usually have interchangeable applications"],a:0,e:"NIL"}
+],
+"06b. Pipes and Unions": [
+{q:"How do you assemble a banjo hose?",o:["Put a washer on the outside of the banjo only","Put a washer on the inside of the banjo only","Put washer either side of the banjo"],a:2,e:"NIL"},
+{q:"A 0.5 in. diameter pipe is to be joined using standard nuts and fittings. What coupling would you use?",o:["AN8-8852-1","AN8-8852-2","AN8-8852-8"],a:2,e:"Pipes are graded in 1/16 inch steps. The last dash number is the number of 16ths. i.e. 8/16 = 0.5 inches."},
+{q:"To install a flareless coupling",o:["turn until torque is felt plus 3 flats (half turn)","hand tight plus 2 flats","turn until torque is felt plus 2 flats"],a:2,e:"BL/6-15 9.3."},
+{q:"A Skydrol hydraulic seal would be made of",o:["butyl rubber, ethelene propylene or Teflon Phosphate Ester based","natural rubber vegetable based","synthetic rubber mineral based"],a:0,e:"CAIPs AL/3-21."},
+{q:"Adapter nipples are not required on",o:["pipe to externally coned adapter","pipe to pipe coupling","pipe to internally coned adapter"],a:0,e:"BL/6-15 Figure 1."},
+{q:"A butyl rubber seal is made from",o:["silicon rubber","synthetic rubber","latex natural rubber"],a:1,e:"NIL"},
+{q:"What is the colour of an AN steel flared-tube fitting?",o:["Black","Red","Blue"],a:0,e:"Steel AN fittings are black, aluminium AN fittings are blue."},
+{q:"Which statement about Military Standard (MS) flareless fittings is correct?",o:["During installation, MS flareless fittings are normally tightened by turning the nut a specified amount after the sleeve and fitting sealing surface have made contact, rather than being torqued","MS flareless fittings must be tightened to a specific torque","MS flareless fittings should not be lubricated prior to assembly"],a:1,e:"NIL"},
+{q:"A flexible sealing element subject to motion is a",o:["gasket","packing","compound"],a:1,e:"NIL"}
+],
+"07. Springs": [
+{q:"Coil springs are made from",o:["carbon or alloy steels with high working stress","low carbon steels with high working stress","carbon or high alloy steels with low working stress"],a:2,e:"Spring steel is hardened (therefore high carbon) steel or alloy steel and work under low stress so they remain within the elastic region."},
+{q:"What load are spring hooks subjected to?",o:["Bending","Tension","Compressive"],a:0,e:"Spring hooks are under bending stress."},
+{q:"Steel music wire is",o:["used for lower strength springs","made of high carbon or nickel alloy","used for high strength springs and as progressive-rate springs"],a:0,e:"NIL"},
+{q:"A spring should be inspected for correct",o:["length, strength and squareness","width, strength and squareness","width, length and strength"],a:0,e:"NIL"}
+],
+"08. Bearings": [
+{q:"Needle roller bearings",o:["can accept a small amount of misalignment","are susceptible to brinelling","are designed to carry axial loads"],a:1,e:"NIL"},
+{q:"When rotating a ball bearing by hand, a regular click indicates",o:["a cracked ring","damage to the balls","intergranular corrosion in the outer ring"],a:0,e:"NIL"},
+{q:"A journal load is",o:["compression","radial","axial"],a:1,e:"NIL"},
+{q:"What kind of bearing is used in a landing system?",o:["Needle roller bearing","Tapered roller bearing","Caged ball bearing"],a:1,e:"NIL"},
+{q:"Spherical roller bearings resist what loads?",o:["Large radial but no thrust","Large radial and moderate thrust","Large thrust and moderate radial"],a:1,e:"'Radial' means outward, 'thrust' means axial."},
+{q:"Where are needle roller bearings used?",o:["High speed operations","Where is fluid damped bearing used","Where there are space restrictions"],a:2,e:"Needle roller bearings are used where there are space restrictions."},
+{q:"Loads on tapered roller bearings are",o:["thrust only","radial only","radial and thrust"],a:2,e:"Taper roller bearings can take radial and thrust loads."},
+{q:"A Hardy Spicer coupling has what type of bearings?",o:["Ball Bearings","Needle bearings","Plain bearings"],a:1,e:"A hardy splicer is a universal coupling as found on vehicle drive shafts and they are fitted with needle bearings."},
+{q:"A self aligning bearing is a",o:["angular bearing","precision bearing","radial bearing"],a:2,e:"A self aligning bearing is a radial bearing."},
+{q:"A crankshaft would be fitted with a",o:["cylindrical roller bearing","taper roller bearing","spherical roller bearing"],a:2,e:"CAIP BL/5-2 para. 2.2.3."},
+{q:"Where heat is likely to be transmitted through a bearing",o:["group 2 bearings are used","group 4 bearings are used","group 3 bearings are used"],a:1,e:"Group 4 bearings have the greatest clearance."},
+{q:"Shielded ball bearings are inspected by",o:["running at operating speed and listening for signs of wear","dismantling and inspecting","rotating slowly by hand"],a:2,e:"A feel test is the most likely inspection. The run test is not done at operating speed."},
+{q:"Thrust bearings take",o:["radial loads","journal loads","side loads"],a:2,e:"Thrust bearings take side loads."},
+{q:"A single row ball bearing is best suited to accepting",o:["radial loads only","axial loads only","axial and radial Loads"],a:0,e:"A single row ball bearing carries radial loads only."},
+{q:"Taper roller bearings are used for which of the following purposes?",o:["To transmit radial loads whilst resisting axial movement","To transmit thrust loads with radial loads","To permit axial movement whilst resisting radial load"],a:1,e:"Taper roller bearings transmit thrust and radial loads equally."},
+{q:"The stationary race of a journal bearing is normally",o:["a spigoted fit","an interference fit","a push fit"],a:1,e:"BL/6-14 5.1."},
+{q:"Inspection of bearings is normally carried out",o:["in situ","when dismantled","when removed from an assembly"],a:0,e:"BL/6-14 6.2."},
+{q:"Damage to the shield of a bearing should result in",o:["no action","replacement of the shield","rejection of the bearing"],a:2,e:"BL/6-14 6.2.1(iii)."},
+{q:"A watermark on a bearing indicates",o:["bearing running dry","intergranular corrosion","lack of lubrication"],a:1,e:"Intergranular corrosion (on some stainless steels) looks like a thin line on the surface of the metal - known as water stain."},
+{q:"Needle bearings resist",o:["radial and axial load","axial load only","radial load only"],a:2,e:"NIL"},
+{q:"When silica gel has absorbed moisture the colour changes to",o:["pink","white","blue"],a:0,e:"CAAIPs Leaflet 1-8 Page 3."},
+{q:"A thrust bearing is designed so that",o:["it transmits radial loads, therefore limiting axial movement","it transmits axial loads, therefore limiting radial movement","it transmits axial loads, therefore limiting axial movement"],a:2,e:"NIL"},
+{q:"Lubrication of roller bearings and needle bearings are",o:["at low pressure via a tube","under pressure","by hand"],a:2,e:"But it depends what type of lubricant is used and the bearing application."},
+{q:"Silica gel is used for moisture control during storage, when serviceable it is coloured",o:["blue","white","pink"],a:0,e:"NIL"}
+],
+"09. Transmissions": [
+{q:"How do you check a chain for elongation?",o:["Apply a load, measure chain and use 5% max formula to check extension","Apply a load, measure chain and use 2% max formula to check extension","Hang the chain under its own weight, measure chain and use 2% max formula to check extension"],a:1,e:"CAAIPS Leaflet 5-4 para 6.3."},
+{q:"How do you store a chain?",o:["Oiled and coiled in grease proof paper","Lay uncoiled and flat in grease proof paper","Hanged so they do not kink"],a:0,e:"CAAIPs leaflet 5-4 para 6.7."},
+{q:"Epicyclic gears are used on",o:["shafts rotating on axis 90 degrees from each other","shafts rotating on the same axis","shafts rotating on offset axis"],a:1,e:"A turboprop reduction gearbox is a good example of an epicyclic gear system."},
+{q:"What is the purpose of the guard, where a control chain goes around a sprocket?",o:["Stops the chain coming off if it goes slack","Protects personnel when carrying out maintenance","Prevents entry of foreign bodies"],a:0,e:"NIL"},
+{q:"Worm drives operate in shafts which are",o:["90 degrees to each other and in a differing plane","90 degrees to each other and in the same plane","parallel to each other and in the same plane"],a:0,e:"NIL"},
+{q:"The pattern of a gear is the",o:["the path they take when the gear is rotating","profile of the gear teeth","mark it leaves on a mating gear"],a:2,e:"The test involves painting the surface of a gear tooth then running the gear, then inspecting the 'pattern' worn into the painted surface."},
+{q:"How is the change in direction of a control chain, in two planes, achieved?",o:["By using a pulley","By using bi-planer blocks","By using spring clips"],a:1,e:"AL/3-2 Figure 4."},
+{q:"How is a non-reversible chain different from a normal chain?",o:["By use of a chain guard","Every second outer plate is extended in one direction","Different end fittings"],a:1,e:"AL/3-2."},
+{q:"When not under load where should a pair of gears sit?",o:["In the middle","On the toe","On the heel"],a:0,e:"NIL"},
+{q:"For a pair of gears to operate properly, they must have",o:["lash and pattern","end play and thrust","pattern and profile"],a:0,e:"NIL"},
+{q:"The teeth on the smaller wheel of a bevel gear are called the",o:["heel","toe","foot"],a:1,e:"NIL"},
+{q:"The correct meshing of gears is found by observing the marks made during a gear mesh test. On what part of the tooth should the marks be?",o:["Top","Bottom","Middle"],a:2,e:"NIL"},
+{q:"What type of gear would be used on a propeller reduction gearbox?",o:["Split epicyclic","Bevel","Epicyclic"],a:2,e:"NIL"},
+{q:"Where would you find the inspection interval for chains?",o:["Overhaul manual","Maintenance schedule","Maintenance manual"],a:1,e:"Time intervals are only in the Maintenance Schedule."},
+{q:"A feather key locates a gear on a shaft and permits",o:["positive drive and axial movement","positive drive with the gear firmly locked","a positive and strong drive for transmissions"],a:0,e:"A feather key allows axial movement."},
+{q:"A worm drive creates",o:["a drive in 2 planes and transmits both directions","a drive in 1 plane but transmits both directions","a drive in 2 planes but transmits 1 direction only"],a:2,e:"NIL"},
+{q:"The teeth of a gear would normally be",o:["nitrided","tempered","case hardened"],a:2,e:"Hardening right through the gear teeth would make them brittle and tend to break."},
+{q:"If a chain is removed for routine maintenance",o:["it must be proof checked to full load","it must be proof checked to ½ max load","it does not have to be proof checked"],a:2,e:"AL/3-2 6.6."},
+{q:"On gear teeth, the wear pattern should be",o:["the middle of the tooth most worn","even from top to bottom","the top edge most worn"],a:0,e:"NIL"},
+{q:"On bevel gear teeth, the wear pattern should be",o:["at the centre of the tooth","greatest at the heel, least at the toe","greatest at the toe, tapering off to the heel"],a:0,e:"NIL"},
+{q:"Bevel gears are",o:["all over case hardened","heel is hardened","toe is hardened"],a:0,e:"Bevel gears are all over case hardened."},
+{q:"A chain is checked for stiff links by",o:["hanging by hand by measure and sight","stretching out and measuring","running the chain over a finger by 180 degrees"],a:2,e:"AL/3-2 6.4."},
+{q:"During an inspection interval one segment of a long chain is found to be defective, the solution to this is to",o:["replace 3 segment either side of the deficiency","replace the whole chain","replace the particular segment and run components to check for serviceability"],a:1,e:"The chain cannot be repaired. It must be replaced."},
+{q:"The teeth of a gear would normally be",o:["tempered","case hardened","nitrided"],a:1,e:"The teeth of a gear are normally case hardened by flame cooling and water spray quenching."},
+{q:"Non-reversible chains can",o:["only be moved in one direction","only be fitted in one direction","not be fitted through pressure bulkheads"],a:1,e:"Leaflet 5-4 4.3.2."},
+{q:"The large diameter on a bevel gear is called the",o:["foot","toe","heel"],a:2,e:"The large diameter is the heel, the small diameter is the toe."},
+{q:"How do you check a chain for elongation?",o:["Lay flat on a table, apply tensile load and measure","Adjust the end fittings","Hang chain up, check sight line and measure"],a:0,e:"CAAIPs Leaflet 5-4 para 6.3."},
+{q:"Drive planes on an epicyclic gear are",o:["around a common axis of the plane","at different angles to the plane","at right angles to the plane"],a:0,e:"NIL"},
+{q:"Compared with the spur gears, spiral gears have",o:["have mechanical advantages","less stress concentration on gears","more wear resistance"],a:1,e:"NIL"},
+{q:"The clutch which can overrun the driving member, is known as",o:["overload clutches","no-slip clutches","freewheel clutches"],a:2,e:"NIL"},
+{q:"A gear system, or gear train, is made up of gears that are",o:["driven and driver","idler","driven, driver and idler"],a:2,e:"NIL"}
+],
+"10. Control Cables": [
+{q:"When is a turnbuckle not in safety?",o:["When a small diameter wire can be passed through the inspection hole","When you can see daylight through the hole","When a wire of the same diameter as the inspection hole can be passed through"],a:2,e:"NIL"},
+{q:"How do you check a turnbuckle is in safety?",o:["Use the inspection hole or count the threads showing","Ensure that the turnbuckle cannot be turned by hand","Make sure no threads are showing at either end of the turnbuckle"],a:0,e:"NIL"},
+{q:"British aircraft cables are classified by their",o:["breaking load in hundredweights","breaking loads in lbf, where 1 lbf = 4.448N","diameter and breaking load in Hundredweights"],a:0,e:"NIL"},
+{q:"Cables are preferred to other control systems because",o:["single braid allows for 2 way directions","they are strong and light","they maintain slight mechanical advantage over push/pull systems"],a:1,e:"Cable control systems are strong and light."},
+{q:"Turnbuckles, depending on type, are locked by",o:["stiff nuts","locknuts and wire","castleated nuts and splitpins"],a:1,e:"AC43 7-43."},
+{q:"Cable tension is maintained by",o:["a grommet","a cable tension regulator","a fairlead"],a:1,e:"A cable tension regulator maintains cable tension."},
+{q:"To correctly tension cables it can help to",o:["take up initial slack by additional pulleys","have control surface locks in to support weight and adjust turnbuckles equally","use a cable run with turnbuckles at least every eight feet"],a:1,e:"AL/3-7."},
+{q:"British turnbuckles are checked for safety by",o:["attempting to pass a hardened pin probe through the inspection hole","attempting to pass locking wire through the hole","looking through the hole and checking for threads showing"],a:0,e:"CAIPs AL/3-7."},
+{q:"Turnbuckles are correctly fitted when",o:["both rods are seen to touch in the inspection hole","both rods enter the barrel by the same amount","the inspection hole is blind or the required number of threads are showing"],a:2,e:"AC43 7-166."},
+{q:"How is the diameter of a cable measured?",o:["Diameter of one wire multiplied by the number of wires","Overall diameter","Diameter of one wire only"],a:1,e:"NIL"},
+{q:"9*16 cable is",o:["9 strands of 16 wires","9 cables having 16 turns per inch","cable size 9/16 inch diameter"],a:0,e:"BL/6-24 2.2."},
+{q:"Turnbuckles are used to",o:["join the two ends of the cable","adjust major tension on the cable","adjust minor tension on the cable"],a:2,e:"NIL"},
+{q:"A turnbuckle is in safety when",o:["the colour on the threads is showing","it is lockwired","the witness hole is covered or the amount of threads showing at the cable end is in accordance with the Maintenance Manual"],a:2,e:"NIL"},
+{q:"A turnbuckle can be safetied by",o:["teflon lock nuts","lock nuts and safety wirelocking","doesn't require to be safety locked"],a:1,e:"NIL"},
+{q:"Spring locking clips for turnbuckles can be used on",o:["no flying control cables","all flying control cables","only on trim control cables"],a:1,e:"NIL"},
+{q:"What is the small hole on a swaged turnbuckle for?",o:["To check for moisture deposits","To check if correct amount of cable has been inserted before swaging","To alloy the turnbuckle to be wire locked"],a:1,e:"NIL"},
+{q:"When checking the safety of turnbuckles you should use what?",o:["Visual check","Wire the same diameter as the inspection hole","Wire smaller than inspection hole"],a:1,e:"NIL"},
+{q:"Cable minimum breakage strain for British and American is measured by",o:["hundredweight for British, c.s.a. and pounds for American","hundredweight for British, c.s.a. hundredweight for American","pounds for both"],a:0,e:"CAAIPs Leaflet 2-12 Table 1 is British, Table 2 is American."},
+{q:"If a pulley shows signs of wear on one side",o:["the cable is too tightly tensed","the pulley is too large for the cable","the cable is misaligned"],a:2,e:"NIL"},
+{q:"A 7x7 cable has seven strands each of",o:["fourteen wires","seven wires","one wire"],a:1,e:"NIL"},
+{q:"Cable stops are manufactured from",o:["stainless steel","copper","magnesium alloy"],a:1,e:"AC43 7-148e P.7-33."},
+{q:"Pulleys are manufactured from",o:["brass and phenolic resin","tungum and high tensile steel","stainless steel and nylon"],a:0,e:"Phenolic resin also known as Micarta or Tufnol."},
+{q:"In a Teleflex flexible control system, the Teleflex cable consists of",o:["multi strand steel wires and is used primarily as a single one way device operated from a control lever","a high tensile steel wire with a right or left hand helix wire wound on to it. The system can operate in two directions","a flexible seven or nineteen strand steel cable used for the operation of manual flying controls"],a:1,e:"NIL"},
+{q:"A cable tension regulator will be installed in a flying control system to",o:["automatically compensate for low cable tension caused by worn cables","compensate for rapid movement of the controls by taking up the slack","allow for variations in temperature which will vary the cable tension"],a:2,e:"NIL"},
+{q:"Aircraft flying control cables are normally classified by the",o:["circumference of the cable and overall length","number of strands it contains and the number of wires in each strand","minimum breaking load or the diameter in inches"],a:2,e:"British cables are classified by the minimum breaking load - American cables by diameter (only)."},
+{q:"7*7 cable has seven stranded wires each with",o:["7 wires","14 wires","49 wires"],a:0,e:"7 strands make 1 wire. 7 Wires make 1 cable."},
+{q:"Tension regulators on aeroplanes with fully metal bodies are used to",o:["set up the necessary tension","maintain the necessary tension","relax the tension in cold conditions"],a:1,e:"Tension is set up by adjustments of the turnbuckles and tension regulators keep tension the same over varying opperating temperatures."},
+{q:"What is the smallest size cable that may be used in aircraft primary control systems?",o:["5/16 inch","1/4 inch","1/8 inch"],a:2,e:"CFR 23.689."},
+{q:"How are changes in direction of a control cable accomplished?",o:["Bellcranks","Fairleads","Pulleys"],a:2,e:"NIL"},
+{q:"A flight control cable is replaced if",o:["single wires are blended together","the protective fluid coating is missing","a wire is 20% worn"],a:0,e:"AC43 7-149 g."}
+],
+"11. Electrical Cables and Connectors": [
+{q:"A 14 gauge cable when compared to an 18 gauge cable has",o:["the same current rating","higher current rating","lower current rating"],a:1,e:"A 14 gauge cable is thicker than an 18 gauge cable."},
+{q:"In a front release connector, the pin will be",o:["released from the front and extracted from the rear","released from rear and extracted from the front","released from the front and extracted from the front"],a:0,e:"CAAIPs Leaflet 9-3 8.3.2."},
+{q:"An interconnect cable has what insulation?",o:["same thickness as airframe cable","thicker than airframe cable","thinner than airframe cable"],a:2,e:"NIL"},
+{q:"Why is the ground side of an electrical power conductor usually connected to a male connector?",o:["To make installation of the connector easier","To reduce the chance of an accidental short","To reduce the chance of corrosion affecting the pins"],a:1,e:"NIL"},
+{q:"Maximum temperature of tin coated copper cable is",o:["200°C","260°C","105°C"],a:2,e:"Normally 130°C. This figure of 105°C is for old obsolete cables."},
+{q:"Plug pins are numbered",o:["from the outside in - clockwise","from the inside out - clockwise","from the inside out - anticlockwise"],a:1,e:"NIL"},
+{q:"Equipment wire",o:["is flexible and suitable for soldering","can be used for interconnect wiring","has thicker insulation than interconnect wire"],a:0,e:"NIL"},
+{q:"In the wiring code shown, what does the number 6 (4th number from the left) represent? 1EF6B22 NMS V",o:["Cable number","Circuit function","Cable size"],a:0,e:"EEL/3-1 9.1."},
+{q:"An aluminium oxide layer on a conductor will do what when the temperature is increased?",o:["Remain the same","Become thicker","Become thinner"],a:1,e:"Oxides of metals always become thicker with elevated temperatures."},
+{q:"What is a coaxial cable?",o:["A single conductor","Two or more conductors","A twisted pair of conductors"],a:1,e:"A coaxial cable is a single shielded cable."},
+{q:"'X' on an electrical cable indicates",o:["emergency power","AC power","control system"],a:1,e:"'X' indicates AC power."},
+{q:"What must you be careful with a hot stamped cable?",o:["Corrosion","Peeling of the insulation","Wet arc tracking"],a:2,e:"Hot stamping has been known to cause wet arc tracking."},
+{q:"What is the effect of aluminium oxide on aluminium electrical cable?",o:["Insulates","Reduces resistance","Provides strength"],a:0,e:"All metal oxides are insulators."},
+{q:"What amperage is an 18 swg cable?",o:["1 amp","10 amp","5 amp"],a:1,e:"18 swg is a 10 amp cable."},
+{q:"A co-axial cable is better than a normal cable because",o:["there is an electrostatic field around it which helps to reduce the electromagnetic field","weight for weight it can carry more signal","it has less resistance"],a:0,e:"The shielding in a coaxial cable converts the electromagnetic field into electrical energy."},
+{q:"What is the danger if a silver coated connector comes into contact with glycol de icing fluid",o:["Fire hazard","Corrosion","Wet arc tracking"],a:0,e:"Silver coated connectors and glycol deicing fluid is a fire hazard."},
+{q:"When silver coated connectors are used in unpressurised parts of the aircraft",o:["wet track arcing can occur","separation of the coating can occur","corrosion can occur"],a:2,e:"Red Plague."},
+{q:"The conductor in Tersil cable is",o:["stainless steel","nickel plated copper","tinned copper"],a:1,e:"The conductor in tersil cable is nickel plated copper."},
+{q:"A cable is marked NYVIN 22. The 22 represents the",o:["current/weight ratio","cross sectional area","current rating"],a:1,e:"The 22 represents the cross sectional area."},
+{q:"Copper is an inferior conductor to aluminium when comparing",o:["weight for weight","CSA with CSA","load for load"],a:0,e:"Aluminium is better than copper when you compare weight to weight."},
+{q:"Silver plated copper wire has a maximum working temp of",o:["250°C","300°C","200°C"],a:2,e:"Leaflet 11-5 7.2.1."},
+{q:"For an electrical cable to be fireproof it must be able to stand 1100°C for",o:["20 mins","10 mins","15 mins"],a:2,e:"Fireproof - 15 minutes, fire resistant - 5 minutes."},
+{q:"Oxide on exposed silver plated wires is",o:["non corrosive","a conductor","an insulator"],a:2,e:"Any metal oxide is an insulator."},
+{q:"On a rear insert plug the tool is used to",o:["insert the pins from the front and extracted from the rear","insert the pins from the rear and extract from the front","insert the pins from the rear and extract from the rear"],a:2,e:"All electrical pins are inserted from the rear. The difference is how they are removed."},
+{q:"Nickel coated cables temperature range is",o:["200 to 250°C","150 to 200°C","100 to 150°C"],a:0,e:"Tin coated copper - 135°C. Silver coated copper - 200°C. Nickel coated copper - 260°C."},
+{q:"Aluminium wiring when flexed will",o:["have a higher resistance","have no effect","work harden and embrittle"],a:2,e:"Flexing aluminium wire will work harden it."},
+{q:"A foot operated hydraulic swaging tools is checked for fluid level",o:["vertically","horizontally","only when operating pressure is reached"],a:1,e:"NIL"},
+{q:"On a hydraulic swaging tool, the swage is formed when",o:["the bypass valve closes and ram is neutrally loaded","the bypass valve opens and ram is neutrally loaded","swage pressure is reached on the gauge"],a:1,e:"Leaflet 9-3 Para.7.5.7 e (iii)."},
+{q:"Interference in ribbon cables can be prevented by",o:["the use of a common earth return between signal wires in the cable","grounding alternate wires so that signal wires are never adjacent","using alternate return wires so that the cable differences cancel each other out"],a:1,e:"NIL"},
+{q:"H.T. leads are",o:["multi-strand, single-core, screened","single-strand, single-core, screened","multi-strand, multi-core, screened"],a:0,e:"Most HT leads are multi-strand single core."},
+{q:"If the cross sectional area of a cable is increased, what will happen to the voltage drop?",o:["Decrease","Increase","Stay the same"],a:0,e:"NIL"},
+{q:"The cross sectional area of a copper crimp barrel is",o:["larger than an aluminium one","smaller than an aluminium one","same as an aluminium one"],a:1,e:"NIL"},
+{q:"Electrical cable on aircraft is mainly made from copper because",o:["it offers low resistance to current flow","it more malleable","it does not oxidise"],a:0,e:"NIL"},
+{q:"When crimping, what chapter in the ATA system should you refer to?",o:["20","24","12"],a:0,e:"Chapter 20 is 'Standard Practices'."},
+{q:"Interconnect cables",o:["employ thinner insulation than airframe types","are used for equipment wire in the unified system","are the cable through the MEC to the engine"],a:0,e:"CAAIPs Leaflet 11-5. 4.3."},
+{q:"The first step for the coaxial cable to attach to the end fitting is",o:["use a tooling hold between the assembly and cable","the outer covering is cut back to expose the braided outer conductors","back-off the insulator and connect with conductor"],a:1,e:"NIL"},
+{q:"A fire resistant cable must maintain adequate insulation in a fire for",o:["10 minutes","5 minutes","30 minutes"],a:1,e:"NIL"},
+{q:"When silver coated connectors are used in unpressurised parts of the aircraft",o:["wet track arcing can occur","red plague can occur","separation of the coating can occur"],a:1,e:"Red Plague."},
+{q:"Knuckling is a problem on earlier aircraft cables due to",o:["hot stamping of cables","too much flux","wires being pulled through too hard"],a:2,e:"NIL"},
+{q:"Cable current ratings are based on a conductor temperature rise of 40°C and if the maximum design ambient temperature is continuously exceeded they should be",o:["multiplied by the 'K' factor","divide by the 'K' factor","halved"],a:0,e:"NIL"},
+{q:"Which of the following types of electrical wire is likely to be used for connection of thermo-couples around the jet-pipe of a turbine engine?",o:["Nyvin","Tersil","Fepsil"],a:2,e:"NIL"},
+{q:"The main reason why crimped joints are preferable to soldered joints is",o:["the quality of crimped joints will be constant","no flux is needed","there is no heat required"],a:2,e:"NIL"},
+{q:"In the cable identification '2P215A28N' the position of the letter P indicates",o:["that it is a Pneumatics system cable","the circuit function","which segment the cable is in"],a:1,e:"CAAIPs Leaflet 9-3 para 9."},
+{q:"Crimping terminals are colour coded. The colour indicates",o:["the type of crimping tool to be used only","the wire size to be used with that crimp only","both the crimping tool and the size of the wire to be used"],a:2,e:"NIL"},
+{q:"A 14 SWG electrical cable when compared to a 18 SWG cable can carry",o:["less current","the same current","more current"],a:2,e:"14 SWG is a bigger cross sectional area than 18 SWG."},
+{q:"Co-axial cables are used",o:["as they are able to handle high current","as the fields due to current flow in the inner and outer cancel each other out","as they produce an electrostatic field around them which prevents HIRF interference"],a:1,e:"NIL"},
+{q:"Direct removal connector pins are fitted from the rear",o:["are fitted from the front but removed from the rear","and removed from the rear","and removed from the front"],a:1,e:"NIL"},
+{q:"When installing coaxial cable, it should be secured along its entire length",o:["at 2-foot intervals","at 1-foot intervals","wherever the cable sags"],a:0,e:"NIL"},
+{q:"Which of the following factors must be taken into account when determining the wire size to use for an aircraft installation?",o:["Allowable power loss, permissible voltage drop, current carrying capability of the conductor, type of load (continuous or intermittent)","Mechanical strength, allowable power loss, resistance of current return path through the aircraft structure, permissible voltage drop","Allowable power loss, resistance of current return path through the aircraft structure, current carrying capability of the conductor, type of load (continuous or intermittent)"],a:1,e:"NIL"},
+{q:"How should splices be arranged if several are to be located in an electrical wire bundle?",o:["Enclosed in a conduit","Grouped together to facilitate inspection","Staggered along the length of the cable"],a:2,e:"NIL"},
+{q:"When approved, splices may be used to repair manufactured harnesses of installed wiring. The maximum number of splices permitted between any two connectors is",o:["two","one","three"],a:1,e:"AC 43 para. 11-167(c)."},
+{q:"The most common method of attaching a pin or socket to an individual wire in an MS electrical connector is by",o:["crimping","soldering","crimping and soldering"],a:0,e:"NIL"},
+{q:"The pin section of an AN/MS connector is normally installed on",o:["the power supply side of the circuit","either side of a circuit (makes no difference)","the ground side of the circuit"],a:2,e:"NIL"},
+{q:"The primary considerations when selecting electric cable size are",o:["the voltage and amperage of the load it must carry","the system voltage and cable length","current-carrying capacity and allowable voltage drop"],a:2,e:"NIL"},
+{q:"How does the routing of coaxial cables differ from the routing of electrical wires?",o:["Coaxial cables are routed at right angles to stringers and ribs","Coaxial cables are routed as directly as possible","Coaxial cables are routed parallel with stringers and ribs"],a:1,e:"NIL"},
+{q:"The socket section of an AN/MS connector is normally installed on",o:["the power supply side of the circuit","the ground side of the circuit","either side of a circuit (makes no difference)"],a:0,e:"NIL"},
+{q:"In the American Wire Gauge (AWG) system of numbers used to designate electrical wire sizes, the number assigned to a size is related to its",o:["cross sectional area","combined resistance and current-carrying capacity","current-carrying capacity"],a:0,e:"NIL"},
+{q:"Where electrical cables pass through holes in bulkheads, formers, ribs, firewalls etc., the wires should be protected from chafing by",o:["wrapping with electrical tape","wrapping with plastic","using a suitable grommet"],a:2,e:"NIL"}
+],
+"12. Metallurgy": [
+{q:"When carbon is fully dissolved in iron and therefore uniformly distributed in solid solution, the metallurgical structure is called",o:["Ferrite","Austenite","Pearlite"],a:1,e:"NIL"},
+{q:"When one carbon atom chemically combines with 3 iron atoms, the result is called",o:["Martensite","Pearlite","Cementite or Iron Carbide"],a:2,e:"NIL"},
+{q:"Cementite laminated with ferrite in alternate layers produces",o:["Ferrite/Iron","Pearlite","Martensite"],a:1,e:"NIL"},
+{q:"Pearlite combines the properties of",o:["martensite and iron carbide","cementite and Martensite","ferrite and cementite"],a:2,e:"NIL"},
+{q:"The amount of carbon necessary to produce a totally pearlitic structure is",o:["1.0%","0.83%","1.83%"],a:1,e:"NIL"},
+{q:"The properties of ferritic metal are that it is both",o:["strong without being brittle","strong but too hard and brittle","soft and weak"],a:2,e:"NIL"},
+{q:"The properties of cementite metal are that it is both",o:["soft and weak","strong but too hard and brittle","strong without being brittle"],a:1,e:"NIL"},
+{q:"The properties of pearlitic metal are that it is both",o:["soft and weak","strong without being brittle","strong but too and hard and brittle"],a:1,e:"NIL"},
+{q:"When heating a straight carbon steel, there is a hesitation (slight pause) in the temperature rise before it increases a further 200°C. This hesitation is known as the",o:["Lower Critical Point","Upper Critical Point","Eutectic Point"],a:0,e:"NIL"},
+{q:"Referring to a iron/carbon phase diagram, when talking about U.C.P and L.C.P, the point where the two meet is known as the",o:["eutectic point","hesitation point","point of no return"],a:0,e:"NIL"}
+]
+};
+
+// ===== ตัวแปรสถานะ =====
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+// ===== โหลดหมวดลงใน dropdown =====
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== ฟังก์ชันสุ่ม (Fisher-Yates) =====
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== เริ่มทำข้อสอบ =====
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+
+  // รวมคำถาม
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+
+  // สุ่มลำดับคำถาม
+  pool = shuffle(pool);
+
+  // สุ่มลำดับตัวเลือกในแต่ละข้อ + เก็บ index คำตอบที่ถูกต้อง
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+// ===== แสดงคำถาม =====
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `
+        <label>
+          <input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">
+          ${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}
+        </label>`;
+    });
+
+    div.innerHTML = `
+      <div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div>
+      <div class="q-category">📂 ${escapeHtml(q.category)}</div>
+      <div class="options">${optionsHtml}</div>
+      <div class="explanation hidden" id="exp-${idx}"></div>
+    `;
+    area.appendChild(div);
+  });
+
+  // เพิ่มปุ่มส่งคำตอบ
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `
+    <button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button>
+    <button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>
+  `;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===== บันทึกคำตอบ =====
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+// ===== อัปเดตสถิติ =====
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+// ===== ส่งคำตอบ =====
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+
+    // แสดงเฉลย
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+
+    // disable radios
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+
+  // แสดงคะแนน
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `
+    <div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div>
+    <div style="font-size: 32px; font-weight: bold;">${percent}%</div>
+  `;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+// ===== กรองข้อที่ถูก/ผิด =====
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+// ===== ทำใหม่ =====
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ===== เริ่มต้น =====
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
