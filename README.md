@@ -36,8 +36,8 @@
 - Module 09 — Human Factors
 - Module 10 — Aviation Legislation
 - Module 11 — Aeroplane Aerodynamics, Structures & Systems
-- Module 12 — Helicopter Aerodynamics, Structures & Systems
-- Module 13 — Aircraft Aerodynamics & Systems
+- Module 15 — Gas Turbine Engine
+- Module 17 — Propeller
 
 > หมายเหตุ: รายการ Module สามารถปรับเปลี่ยนตามโครงสร้างหลักสูตรและข้อมูลข้อสอบของผู้จัดทำ
 
