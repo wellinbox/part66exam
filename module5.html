@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 05 - Digital Techniques Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #ffffff;
+    color: #000000;
+    margin: 0;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls {
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button {
+    padding: 8px 14px;
+    font-size: 14px;
+    border: 1px solid #000;
+    background: #fff;
+    cursor: pointer;
+    margin: 4px;
+  }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+  }
+  .stats div { margin: 4px 10px; }
+  .question {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label {
+    display: block;
+    padding: 6px 10px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .options label:hover { background: #f0f0f0; }
+  .explanation {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fffbe6;
+    border-left: 4px solid #f9a825;
+    font-size: 14px;
+  }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box {
+    text-align: center;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #000;
+    border-radius: 8px;
+    display: none;
+  }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #eee;
+    border: 1px solid #000;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    transition: width 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+  }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script>
+</head>
+<body>
+<div class="container">
+  <h1>💻 Module 05 - Digital Techniques Quiz</h1>
+
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+
+  <div id="quizArea"></div>
+</div>
+
+<script>
+// ===== ข้อมูลข้อสอบทั้งหมด =====
+const quizData = {
+"05.01. Electronic Instrument Systems": [
+{q:"What are the basic elements for 'Classic T' format?",o:["Direction, altitude and height","Airspeed, pitch and roll","Airspeed, attitude, altitude and direction"],a:2,e:"NIL"},
+{q:"Typical displays on an EHSI are.",o:["Engine indications","VOR, Map, Plan and weather radar","VOR, Plan, Map and Attitude"],a:1,e:"Pallett- Aircraft Instruments."},
+{q:"An EADI display showing a moving runway moves down during the final stages of an approach. The aircraft must.",o:["fly down","fly up","hold descent path"],a:0,e:"At 200ft, during Approach, the Rising Runway starts to move up the EADI display until, at touch down, it touches the bottom of the aircraft symbol. If the Rising Runway start to move down again it means that the aircraft is climbing and should FLY DOWN."},
+{q:"During an instrument approach, the glideslope pointer reflects below the glideslope centre mark. This means the aircraft is positioned.",o:["above the glideslope","below the glideslope","to the left of the localiser"],a:0,e:"Consider the centre of the G/S scale as the aircraft position and the pointer as the centre of the G/S beam."},
+{q:"Engine parameters are displayed on.",o:["ECAM","EHSI","FMSCDU"],a:0,e:"Engine parameters can be displayed on ECAM by selecting the Engine Page. See Pallett- Aircraft Instrumnets and Integrated Systems Page 391."},
+{q:"What is the fixed feature of an ADI?",o:["The glideslope pointer","The aircraft symbol","The lateral deviation bar"],a:1,e:"The little aeroplane painted in the middle of the instrument."},
+{q:"On an EADI, the Flight Director command bars show.",o:["the path with respect to the horizon","the required path with respect to the actual path","the actual path with respect to the required path"],a:1,e:"NIL"},
+{q:"What instrument includes a display of a rising runway?",o:["ECAM","EHSI","EADI"],a:2,e:"NIL"},
+{q:"What functions are available on the EHSI?",o:["Full arc and Wx only","Full arc, Wx and Map Mode","Full Arc only"],a:1,e:"NIL"},
+{q:"With radio coupled autopilot, what are the inputs?",o:["ADF and VOR","ILS and VOR","ADF and ILS"],a:1,e:"NIL"},
+{q:"An EADI display of flight director commands are coloured.",o:["cyan","magenta","red"],a:1,e:"Aircraft instruments and integrated systems,(pallet) page 302 fig 12.5 eadi flight director command bars are magenta."},
+{q:"EFIS systems have two control panels, their purpose is.",o:["one to control the type of EFIS display and the other to select the source of the information being displayed","one for the EADI display and one for the EHSI display","to provide display control by one control panel whilst the other provides a standby"],a:0,e:"NIL"},
+{q:"What would you expect to see displayed on an EADI display?",o:["Compass heading, selected heading and VOR","Course information, weather radar, waypoint alert and bearing pointers","Flight director command bars, slip indicator, rate to altitude & autoland"],a:2,e:"NIL"},
+{q:"An EFIS ADI display will show along with pitch and roll.",o:["flight director bars, autoland, compass rose, altitude","decision height, autoland, rad alt, altitude","flight director bars, autoland, altitude, range to altitude, decision height"],a:1,e:"NIL"},
+{q:"If the glideslope pointer is below the centre mark the aircraft is.",o:["below the glideslope","on the glideslope","above the glideslope"],a:2,e:"NIL"},
+{q:"On an EFIS system the weather radar is displayed on.",o:["the FMC CDU","the EADI","the EHSI"],a:2,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 305."},
+{q:"EADI displays show.",o:["pitch, roll and waypoints","pitch and roll attitudes","heading and weather radar"],a:1,e:"NIL"},
+{q:"On an EHSI in weather radar mode, a severe storm would be shown as.",o:["orange areas with black or yellow surrounds","red areas with black surrounds","blue areas with white background"],a:1,e:"NIL"},
+{q:"During flight(non fault conditions) the EICAS system displays on the lower CRT.",o:["flight phase page","secondary engine parameters","synoptic display"],a:1,e:"NIL"},
+{q:"Radio altitude is displayed on an EFIS system.",o:["on the Electronic Horizontal Situation Indicator","on the Electronic Attitude Direction Indicator","on the RMI"],a:1,e:"NIL"},
+{q:"An EFIS system ADI displays pitch, roll.",o:["autoland, altitude, compass rose and flight director bars","autoland, decision height, range to altitude and flight director bars and slip indicator","autoland, rad alt, decision height and slip indicator"],a:1,e:"NIL"},
+{q:"An electronic flight instrument display consists of.",o:["Mode control panel, Raster and Stroke generator display, microprocessor and Data inputs","ADC, Altimeter, VSI and ASI","ADI, HSI and Symbol generator"],a:0,e:"Automatic Flight Control by EHJ Pallett and Shawn Coyle page 268."},
+{q:"The EFIS system consists of.",o:["EHSI, Mode control panel, EADI","EADI, EHSI, Symbol generators","Mode control Panel, RDMI, EHSI"],a:1,e:"NIL"},
+{q:"ILS indications on PFD/ND are shown in.",o:["cyan","magenta","green"],a:1,e:"NIL"},
+{q:"A weather radar image can be displayed on the ND on all modes except.",o:["arc","nav rose","plan"],a:2,e:"NIL"},
+{q:"In a typical commercial aircraft Head Up Guidance System.",o:["the type of information shown on the attitude director indicator is displayed on a transparent plate","all instrument information is displayed on the windshield","only emergency indications or warnings are displayed to the pilot"],a:0,e:"NIL"},
+{q:"A modern Electronic Horizontal Situation Indicator will display the following:",o:["Waypoints, ILS Steering Information, Distance to go and Magnetic Heading","ILS Steering Information, Flight director information and Glide Slope Deviation","Ground speed, Magnetic Heading, Way points and Localiser"],a:0,e:"NIL"},
+{q:"Cockpit panels have a matt colour finish. The purpose is.",o:["so that pilots feel more comfortable during day time","so that the amount of glare is reduced to minimum","so that dust and dirt are less evident on panels"],a:1,e:"NIL"},
+{q:"A complete EFIS installation in an aircraft is made up of.",o:["either of the above","right(captain) and left(co-pilot)","left(captain) and right(co-pilot)"],a:0,e:"could be either, as helicopters are the other way round when compared to aeroplanes."},
+{q:"On a modern 'glass cockpit' aircraft, engine information will be displayed on.",o:["FMS","EFIS","ECAM"],a:2,e:"NIL"},
+{q:"What does EFIS mean?",o:["Electronic Fire Indication Signal","Electronic Flight Instrument System","Electronic Flight Information System"],a:1,e:"NIL"},
+{q:"What does EICAS mean?",o:["Electronic indicator and control alerting system","Engine indicating and Crew alerting system","Electronic indicator and crew alerting system"],a:1,e:"NIL"},
+{q:"What does ECAM mean?",o:["Engine Centralised Aircraft Management System","Engine Centralised Aircraft Monitoring System","Electronic Centralised Aircraft Monitoring System"],a:2,e:"NIL"}
+],
+"05.02. Numbering Systems": [
+{q:"Convert 011101 Base2 to octal.",o:["25","35","33"],a:1,e:"The OCTAL code has 8 digits, 0-7. To convert binary to octal divide the binary number into groups of three starting from the right."},
+{q:"The binary number 11010111 expressed as a decimal is.",o:["215","223","207"],a:0,e:"NIL"},
+{q:"The octal number 1001 expressed as a decimal is.",o:["9","65","513"],a:2,e:"NIL"},
+{q:"What is 345 in binary?",o:["100111001","101011001","110011001"],a:1,e:"NIL"},
+{q:"What is hex 110 in decimal?",o:["282","272","32"],a:1,e:"NIL"},
+{q:"Convert the binary word 1100 to decimal.",o:["11","16","12"],a:2,e:"NIL"},
+{q:"If a data message is made up of 1s and 0s, it is.",o:["analogue","binary","digital"],a:2,e:"Digital is 1s and 0s, either binary or grey code."},
+{q:"Convert the binary word 1110 to decimal.",o:["12","14","15"],a:1,e:"NIL"},
+{q:"Convert the binary number 110010 to decimal.",o:["80","50","34"],a:1,e:"NIL"},
+{q:"Convert the hexadecimal number D into decimal.",o:["13","15","14"],a:0,e:"NIL"},
+{q:"Convert decimal 15 into binary.",o:["1111","1101","1110"],a:0,e:"NIL"},
+{q:"Convert 448 to hex.",o:["22 Base16","36 Base16","24 Base16"],a:2,e:"NIL"},
+{q:"Convert decimal 15 into hexadecimal.",o:["G","E","F"],a:2,e:"NIL"},
+{q:"Convert 1D to binary.",o:["11101","29","101001"],a:0,e:"NIL"},
+{q:"Convert 2C hex to octal.",o:["35","44","54"],a:2,e:"NIL"},
+{q:"A hexadecimal is a number to base.",o:["2","16","8"],a:1,e:"NIL"},
+{q:"1012 converted to decimal is.",o:["52","210","510"],a:2,e:"NIL"},
+{q:"The binary coded decimal number 10011000 expressed as a decimal number is.",o:["1528","9810","1522"],a:1,e:"NIL"},
+{q:"The decimal number 7 expressed as a binary number is.",o:["101 Base 2","111 Base 2","7 Base 2"],a:1,e:"NIL"},
+{q:"Binary addition of 1101+ 101101 is.",o:["58","70","61"],a:0,e:"NIL"},
+{q:"What is 011100001 Base2 in Octal?",o:["225 Base 8","281 Base 10","341 Base 8"],a:2,e:"NIL"},
+{q:"The binary number 1010100011100101 Base2 in hexadecimal is.",o:["22BC Base 16","FFFF Base 16","A8E5 Base 16"],a:2,e:"NIL"},
+{q:"0011011000101001 when transferred to computer language this information can be a representation of.",o:["binary, octal or decimal numbers","hex, octal and binary numbers","hex, octal and decimal numbers"],a:2,e:"Binary IS 'computer language' not a representation. Therefore any answer with 'binary' in it is wrong."},
+{q:"A computer message 3B4 is.",o:["Octal","binary","hexadecimal"],a:2,e:"NIL"},
+{q:"What is 54 octal in hexadecimal?",o:["2F","4F","2C"],a:2,e:"NIL"},
+{q:"2D in decimal is.",o:["43","45","41"],a:1,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 132."},
+{q:"84 decimal in hexadecimal is.",o:["5f","f4","54"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 132."},
+{q:"16 hexadecimal converted to decimal is equivalent to.",o:["48","38","22"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 132."},
+{q:"Decimal 10 converted to binary is.",o:["1111","1001","1010"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 128."},
+{q:"What systems uses base 10?",o:["Octal","Binary","Decimal"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 128."},
+{q:"What systems use base 16?",o:["BCD","Octal","Hexadecimal"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 132."},
+{q:"Binary coded decimal(BCD) format has a minimum of.",o:["2 lots of four","four","3 lots of four"],a:1,e:"NIL"},
+{q:"What is the Hexadecimal number F86 in Binary?",o:["111110000001","3974","111110000110"],a:2,e:"Convert it to Decimal first(15 x 256+ 8 x 16+ 6 x 1)= 3974. Since it is an even number, it must be the answer with a zero on the end."},
+{q:"What is 11000012- 1011002?",o:["10001101 Base 2","110111 Base 2","110101 Base 2"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 1129."},
+{q:"What is used for the power of 10?",o:["Digital","Octal","Decimal"],a:2,e:"Decimal is a power of 10 counting system."},
+{q:"What is 44 in hexadecimal?",o:["2d","2c","2F"],a:1,e:"(2* 16)+(12* 1)= 44(c= 12)."},
+{q:"What is octal 33 in hexadecimal?",o:["1b","11","22"],a:0,e:"Octal 33=(3* 8)+(3* 1)= 27 decimal. 27=(1* 16)+(11* 1)= 1b(b= 11)."},
+{q:"An octal format hexadecimal number 3F written as binary would be.",o:["110 111","111 111","101 011"],a:1,e:"NIL"},
+{q:"What is f86 hex when converted to binary?",o:["1000010000110","111110000110","100000000000"],a:1,e:"NIL"},
+{q:"In a computer, the address 3B8 is.",o:["hexadecimal","decimal","octal"],a:0,e:"NIL"},
+{q:"What is a Grays converter?",o:["Analogue to Analogue","Analogue to Digital","Digital to Analogue"],a:1,e:"NIL"},
+{q:"What is the hexadecimal number AE5 in octal form?",o:["5445","5340","5345"],a:2,e:"NIL"},
+{q:"Hexadecimal 5C is what in binary?",o:["1011111","1011100","1110100"],a:1,e:"NIL"},
+{q:"Binary 11001101 converted to octal is.",o:["12E","315","205"],a:1,e:"NIL"},
+{q:"What is the binary notation for 29?",o:["0001 0110","0010 1001","0001 1101"],a:2,e:"Despite the deliberate gap between the blocks of 4 digits, this is not a BCD question."},
+{q:"101012+ 110012=.",o:["462","468","4610"],a:2,e:"101012+ 110012= 1011102= 4610."}
+],
+"05.03. Data Conversion": [
+{q:"If a signal has quantity in volts and physical position it is.",o:["digital","synchronous","analogue"],a:2,e:"This is the definition of an analogue signal."},
+{q:"Within a computer controlled flight system, position feedback is converted from.",o:["position feedback to rate feedback","analogue to digital","digital to analogue"],a:1,e:"NIL"},
+{q:"What is serial to parallel and vice-versa called?",o:["Switching","Multiplex/Demultiplex","Encoder/Decoder"],a:1,e:"NIL"},
+{q:"A thyristor is a device which has.",o:["a positive temperature coefficient","a negative temperature coefficient","a temperature coefficient of zero"],a:1,e:"NIL"},
+{q:"Physical variables in quantitative forms, such as voltage or angular rotation of a shaft are.",o:["digital","analogue","binary"],a:1,e:"NIL"},
+{q:"A D to A converter is required to produce an output range of 0 to 10V. This can be achieved by.",o:["a non inverting op amp connected in series with output","an inverting op amp connected in series with output","a differentiator with a 100 Kilohm feedback resistor"],a:1,e:"NIL"},
+{q:"A D to A converter would use a precision amplifier to.",o:["compensate for the variation of the feedback resistor with temperature","ensure that the output voltages remain accurate","ensure that the input voltage remains accurate"],a:1,e:"NIL"},
+{q:"A given transducer provides a voltage which corresponds to true heading. This voltage can be converted to 'bits' by using a.",o:["analogue to digital converter","digital to analogue converter","commutator"],a:0,e:"NIL"},
+{q:"An A to D converter uses successive approximation to.",o:["increase resolution","increase accuracy","increase speed"],a:2,e:"NIL"},
+{q:"An R-2R D to A converter uses.",o:["two values of resistors whose precision is not important","two values of precision resistors","resistors whose values are logarithmic"],a:0,e:"NIL"},
+{q:"The function of a commutator is to.",o:["convert from analogue to binary form","provide continuous availability of all parameters connected to the system","provide a sampling in sequence of a number of parameters"],a:2,e:"NIL"},
+{q:"An encoder using Grey code.",o:["changes analogue to binary","changes digital to analogue","changes analogue to digital"],a:2,e:"NIL"},
+{q:"An analogue to digital converter is as accurate as.",o:["the frequency","the sampling rate","the amplitude"],a:1,e:"NIL"},
+{q:"A digital to analogue converter that requires the output to range between 0v and -10v would have.",o:["a non-inverting amplifier in line with the output with a resistor to ground","an inverting amplifier in series with the output line","a non-inverting amplifier in parallel with the output line"],a:1,e:"NIL"},
+{q:"In an analogue to digital converter, the input voltage.",o:["is switched by the digital input","is intermittent","stays on constantly"],a:2,e:"NIL"},
+{q:"An R-2R Converter has values or resistance.",o:["whose relative precision are accurate","whose precision are not accurate","whose precision are accurate"],a:1,e:"NIL"},
+{q:"What does 1 represent in an analogue system?",o:["High frequency","Switches closed, magnetised","Switches open, unmagnetised"],a:1,e:"NIL"},
+{q:"Audio sounds recorded digitally.",o:["are superior quality and graeter bandwidth","are narrow bandwidth","are not as accurate due to clipping and input errors"],a:0,e:"NIL"},
+{q:"An analogue to digital converter where it counts up to binary state equal to the analogue input and then back down when this is reached is a.",o:["a ramp type converter","successive approximation counter","flash type converter"],a:0,e:"Digital Fundamentals TL Floyd page 790."},
+{q:"Transistors are used in a current triggered D to A device to.",o:["switch off the inputs","switch on the input","change the state of the inputs"],a:2,e:"NIL"},
+{q:"Op amps generally used in ADCs and DACs are normally.",o:["high input impedance, high output impedance","high input impedance, low output impedance","low input impedance, how output impedance"],a:1,e:"NIL"},
+{q:"Analogue logic 1 is.",o:["closed switch, Logic Q=0","closed circuit, Logic Q=1","open circuit"],a:1,e:"NIL"},
+{q:"A DAC uses a precision amplifier to.",o:["ensure the output voltages remain accurate","compensates for the variation of the feedback resistor due to temperature","ensure the input remains accurate"],a:0,e:"NIL"},
+{q:"A precision op-amp is used in a DAC to.",o:["compensate for temperature variation","give output at required level","make output between 0-5V"],a:1,e:"NIL"},
+{q:"In an R-2R ladder converter the values of resistors.",o:["do not need to be of precise values","only the first resistor need to be precise","are precise"],a:0,e:"NIL"},
+{q:"What is the quickest method of analogue to digital conversion?",o:["Voltage to frequency","Flash converter","Single ramp method"],a:1,e:"Digital Fundamentals by Thomas L Floyd."},
+{q:"A charge balancing ADC uses.",o:["successive approximation logic circuit to control the output","a closed loop system to compare the analogue input to give the required digital output","a closed loop system to check the analogue input with the input sample"],a:1,e:"NIL"},
+{q:"Sample and hold is a technique used in.",o:["D to A conversion","Moving coil instruments","A to D conversion"],a:2,e:"NIL"},
+{q:"An analogue to digital converter(ADC) requires the following.",o:["a reference voltage, an input gate, an internal counter, a comparitor","a reference voltage, an input gate, a comparator","a reference voltage, an input gate, an internal counter"],a:1,e:"NIL"},
+{q:"What is 'Throughput Rate' for the A/D converter?",o:["Number of complete digital words encoded in a specified unit of time","None of the above","Speed of variable resistor which senses the analogue signal"],a:0,e:"NIL"},
+{q:"What is the Resolution of A/D and D/A converters?",o:["Resolution of the Instrument which displays the values","Number of discrete values that can be represented by the digital word","Rate at which data is converted"],a:1,e:"NIL"},
+{q:"Digital signals can be represented.",o:["only as a binary value","by a series of integers","by real numbers"],a:1,e:"NIL"},
+{q:"When testing EGT probe.",o:["it must be soaked and ambient temperature allowance taken into consideration","not necessarily soaked but ambient temperature must be taken into consideration","if its not soaked, a minimum temperature of 20 degrees C taken as OAT"],a:0,e:"NIL"},
+{q:"A Digital to Analogue Converter has a resolution of 0.3 Volts. What will be the analogue output when the digital input is 10110.",o:["6.6 Volts RMS","-6.6 Volts DC.G36","6.6 Volts DC"],a:2,e:"NIL"},
+{q:"A number represented as a physical quantity, e.g. voltage or speed of rotation is.",o:["digital","maximum value","analogue"],a:2,e:"NIL"}
+],
+"05.04. Data Buses": [
+{q:"In arinc 629, LRUs are programmed to transmit.",o:["one at a time","one transmits and one recieves","all at the same time"],a:1,e:"NIL"},
+{q:"In aircraft use, fibre optic cables should comply with.",o:["ARINC 629 standard","ARIND 429 standard","ARIND 636 standard"],a:2,e:"NIL"},
+{q:"ARINC 629 databus is.",o:["one cable, bi-directional","two cables, uni-directional","two cables, bi directional"],a:2,e:"NIL"},
+{q:"An ARINC 573 data bus is used.",o:["to input into a Digital Flight Data Recorder","to supply digital inputs from a Symbol Generator to the EADI and EHSI","to input into a FDR Digital Acquisition Unit"],a:0,e:"The FDR can have different inputs depending upon the age of the system, modern systems use ARINC 573. The inputs to FDR DAU are only analogue, discreet and ARINC 429. The interface between SGUs, EADI and EHSI is only ARINC 429."},
+{q:"An ARINC 429 bus uses.",o:["a twisted shielded pair of wires","two bi-directional twin sheathed and earthed wires","a single twin wire cable for each transmitter"],a:0,e:"Pallett- Aircraft Instruments Page 157."},
+{q:"The ARINC 429 data bus word systems use.",o:["binary coded decimal","decimal numbering","hexadecimal numbering"],a:0,e:"Pallett- Aircraft Instruments Page 156."},
+{q:"ARINC 573 is related to what system?",o:["Weather Radar","FDR","INS"],a:1,e:"Boeing Maintenance Training notes for B757."},
+{q:"ARINC 629 current mode couplers are.",o:["capacitive","resistive","inductive"],a:2,e:"NIL"},
+{q:"Normal transmission order of ARINC 629 LRUs in periodic mode is in order of.",o:["shortest to largest TI","shortest to largest TG","power up"],a:2,e:"B777 MM 23-91-00 pg 41. Shortest to longest terminal gap is for aperiodic mode only."},
+{q:"In an ARINC 429 wordstring, bits 1 to 8 represent the.",o:["destination LRU address","monitored parameter","message"],a:1,e:"Aircraft Instruments and Integrated Systems Pallett Page 159 and ARINCs tutorial."},
+{q:"ARINC 629 terminal transmit interval is.",o:["common to each terminal","unique to each terminal","when all terminals are quiet"],a:0,e:"The ARINC 629 TI is common to all LRUs."},
+{q:"MIL-STD-1533 is a data bus for.",o:["Inertial Reference System","Flight Data Recorders","Digital Information Transfer System"],a:2,e:"NIL"},
+{q:"ARINC 629 periodic mode is used for.",o:["transferring data only on events important to aircraft operation","database loads","normal operation"],a:2,e:"NIL"},
+{q:"How is data coupled to an ARINC 629 data bus?",o:["By a resistive pickup","By an inductive pickup","By a capacitive pickup"],a:1,e:"NIL"},
+{q:"How does MIL-STD-1533 put data onto the databus?",o:["Through the bus controller","R1(remote terminal)","SSIFU(sub-system interface unit)"],a:0,e:"Through the bus controller."},
+{q:"The parity bit in digital information is used.",o:["to check the validity of data information","for BITE programs","to check the status of the system"],a:0,e:"NIL"},
+{q:"ARINC 429 SDI word format is at bits.",o:["32","1-8","9-10"],a:2,e:"SDI= Source Destination Ident."},
+{q:"What is the parity bit for on an ARINC 429 bus?",o:["To act as a terminal gap in an emergency","To delay the signal","To check for corruption during transmission of a word"],a:2,e:"NIL"},
+{q:"An ARINC 429 word label format is.",o:["hexadecimal","octal","binary"],a:1,e:"NIL"},
+{q:"How many LRUs can be connected to an ARINC 429 data bus?",o:["120","60","20"],a:2,e:"NIL"},
+{q:"What limits the number of ARINC 429 receivers on a bus?",o:["The speed and size","The weight","The parallel input impedance"],a:2,e:"NIL"},
+{q:"Data is transferred on the MIL-STD-1553B by.",o:["non return to zero","Manchester bi-phase","bi-polar return to zero"],a:1,e:"NIL"},
+{q:"How are engine indications sent to the FDR?",o:["Source isolated","Via ARINC 629","Via ARINC 573"],a:2,e:"NIL"},
+{q:"What system uses base 8?",o:["ARINC 429, in dataword labels only","ARINC 573","ARINC 629"],a:0,e:"NIL"},
+{q:"On an ARINC 629 data bus, the maximum amount of current-mode couplers per data bus is.",o:["46","120","64"],a:1,e:"120 LRUs maximum(but the B777 uses 46)."},
+{q:"To connect an LRU to the data bus.",o:["a terminal controller and interface module only is required","current mode coupler, terminal controller and a production break is required","a current mode coupler, serial interface module and terminal controller is required"],a:2,e:"NIL"},
+{q:"A current-mode coupler contains an E-Core assembly. The purpose of the E-Core is to provide effective screening of the signal through the.",o:["current-mode coupler","couple the signal to the data bus","enable easy access for monitoring of the signal"],a:1,e:"NIL"},
+{q:"The ARINC 429 low rate of transmission is.",o:["100 kbits/second with high of 12-14 Mbits/second","12-14 Kbits/second with high of 100 kBits/second","12-14 Mbits/second with high of 100 Mbits/secon"],a:1,e:"NIL"},
+{q:"An ARINC 629 bus cable is a twisted pair of wires with.",o:["a 130 ohm resistor at one end","a 130 ohm resistor at both ends","a 230 ohm resistor at one end"],a:1,e:"NIL"},
+{q:"An ARINC 629 stub cable.",o:["connects single directional data between the LRU and current mode coupler","connects bi-directional data between the LRU and current mode coupler","connects bi-directional data between two LRUs"],a:1,e:"NIL"},
+{q:"Care must be taken when installing ARINC 629 cables into bus panels, damage to cables can cause.",o:["corrosion of the conductor","arcing of high voltage signals","standing waves"],a:0,e:"NIL"},
+{q:"An aircraft databus system.",o:["can use both ARINC 629 and ARINC 429 as they are compatible","can use both systems, ARINC 629 and ARINC 429 via system card files and signal gateways","cannot use both ARINC 629 and ARINC 429 data buses"],a:1,e:"NIL"},
+{q:"ARINC 629 is used for.",o:["emergency only","a backup to ARINC 429","normal flight"],a:2,e:"NIL"},
+{q:"Once an ARINC 629 LRU has transmitted a message it will wait how long before transmitting again?",o:["Until the end of the synchronization gap","Until the start of the terminal gap","Until the end of the transmit interval"],a:2,e:"NIL"},
+{q:"How is the word label 206 written in ARINC 429?",o:["Decimal 206","Octal 01100001","Binary 11000110"],a:1,e:"Label is Octal- MSB to right- so yes, it is backwards."},
+{q:"What is ARINC 561 used for?",o:["Fly by Wire systems","Flight Data Recorder systems","Inertial Navigation Systems"],a:2,e:"NIL"},
+{q:"An ARINC data word is bits 11-29, if bits 11-18 are patched which of the following would be the LSB bit?",o:["19","29","21"],a:0,e:"NIL"},
+{q:"Fibreoptic databus links are.",o:["simplex","bi-directional","one way data buses"],a:1,e:"NIL"},
+{q:"ARINC 629 is.",o:["half duplex","full duplex","simplex"],a:0,e:"NIL"},
+{q:"A signal in an ARINC 629 system uses.",o:["a pair of wires per transmitter unit","a single wire","a twisted pair of wires or fibre optics"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 148."},
+{q:"An in-series ARINC 429 system transmits using.",o:["encoder","time division multiplexing","wave division multiplexing"],a:1,e:"NIL"},
+{q:"A terminal controller.",o:["is repetitive transmitting","will transmit only once during each transmit interval","transmits only when addressed"],a:1,e:"NIL"},
+{q:"The number of LRUs which transmit/receive on ARINC-429 is dependent upon.",o:["speed of transmission& size of aircraft systems","parallel input impedance","size of S.D.I."],a:1,e:"NIL"},
+{q:"One of the ARINC 429 formats is.",o:["BCD","octal","hexadecimal"],a:0,e:"NIL"},
+{q:"A group of bits transmitted at the same time is.",o:["parallel data","a clock signal","serial data"],a:0,e:"NIL"},
+{q:"The ARINC 429 system uses which of the following system to transfer data?",o:["Non return to zero","Harvard biphas","Bi-directional return to zero"],a:2,e:"NIL"},
+{q:"Which of the following ARINCs is bidirectional?",o:["629","429","573"],a:0,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 148."},
+{q:"The general arrangement of ARINC 629 includes.",o:["databus cable, current mode coupler, stub cable","current mode coupler, databus cable only","databus cable, stub cable, voltage mode coupler"],a:0,e:"NIL"},
+{q:"ARINC 629 Databus cables are terminated using.",o:["100 ohms resistor","130 ohms resistor","25 ohms resistor"],a:1,e:"NIL"},
+{q:"In ARINC 429 data field is bits 11 to 28. If the bits 11 to 18 had pad bits, the L.S.B. Of the data would be.",o:["bit 11","bit 28","bit 19"],a:2,e:"NIL"},
+{q:"The BCD data field of ARINC 429 is contained within bits.",o:["11-29","11-28","1-8"],a:0,e:"Binary Word is 11-28. BCD Word is 11-29."},
+{q:"ARINC 629 is transmitted using.",o:["single wire for each transmitter","fibre optics or twisted pair of wires","SWG 28 wire"],a:1,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 148."},
+{q:"A simplex system has.",o:["1 transmitter and multiple receivers","1 bus controller and 1 remote terminal","1 bus controller and multiple receivers"],a:0,e:"NIL"},
+{q:"To create a bi-directional communications link within an ARINC 429 system.",o:["four databuses are required","only one databus is required","two databuses are required"],a:2,e:"NIL"},
+{q:"Why does an ARINC databus system send data to LRUs in series?",o:["Saves weight","More information can be sent","Takes less time"],a:0,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 146."},
+{q:"Can an LRU transmit and receive on more than one 629 bus?",o:["Yes","Only if paralleled","No"],a:0,e:"NIL"},
+{q:"ARINC 629 LRUs transmit.",o:["when addressed","when signal gap is sensed","when terminal gap is sensed"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 149."},
+{q:"An ARINC 429 BCD word occupies bits 11-29, if 11-15 are filled with padders then the LSB of the word will be.",o:["11","16","29"],a:1,e:"Aircraft Electricity and Electronics, Eismin Page 147."},
+{q:"In an Arinc 429 Word label-representing heading is 320, this is represented in bits 1-8 as.",o:["01011001","00001011","01101000"],a:1,e:"Octal 320 converted to binary, and reversed."},
+{q:"In ARINC 629 a periodic mode, LRUs transmit in order of.",o:["longest terminal gap to shortest terminal gap","power up","shortest terminal gap to longest terminal gap"],a:2,e:"NIL"},
+{q:"ARINC 629, aperiodic mode is used.",o:["for landing and approach operation","for normal operation","for database loads"],a:2,e:"B777 MM 23-91-00 pg 41. Periodic mode is for normal operation. Aperiodic mode is for non-normal operation and large information transfer such as database loads and operating software loads."},
+{q:"How is ARINC 429 bi-directional data transfer achieved?",o:["Via a current mode coupler","Using two data buses","Via a twisted pair of shielded cables"],a:1,e:"NIL"},
+{q:"The data format use to transmit signal to flight data recorder.",o:["Harvard bi-phase 12 bit","Bi-Polar RZ 12 bit","Manchester 2 bi-phase 12 bit"],a:0,e:"NIL"},
+{q:"The output voltage of ARINC 429 signal is.",o:["+5v","+10v to-10v. H73","-5v"],a:1,e:"NIL"},
+{q:"An ARINC 629 label word is.",o:["10 bits","12 bits","8 bits"],a:1,e:"12-bit label field, 4-bit label extension, single parity, 3-bit time hi-lo synch pulse. 20 bit in total."},
+{q:"The T/R of ARINC 629 is.",o:["Encoder/ decoder","Multiplex/ demultiplex","switching"],a:1,e:"NIL"},
+{q:"Terminal gap in ARINC 629 is.",o:["always the same period","flexible","can be changed by adjusting the rx/tx software"],a:2,e:"Aircraft Electricity and Electronics, Eismin 5th Ed, pg149."},
+{q:"How does ARINC 629 bus transmit and receive information?",o:["Sockets and pins","Inductive coupling","Optical coupling"],a:1,e:"NIL"},
+{q:"What is ARINC 561 used for?",o:["To specify LRU pin-outs","To specify Radio Comms data bus","To specify Flight Data Recorder data bus"],a:1,e:"NIL"},
+{q:"What is the purpose of the parity bit on an ARINC 429 bus?",o:["To indicate if the data is analogue","To indicate that the data is digital","To indicate to the receiver that the data is valid"],a:2,e:"NIL"},
+{q:"ARINC 429 is.",o:["Single Source Multiple Sink System","Multiple Source Multiple Sink system","Single Source Single Sink system"],a:0,e:"NIL"},
+{q:"What is the purpose of intermediate production breaks in ARINC 429 or 629 Data cables?",o:["Cables are only manufactured 40 feet long","To allow maintenance personnel to divide the right and left system buses into two parts for easy removal and installation","To allow connection of new cables to the existing ones in case of a modification"],a:1,e:"NIL"},
+{q:"Where is the parity bit installed in a data word?",o:["Front","End MSB","Middle"],a:1,e:"NIL"},
+{q:"RZ bi-polar modulation consists of bits which are one of__________ states?",o:["Eight","Two","Three"],a:2,e:"NIL"},
+{q:"In the ARINC 429 digital information transfer system, data may travel in:",o:["both directions on the same bus simultaneously","one direction only","both directions on the same bus sequentially by time multiplexing"],a:1,e:"NIL"},
+{q:"An ARINC 629 data word.",o:["includes an 8 bit label and a 16 bit data field","has only 20 bits","comprises up to 256 data bits"],a:1,e:"NIL"},
+{q:"In an ARINC 429 digital word bit number 32 is used for.",o:["terminating the data field","checking parity","identifying word type"],a:1,e:"NIL"},
+{q:"What connects an LRU to the Bus Coupler in an ARINC 629 Data Bus?",o:["Patch Cord","Stub Cable","Interconnect Cable"],a:1,e:"NIL"}
+],
+"05.05a. Logic Circuits": [
+{q:"What is the equivalent of this gate?",o:["=(NOT-A+ NOT-B)","=(A+ B)NOT","=(A.B)NOT"],a:0,e:"Draw the truth table for the NAND gate, then draw the truth tables for each answer in turn until you get one to match."},
+{q:"A NOR gate with both inputs inverted becomes a.",o:["NAND gate","AND gate","OR gate"],a:1,e:"NIL"},
+{q:"Adding invertors to the two inputs of an AND gate makes a.",o:["OR gate","NOR gate","NAND gate"],a:1,e:"NIL"},
+{q:"This truth table is for a.",o:["OR gate","AND gate","NAND gate"],a:1,e:"NIL"},
+{q:"Which logic gate can be represented as a parallel circuit?",o:["OR gate","Exclusive OR gate","NAND gate"],a:0,e:"NIL"},
+{q:"Making an inverter from a NAND or NOR gate is achieved by.",o:["connecting the inputs","inverting the input","connecting two in series"],a:0,e:"NIL"},
+{q:"An AND gate output is 1 when inputs are.",o:["both 1","both 0","1 and 0"],a:0,e:"NIL"},
+{q:"What sort of gate requires two positive voltages to operate?",o:["AND","OR","NOT"],a:0,e:"NIL"},
+{q:"When will a NAND gate give logic 0 at the output?",o:["When both inputs are at 1","When the inputs are different","When both inputs are at 0"],a:0,e:"NIL"},
+{q:"Which logic gate has this truth table?",o:["NOT","NAND","Exclusive OR"],a:2,e:"NIL"},
+{q:"What is this truth table?",o:["NOR gate","NOT gate","AND gate"],a:2,e:"NIL"},
+{q:"What sort of gate is this?",o:["NOT gate","NOR gate","Or gate"],a:1,e:"NIL"},
+{q:"The output of a NOT gate is logic 1. The input is.",o:["logic 0","logic 1","both logic 1"],a:0,e:"NIL"},
+{q:"The output of an AND gate having two inputs A and B is logic 1. The two inputs will have the logic states of.",o:["A=0, B=0","A=1, B=0","A=1, B=1"],a:2,e:"NIL"},
+{q:"The output of an OR gate having two inputs A and B is logic 0. The two inputs will have the logic states of.",o:["A=1, B=0","A=0, B=1","A=0, B=0"],a:2,e:"NIL"},
+{q:"What is this symbol?",o:["Exclusive AND gate","Exclusive NOR gate","Exclusive OR gate"],a:2,e:"NIL"},
+{q:"What Logic Gate does this switch circuit indicate?",o:["NOR gate","AND gate","OR gate"],a:2,e:"NIL"},
+{q:"Which logic gate has both inputs high to get an output?",o:["AND gate","OR gate","NAND gate"],a:0,e:"NIL"},
+{q:"A NAND and NOR to become a NOT gate have.",o:["inputs inverted","outputs inverted","inputs connected together"],a:2,e:"NIL"},
+{q:"An AND gate with inverted inputs and an inverted output is equivalent to.",o:["an AND gate","a NOR gate","an OR gate"],a:2,e:"NIL"},
+{q:"Logic gates internal operating mechanisms are produced from.",o:["thin film resistors","transistors","diodes"],a:1,e:"NIL"},
+{q:"A logic 1 may be represented in an analogue system by(where Q is an output of a latch/ flip-flop).",o:["switch closed/ light off/ Not Q","positive/ magnetised/ Q","switch open/ light on/ Q"],a:1,e:"NIL"},
+{q:"To get logic 1 using this gate.",o:["A and B=0","A or B=1","A and B=1"],a:0,e:"NIL"},
+{q:"What logic gate would this circuit represent?",o:["NAND Gate","NOR gate","AND gate"],a:2,e:"NIL"},
+{q:"What type of gate is this?",o:["NAND","NOT","E-OR"],a:2,e:"E-OR is another name for XOR."},
+{q:"What sort of gate requires two negative input voltages to operate?",o:["NAND","OR","NOT"],a:0,e:"NIL"},
+{q:"In Positive Logic representation.",o:["both states have same positive voltages but stage 1 has more current","state 1 is more positive than state 0","state 0 is more positive than state 1"],a:1,e:"NIL"},
+{q:"Switching within logic gates is normally achieved with the use of.",o:["BTB's","relays","diodes"],a:2,e:"NIL"},
+{q:"The truth table of A=0011 B=0101 and=0110 indicates that the logic device is.",o:["an ECLUSIVE OR gate","a NOR gate","an AND gate"],a:0,e:"NIL"},
+{q:"What input is required to activate the relay shown?",o:["A=0 B=1","A=1 B=0","A=1 B=1"],a:2,e:"NIL"},
+{q:"A NAND gate has inputs A and B and output C. If the output (c) was zero, what are the inputs?",o:["A=1 B=1","A=0 B=0","A=1 B=0"],a:0,e:"NIL"}
+],
+"05.05b. Logic Circuits": [
+{q:"The 'fan-in' in a gate is the.",o:["number of inputs to a gate","number of outputs from a gate","number of inputs and outputs of a gate"],a:0,e:"NIL"},
+{q:"What does the logic circuit shown represent?",o:["Full Adder Circuit","Half adder circuit","Multi-bit adder"],a:0,e:"NIL"},
+{q:"What would be the outputs of this circuit, if A=0 B=0 C=1.",o:["1, 1","0, 1","0, 0"],a:1,e:"Check out the table on http://www.play-hockey.com/digital/adder.html."},
+{q:"What would be the outputs of this circuit, if A=1 B=1 C=0.",o:["0, 1","1, 1","1, 0"],a:2,e:"Check out the table on http://www.play-hockey.com/digital/adder.html."},
+{q:"Tristate devices are found.",o:["on input circuits","on output circuits","on both input and output circuits"],a:0,e:"NIL"},
+{q:"A full adder has.",o:["three inputs and two outputs","two inputs and one output","three inputs and one output"],a:0,e:"NIL"},
+{q:"What is the Boolean Algebra for the circuit shown?",o:["","",""],a:0,e:"NIL"}
+],
+"05.06a. Basic Computer Structure": [
+{q:"In a computer memory device, which one of these has the slowest access time?",o:["floppy disk","magnetic tape","8mm video tape"],a:1,e:"8mm video tape is not(and never has been) a computer memory device."},
+{q:"The advantage of DRAM over SRAM is.",o:["are cheaper to manufacture","has a larger storage capacity per chip area","they operate slower"],a:1,e:"NIL."},
+{q:"A BYTE is usually.",o:["an 8 bit word","a six bit word","a 12 bit word"],a:0,e:"NIL"},
+{q:"What is the definition of baud rate?",o:["1 word per second","1 byte per second","1 bit per second"],a:2,e:"NIL"},
+{q:"Which would have the least components?",o:["ALU","CPU","LSI"],a:0,e:"NIL"},
+{q:"What is a baud?",o:["A bit of data","A block of data","A byte of data"],a:0,e:"NIL"},
+{q:"In a bi-stable memory circuit.",o:["the memory is retained indefinably","the memory is lost as soon as power is removed","the memory needs to be refreshed constantly, even when power is on"],a:1,e:"NIL"},
+{q:"What is the advantage of series over parallel message sending?",o:["Only one pair of conductors","More information sent","Quicker"],a:0,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 146."},
+{q:"A typical example of a mass storage memory device which is also WORM(Write Once Read Many) is.",o:["an IC","a magnetic tape","a CD Rom"],a:2,e:"NIL"},
+{q:"A computer using RAM would utilize.",o:["magnetic tape","a compact disc","an integrated circuit(chip)"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 146."},
+{q:"Magnetic materials are used in.",o:["ROMs only","some RAMs","EPROM"],a:1,e:"NIL"},
+{q:"A typical example of a mass storage device is.",o:["IC","magnetic tape","CD"],a:2,e:"NIL"},
+{q:"What is EPROM?",o:["Enhanced programmable read only memory","Erasable programmable read only memory","Erasable programming read only module"],a:1,e:"Basic Electronics Malcolm Plant Page 87E."},
+{q:"How many bytes can be carried in a 32bit word?",o:["8 bytes","4 bytes","2 bytes"],a:1,e:"8 bits per byte."},
+{q:"A common used material in computer manufacturing is.",o:["ferrite material","permeamag material","ferromagnetic material"],a:2,e:"Ferromagnetic material is that which hard-drives and floppy drives are made from."},
+{q:"Ferrite medium is used for computer memory because.",o:["data is stored after the power is removed","it is light","it has low eddy current losses"],a:0,e:"NIL"},
+{q:"Data is usually stored in.",o:["RAM","ROM","EEPROM"],a:1,e:"NIL"}
+],
+"05.06b. Basic Computer Structure": [
+{q:"Registers are used in digital computers to.",o:["store bits of information in a permanent memory","store a limited amount of information on a temporary basis","keep a count of operations completed"],a:1,e:"NIL"},
+{q:"A computer consist of at least the C.P.U and.",o:["memory and input& output port","memory, ALU, input& output port","register section, ALU, timing and control section"],a:0,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 144, and Aircraft Instruments and Integrated Systems Pallett Page 153 Fig 6.1."},
+{q:"A basic computer would consist of.",o:["register section, ALU and timing and control section","memory, input/output ports and CPU","RAM/ROM and input/output ports"],a:1,e:"Pallett Aircraft instuments& Integrated Systems Page 153."},
+{q:"DRAM.",o:["requires a refreshing charge","memory is stored when power supply is removed","it does not require a refreshing charge"],a:0,e:"NIL."},
+{q:"Bubble memory stores data on.",o:["magnetic tape","semiconductor material","ferrite core"],a:1,e:"NIL."},
+{q:"An EPROM.",o:["is non-volatile memory","requires constant refreshing","is erased after reading"],a:0,e:"NIL"},
+{q:"A computer requires to operate, a.",o:["address bus, a data bus only","data bus, a control bus, a address bus","data bus, a control bus only"],a:1,e:"NIL"},
+{q:"A computer is acting in real time when.",o:["the CPU requires a clock pulse","the output is equal to the input of data","the time to access memory is equal to the data speed in"],a:1,e:"NIL"}
+],
+"05.07. Microprocessors": [
+{q:"What is the function of a status register in a microprocessor?",o:["To indicate the status of the processor","In the ALU, to store the position of the program during an interrupt","To synchronize the clock pulse"],a:0,e:"NIL."},
+{q:"What is the purpose of the ALU?",o:["To store data being used by the CPU","The part of the CPU unit where arithmetic& logic operations are carried out","To convert serial into parallel data"],a:1,e:"Aircraft Electricity and Electronics, Eismin, 5th Edition Page 146."},
+{q:"The CPU consists of.",o:["ALU, timing and control section, register","register and arithmetic logic unit only","register, timing and control section only"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 153 Basic CPU, Aircraft Electricity and Electronics Eismin 5th Edition Page 145."},
+{q:"How is multiplication achieved in an ALU?",o:["by addition","by subtraction","by coupling"],a:0,e:"NIL"},
+{q:"The smallest operation of a CPU is.",o:["the processor cycle","the processor sub-cycle","the time cycle"],a:2,e:"NIL"},
+{q:"Where does the clock signal in a microprocessor come from?",o:["ALU","Memory","Control unit"],a:2,e:"Aircraft Instruments and Integrated Systems, Pallett. Page 153."},
+{q:"Where is the operating program for the CPU stored?",o:["Control unit","ALU","Memory unit"],a:2,e:"Aircraft Instruments and Integrated Systems, Pallett. Page 153."},
+{q:"A priority encoder.",o:["outputs the highest input","outputs the selected input","outputs the lowest input"],a:0,e:"NIL"},
+{q:"The smallest operation possible in a computer is the.",o:["timing cycle","processor sub-cycle","processor cycle"],a:0,e:"Also known as the clock pulse."},
+{q:"A clock pulse in processor equipment.",o:["is to synchronise everything","is used for the maintenance tests","is to give the correct timing when calculations are made"],a:0,e:"NIL"},
+{q:"In a computer, the code that fetches correct data and feeds it to the ALU is called.",o:["the instruction set","ARINC","the computer program"],a:0,e:"NIL."},
+{q:"A computer processor has within it.",o:["register, buffer, data bus","ALU, register, memory","ALU, control section, register"],a:2,e:"NIL"},
+{q:"The arithmetic logic unit(ALU) in a central processor unit(CPU) carries out.",o:["addition, subtraction, multiplication and division","computations as instructed","timing and synchronisation"],a:0,e:"NIL"},
+{q:"The CPU requires a clock to determine.",o:["the number of bits on the highway","the speed of operation","the date and time"],a:1,e:"NIL"},
+{q:"An ALU performs the following.",o:["Arithmetic, Logic, Branch and Move Operations","Input/Output operations, Arithmetic, Logic Functions","Arithmetic, Logic, Branch and Find Operations"],a:1,e:"NIL"}
+],
+"05.08. Integrated Circuits": [
+{q:"What function do gates 1 and 2 perform?",o:["Full adder","Half Adder","Shift Register"],a:1,e:"NIL."},
+{q:"On an IC, pin 1 is to the left of the notch. Which way are the pins numbered?",o:["Left to right","Anticlockwise","Clockwise"],a:1,e:"NIL."},
+{q:"When 4 binary serial counters are connected in cascade for frequency division, what division factor is required?",o:["8","16","4"],a:1,e:"Each serial counter changes its state once every 2 clock pulses. So 4 serial counters divides by 2x2x2x2= 16."},
+{q:"3 binary counters in cascade. What is the division?",o:["32","8","16"],a:1,e:"Each serial counter changes its state once every 2 clock pulses. So 3 serial counters divides by 2x2x2= 8."},
+{q:"Within a 3 bit frequency cascade, division is to.",o:["2","4","8"],a:2,e:"NIL"},
+{q:"Very Large Scale Integrated(VLSI) means the number of gates in a single IC is.",o:["up to 10,000","over 10,000","up to 1000"],a:1,e:"NIL"},
+{q:"An encoder changes.",o:["digital to analogue","analogue to digital","data from one format to another"],a:2,e:"NIL"},
+{q:"An RS flip-flop with Q at 1 is said to be.",o:["set","reset","zero"],a:0,e:"NIL"},
+{q:"When a JK flip flop is used as a memory device, what type of memory would it be?",o:["read-only","non-volatile","volatile"],a:2,e:"NIL"},
+{q:"In an RS flip flop, output is one. This means it is.",o:["intermediate","reset","set"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 143."},
+{q:"An ALU is an example of.",o:["MSI","SSI","LSI"],a:2,e:"NIL"},
+{q:"With a j-k flip flop which is the output set.",o:["q=1","q=0","either"],a:0,e:"NIL"},
+{q:"Data is converted from serial to parallel and parallel to serial by.",o:["a synchronous counter","a parallel register","a shift register"],a:2,e:"NIL"},
+{q:"A typical characteristic of a CMOS is.",o:["high power dissipation","high voltage handling","low power dissipation"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 140."},
+{q:"The pins on an op amp are numbered.",o:["anticlockwise","clockwise","cross ways"],a:0,e:"NIL"},
+{q:"A parallel register.",o:["requires a clock pulse for each bit","reads each bit to be stored simultaneously","reads the stored data when logic 0 is applied to the read line"],a:1,e:"NIL"},
+{q:"A device, which converts serial to parallel and parallel to serial for arithmetical functions, is a.",o:["Parallel to serial and serial to parallel converter","Shift Register","Multiplexer and De-Multiplexer"],a:1,e:"Pulse code modulation/parallel to serial."},
+{q:"What is the device used to convert Binary Coded Decimal into separate supplies for a seven segment digital display?",o:["Multiplexer","Decoder","Demultiplexer"],a:1,e:"RS catalogue... part number CA3161."},
+{q:"Operation of a frequency counter is such that.",o:["it compares the incoming waveform with standard sine waves","it detects incidences of peak value","it changes the incoming waveform to a standard square wave"],a:2,e:"Aircraft Electricity and Electronics, Eismin Page 168."},
+{q:"An example of a small size integrated circuit would be.",o:["DIP switch","Control Processor Unit","ALU"],a:1,e:"A DIP switch is not an IC. ALU is an integrated part of the CPU. The 'Control Processor Unit' is another term used for the 'Central Processor Unit (CPU)' or sometimes a switching unit used in telegraphy."},
+{q:"What is this?",o:["Counter","Shift register","Multiplexer"],a:2,e:"NIL"},
+{q:"In a Master Slave, negative edge triggered JK flip flop, both inputs are connected to logic 1. The output.",o:["will change state when the leading edge of the clock pulse is applied","will change state when the trailing edge of the clock pulse is applied","does not change state when a clock pulse is applied"],a:1,e:"NIL"}
+],
+"05.09. Multiplexing": [
+{q:"A 12 bit 16 Channel encoder will use a multiplexer with.",o:["3 bit parallel address line","4 bit parallel address line","2 wire series address line"],a:1,e:"With 16 inputs, it needs 4 data select lines(to provide all 16 combinations)."},
+{q:"How many address lines would be needed for an 8 line MU?",o:["2","3","4"],a:1,e:"NIL"},
+{q:"In a MU, how is parallel converted to serial?",o:["By way of a shift register","By way of an encoder","By way of a demultiplexer"],a:0,e:"NIL"},
+{q:"A multiplexer.",o:["takes many signals in and converts it to a serial transmission output","takes many signals in and puts these in a parallel transmission on the output","takes one signal in and converts it to a parallel transmission output"],a:0,e:"NIL"},
+{q:"A multiplexer in test equipment could be used for.",o:["frequency divider","analogue to digital converter","digital to analogue converter"],a:0,e:"NIL"},
+{q:"An 8 data input multiplexer has how many Data Select lines.",o:["8","3","2"],a:1,e:"NIL"},
+{q:"The signal sent between a MU/DEMU is controlled by.",o:["clock","the ALU","control unit"],a:2,e:"NIL"}
+],
+"05.10. Fibre Optics": [
+{q:"Some of the advantages of fibre optic cable over copper cables are.",o:["non conductive, easy to manufacture and assemble, more robust, cheap","smaller in size and weight, non conductive, higher security and higher bandwidth","non conductive, smaller in size and weight, easy to manufacture and assemble and higher security"],a:1,e:"NIL"},
+{q:"A fibre optic cable consists of.",o:["a silica glass core with a cladding having a lower refractive index","a silica glass core with a cladding having a higher refractive index","a plastic core with a cladding having a higher refractive index"],a:0,e:"NIL."},
+{q:"Fibre optic cables.",o:["are immune to EMI","attenuate EMI","are susceptible to EMI"],a:0,e:"NIL"},
+{q:"Two connected fibre optic cable ends are parallel but not quite touching. This is called.",o:["end to end coupling","lens connector","end fire coupling"],a:0,e:"NIL"},
+{q:"A disadvantage of a fibre optic cable is.",o:["couplings susceptible to ingress of fluid","end terminals are susceptible to environmental contamination","shallow bend radius allowed"],a:1,e:"NIL."},
+{q:"What kind of light is used in a fibre optic systems?",o:["Infrared","Visible","Ultraviolet"],a:0,e:"NIL"},
+{q:"Fibreoptic data is sent by.",o:["modulating the frequency of a laser beam","a strobe light","modulating the frequency of a filament beam"],a:1,e:"Modulating the frequency would change the colour of the light."},
+{q:"HIRF is prevented from entering a fibre optic cable by.",o:["using an opto-isolator coupling","grounding the fibre at both ends","enclosing it in a metal braid"],a:0,e:"Although a fiber optic cable is 'immune' from collecting HIRF, it can still transmit HIRF which has been picked up by the source circuitry. An optoelectronic isolator will filter out the HIRF prior to transmission."},
+{q:"Continuity of a fibreoptic cable is checked by.",o:["a calibrated light source","a calibrated light source and an opto-power meter","a light source and an opto-power meter"],a:1,e:"NIL"},
+{q:"A fibre optic data bus used on an aircraft.",o:["can send only one message at a time","can transmit on several channels at the same time","connects non-essential systems only"],a:1,e:"NIL"},
+{q:"Light travels along a fibre optic by.",o:["refraction","reflection","dispersion"],a:1,e:"NIL"},
+{q:"What is the main disadvantage of a fibre optic data bus?",o:["Less strong and durable when compared to twisted pair and coaxial cable","Expensive to install","Bend radius and moisture ingress at connections"],a:1,e:"NIL"},
+{q:"A typical fibre optic connector is.",o:["F-type connector","coupling type, with lens fitted","push-pull connector"],a:1,e:"NIL"},
+{q:"Which of the following is an optoelectronic device?",o:["Triac","Laser Diode","Thyristor"],a:1,e:"NIL"},
+{q:"What is the advantage of a single mode fibreoptic over ordinary wire?",o:["Not prone to damage","Large bandwidth","Small bend radius"],a:1,e:"NIL"},
+{q:"A fibreoptic light source is normally.",o:["a strobe light","a filament lamp","a laser or LED"],a:2,e:"NIL"},
+{q:"The fibreoptic cable can be identified on aircraft by its jacket colour which is.",o:["purple","yellow","red"],a:0,e:"NIL"},
+{q:"For a fibre optic cable connector that is not regularly disconnected you would use the.",o:["butt type","ball lens type","ceramic lens type"],a:0,e:"NIL"},
+{q:"What maintenance problems are associated with fibreoptics?",o:["Corrosion","Kinking and contamination of connectors","Earthing faults"],a:1,e:"NIL"},
+{q:"A fiberoptic data bus.",o:["can transmit several messages simultaneously","is only used for non essential messages","can only transmit 1 message at a time"],a:0,e:"NIL"},
+{q:"A fiberoptic cable to LRU connector should be connected.",o:["very carefully to ensure alignment and reduce light loss","using torque-loaded pliers","hand tight only"],a:0,e:"NIL"},
+{q:"In a single mode fibreoptic cable.",o:["several waves travel down the cable","the diameter of the cable is dependent on the wavelength of the light used","the distortion of the signal is dependent on the length of cable"],a:1,e:"NIL"},
+{q:"A semiconductor which emits photons and releases electrons when stimulated by photons is called.",o:["a photodiode","a laser diode","an LED"],a:1,e:"NIL"},
+{q:"What does a fiberoptic star connection do?",o:["Provides a continuous loop of fibre interconnecting all nodes","Provides direct point-to-point services to units on dedicated lines emanating from the central hub","Shares a common bandwidth of a common cable"],a:1,e:"NIL"},
+{q:"A fibreoptic lens type coupling with lens and integral LED compared to an end-fire coupling is.",o:["more efficient","less efficient","equally efficient"],a:0,e:"NIL"},
+{q:"Passive sensors in fibreoptics.",o:["Passive sensors in fibreoptics","require power for processing the signal before they send them down the fibre optic","require no power and they do not process signals"],a:2,e:"NIL"},
+{q:"Optical fibre losses are due to.",o:["absorption only","absorption, scattering and reflection","radiation, absorption and reflection"],a:1,e:"Introduction to Fiber Optics John Crisp Page 50."},
+{q:"The cone of acceptance is measured between.",o:["the two outer angles","the two outer angles","longitudinal axis of the core and the outer angle"],a:2,e:"Introduction to Fiber Optics John Crisp Page 29."},
+{q:"Fibreoptic cables use.",o:["refractive outer shell","reflective inner shell","reflective outer shell"],a:0,e:"The outer cladding is glass, so it is refractive(but less so than the core). Cladding causes Total Internal Reflection(TIR)."},
+{q:"In fibreoptic cable, signals are separated by.",o:["active optic filter","low pass filter","passive optic filter"],a:0,e:"NIL"},
+{q:"Most fibreoptic connectors are designed so.",o:["the receptacle has to be torqued to a designated value to ensure correct alignment","the connectors can not be over tightened","the connector can not be replaced on the aircraft"],a:1,e:"NIL"},
+{q:"The light source used in fibreoptics is.",o:["visible light","lower bandwidth than visible light","higher bandwidth than visible light"],a:2,e:"Introduction to Fiber Optics J Crisp Page 18/19."},
+{q:"Light transmission in a fibreoptic cable is due to.",o:["repeated internal reflection","defraction of the light","refraction of the light"],a:0,e:"NIL"},
+{q:"The name given to the joining of two fibreoptic cables by aligning them carefully and bringing them into close proximity of each other is.",o:["Fusion","Lens Coupling","End to end"],a:2,e:"NIL"},
+{q:"In a fibreoptic cable.",o:["multiple data signals can be sent down it at one time","data can only be sent in one direction","only one data signal can be sent down it at any one time"],a:0,e:"Introduction to Fiber Optics John Crisp page 189."},
+{q:"Fibreoptics relies on.",o:["fibre absorbing light","light escaping cladding","light reflecting off cladding"],a:2,e:"NIL"},
+{q:"The 'light' emitted from a LED used within a fibre-optic system will have a wavelength.",o:["slightly shorter then that of visible light","equal to that of visible light","slightly longer then that of visible light"],a:2,e:"Infrared from 850nm. Visible light is 400-800 nm."},
+{q:"Sensors in a fibreoptic flight control system.",o:["require processing to give output","does not require power","require power for processors"],a:2,e:"The sensor is usually a photo-diode."},
+{q:"Fibreoptic systems can transmit data in.",o:["in two directions","both directions at the same time","one direction only"],a:1,e:"NIL"},
+{q:"For high bandwidth high-speed fibreoptic transmission what sort of cable would you use?",o:["Step index","Single mode","Graded index"],a:1,e:"NIL"},
+{q:"In fiberoptics the wavelength of the light is.",o:["more than visible light","equal to that of visible light","less than visible light"],a:0,e:"NIL"},
+{q:"What is the advantage of an ILD over an LED when used as a light source in fibre optics?",o:["Lower frequency range","Lower intensity","Higher bandwidth"],a:0,e:"NIL"},
+{q:"Speed of light in a fibreoptic fibre.",o:["increases if it passes through material of higher refractive index","is always the same no matter what material it is","is never greater then the speed of light in free space"],a:2,e:"Fiber Optics Communication and Other Applications Page 15."},
+{q:"The angle of incidence of a beam of light in a fibreoptic cable will be.",o:["twice that of the cone of acceptance","approximately half that of the cone of acceptance","parallel with the end of the cable"],a:1,e:"Fiber Optics Communication and Other Applications Page 46/7. Presumably, this means the MAIMUM angle of incidence."},
+{q:"In an optical fibre, the angle of acceptance is.",o:["1/2 the signal wavelength","equal to the cone of acceptance","1/2 the cone of acceptance"],a:1,e:"Introduction to Fiber Optics John Crisp page 29."},
+{q:"When using a TDR(time delay reflectometer) the loss value of the cable is.",o:["shown by the curve on the screen","set on the TDR","allowed for in the calculation"],a:0,e:"NIL"},
+{q:"Common aircraft fibreoptics use.",o:["modulating intensity on direct read","modulating intensity on indirect read","modulating frequency on direct read"],a:0,e:"NIL"},
+{q:"What is the main cause of attenuation in fibreoptics?",o:["Poor termination","Refractive index","Bends in the cable"],a:0,e:"NIL"},
+{q:"What is the advantage of a laser diode over an LED?",o:["Greater bandwidth","Narrower bandwidth","There are no advantages"],a:1,e:"NIL"},
+{q:"A 'type A' fibre optic connector.",o:["is used when regular disconnection and re-connection of a cable is required","produces a larger light loss that a type B connector","would be used for connections not regularly disconnected"],a:2,e:"NIL"}
+],
+"05.11. Electronic Displays": [
+{q:"The inside of a CRT consists of.",o:["an oxide coating and rare mercury gas","a phosphor coating and rare mercury gas","iodine and rare mercury gas"],a:1,e:"Pallett- Aircraft Instruments Page 284."},
+{q:"CRT horizontal beam control is achieved by a.",o:["sinusoidal wave","square wave","sawtooth wave"],a:2,e:"NIL"},
+{q:"In a CRT, if the magnetic field is parallel to the Y plates, what will be the direction of the electron beam movement?",o:["Horizontal","Vertical","No movement"],a:1,e:"The Y plates lie horizontal. Use the right hand rule to work out the direction of electron beam movement. Aircraft Instruments& Integrated Systems, Pallett, page 287."},
+{q:"Primary colours of a CRT are.",o:["red, green and yellow","red, blue and yellow","red, green and blue"],a:2,e:"NIL"},
+{q:"What are the effects of the X and Y plates on a CRT?",o:["Y plates move the beam vertically, X plates move the beam horizontally","X plates move the beam vertically, Y plates move the beam horizontally","X and Y plates can move the beam in either direction"],a:0,e:"NIL"},
+{q:"EADI sky and ground display is provided by.",o:["synthetic TV signals","stroke pulse","raster scan"],a:2,e:"NIL"},
+{q:"What frequency creates the raster effect on a CRT?",o:["50/60 Hz","250Hz","400 Hz"],a:0,e:"NIL"},
+{q:"The sweep waveform used on a electromagnetic CRT is.",o:["trapezoidal","sinusoidal","sawtooth"],a:0,e:"Do not get confused with an electrostatic CRT. Electromagnetic CRT uses trapezoidal waveform to overcome the impedance of the coil."},
+{q:"What shape does the waveform take to counter the impedance effect of the coils in an electromagnetic controlled CRT?",o:["Sawtooth","Rectangular","Trapezoid"],a:2,e:"Do not get confused with an electrostatic CRT."},
+{q:"Magnetic deflection in a CRT is achieved by.",o:["a sawtooth waveform","a trapezoidal waveform","a sinusoidal voltage"],a:1,e:"Do not get confused with electrostatic deflection(plates), which would be sawtooth."},
+{q:"The timebase in a CRT consists of.",o:["an amplifier and an oscillator","an oscillator only","an amplifier only"],a:0,e:"NIL"},
+{q:"What creates the raster effect on a CRT?",o:["Sawtooth frequency","Trapezoidal frequency","Sinusoidal frequency"],a:0,e:"NIL"},
+{q:"LCD screens are driven by.",o:["AC voltage","variable current DC voltage","fixed current DC voltage"],a:0,e:"NIL"},
+{q:"A Liquid Crystal Display(LCD) has the advantage over a CRT that.",o:["it requires no cooling","it displays more colours","it requires less servicing"],a:0,e:"NIL"},
+{q:"The release of a photon by another photon is the principle of.",o:["a photo diode","a zener diode","an LED"],a:2,e:"NIL"},
+{q:"If a magnetic field is parallel to the X plates in a CRT, which way will the beam move?",o:["Vertically","Horizontally","Diagonally"],a:1,e:"NIL"},
+{q:"An LED display is.",o:["monochrome only","red and green","high definition"],a:0,e:"NIL"},
+{q:"An LCD display uses what type of power supply?",o:["DC voltage","Continuous AC","Variable level DC voltage"],a:1,e:"NIL"},
+{q:"A beam deflection on EFIS displays are.",o:["electrostatic","electromagnetic","solid state"],a:1,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 297."},
+{q:"The supply to an LCD is.",o:["AC","current restricted DC","voltage restricted DC"],a:0,e:"NIL"},
+{q:"An LED will emit light when.",o:["it is reverse biased","either forward or reverse biased if a sufficient level of ac voltage is applied","it is forward biased"],a:2,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 121."},
+{q:"A CRT display has the advantage over an LCD display of a.",o:["brighter clearer output","more energy efficient","large viewing angle"],a:2,e:"NIL"},
+{q:"To display a circle on a CRT you use.",o:["2 square wave 90 degrees out of phase","2 sine waves 180 degrees out of phase","2 sine waves 90 degrees out of phase"],a:2,e:"NIL"},
+{q:"To deflect the beam of a CRT horizontally, coils are placed on the neck of the tube.",o:["each side","top and bottom","one on the side, one at the bottom"],a:1,e:"NIL"},
+{q:"If the magnetic deflection plates produce a magnetic field which is parallel to the horizontal then the trace is deflected in.",o:["circular motion","horizontal axis","vertical axis"],a:2,e:"NIL"},
+{q:"The most common CRT control for an EFIS system screen is.",o:["a combined system","an electrostatic system","an electromagnetic system"],a:0,e:"Boeing 757 MM 34-22-00 page 8 paragraph G(EADI)."},
+{q:"L.E.D.s can give.",o:["high definition displays","monochrome displays only","red and green displays only"],a:1,e:"NIL"},
+{q:"At low ambient temperatures, an LCD screen.",o:["is slower to update as data changes","viewing angle becomes larger","loses contrast"],a:0,e:"NIL"},
+{q:"Colour CRT shadow mask screen resolution is.",o:["400 lines per square inch","84 triads","600 lines per scan"],a:1,e:"The actual figure of 84 is irrelevant. The question is asking whether you know the definition of resolution."},
+{q:"An LCD display.",o:["has three colours only","is monochrome","has infinite colours"],a:0,e:"An LCD display uses only red, green and blue filters."},
+{q:"A segmented configuration for the display of alphanumeric data requires.",o:["the starburst display for numbers and lower case letters only","16 segments to display the full range of capital letters and numerals","at least 13 segments for all upper and lower case letters"],a:1,e:"NIL"},
+{q:"Electronic CRT beam display is used typically in.",o:["weather radar indicators","IRU control display units","distance measuring indicators; digital counters"],a:0,e:"NIL"},
+{q:"In a colour cathode ray tube, how is the phosphor arranged in the tube.",o:["A single phosphor layer containing red, green and blue","A red layer on the front with two green layers behind it","Layers of red, blue and green"],a:0,e:"Success in Electronics By Tom Duncan p285."},
+{q:"A colour LCD which is back lit has.",o:["three colours","monochrome","an infinite amount of colours"],a:0,e:"LCDs have 3 colours(RGB) which can be blended to make other colours (of limited number)."},
+{q:"A dot matrix/LED construction is.",o:["4*7 or a 9*5 rolling end display","5*9 or a 4*7 rolling end display","4*7 or a 5*7 rolling end display"],a:0,e:"Aircraft Instruments and Integrated Systems Pallett Pages 13-15."},
+{q:"What are the advantages of an LCD display over an LED?",o:["It is brighter","It uses less current","There are no advantages"],a:1,e:"NIL"},
+{q:"A seven segment display is used to.",o:["display alpha-numeric characters","display octal and decimal numbers only","display octal and binary numbers only"],a:1,e:"NIL"},
+{q:"How are Alphanumeric Displays produced on a CRT?",o:["By Stroke pulse","Raster scanning","by the use of X& Y EM Coils"],a:0,e:"NIL"},
+{q:"The Shorter lead near the Flat portion of an LED is the.",o:["Cathode","Anode","Gate"],a:0,e:"NIL"},
+{q:"'Submarining' is.",o:["caused by the inability of some LCD screens to respond to fast moving images on screen","a CRT screen defect which can usually be remedied by degaussing the screen","the process used to form liquid crystals into a flat screen"],a:0,e:"NIL"}
+],
+"05.12. Electrostatic Sensitive Devices": [
+{q:"ESDS bags are sealed by.",o:["ESDS labels","zip locks","twine(100% cotton)"],a:2,e:"Boeing manual says 100% cotton twine. Other manuals say ESDS label. However, it could be considered that ESDS labels do not 'seal'."},
+{q:"What precautions are required when removing ESDS equipment?",o:["Wear a wrist strap connected to an approved ground point","No special precautions are required","Keep one hand on the airframe"],a:0,e:"NIL"},
+{q:"A flight deck CRT LRU is being replaced. What does the ESDS label indicate?",o:["Wrist straps should be worn","Do not touch plug pins or leave them exposed","Remove power before connecting"],a:1,e:"See Pallet's Micro Electronics In Aircraft Systems or CAAIPs 9-4 para.7.1.3."},
+{q:"During an EFIS screen fit.",o:["dont touch terminals","no tooling is required","use bonding strap"],a:0,e:"NIL"},
+{q:"With a relative humidity of 10% to 20%, if you walked over a carpet what electrostatic voltage value would you expect to see?",o:["35,000 volts","6,000 volts","12,000 volts"],a:0,e:"NIL"},
+{q:"Before fitting a Printed Circuit Board you should check the.",o:["resistance between skin and strap end plug is less than 10 meg ohms","resistance between skin and strap end plug is more than 1 meg ohms","resistance between strap and strap end plug is less than 1 meg ohms"],a:2,e:"CAAIP Leaflet 9-4 5.3.1."},
+{q:"The resistance of the wrist strap used as part of anti static precautions should be.",o:["0-200 ohm","20 megohm-200 megohm","250 kilohm-1.5 megohm"],a:2,e:"CAAIPs Leaflet 9-4 5.3.1."},
+{q:"When handling PCB's labelled ESDS, what precaution are taken?",o:["Do not touch its pins as copper contamination can occur","Isolate electrical power before installing on Aircraft","First earth with aircraft then to it"],a:1,e:"Microelectronics in Aircraft Systems. Pallett. Page 219."},
+{q:"After attaching a wrist strap to your wrist(which is connected to aircraft ground), prior to removal of ESDS equipment, the resistance measured.",o:["between your skin and the pin ground must be>1 meg ohms","between the strap and the pin ground must be<1 meg ohms","between the strap and the pin ground must be>1 Meg ohms"],a:2,e:"Answer found in Boeing SWPM. 20-41-01 3(2)(e)"},
+{q:"Which of the following ESDS devices can withstand higher static electricity voltage?",o:["MOSFET","SCR","ECL"],a:1,e:"NIL"},
+{q:"A wrist band must be worn when working with ESDS devices.",o:["to dissipate and prevent static build-up on the operator","to prevent the operator from getting an electric shock","to dissipate static charge on the device"],a:0,e:"NIL"},
+{q:"A humid atmosphere.",o:["reduces static charge","eliminates static charge","has no effect on the level of charge"],a:0,e:"NIL"},
+{q:"Electrostatic discharge occurs when.",o:["the ground lead on a wrist strap touches the skin","materials are rubbed together or pulled apart","materials of different potential are brought in close proximity to each other"],a:2,e:"NIL"},
+{q:"Before removing an assembly from an aircraft, with regards to HIRF, you must first ensure that there is minimum current flow between.",o:["the assembly and the aircraft","you and the assembly","you and the aircraft"],a:1,e:"NIL"},
+{q:"When removing a PC card from an ESDS assembly ensure a low current path between.",o:["aircraft and ground","you and the assembly","you and the aircraft"],a:2,e:"NIL"}
+],
+"05.13. Software Management Control": [
+{q:"An aircraft system that, should it fail due to a software error, would cause a significant reduction in safety margins may also cause.",o:["no injuries to occupants","injuries to some occupants","the loss of the aircraft"],a:1,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"An aircraft system allocated a software level of C that, should it fail due to a software error, may cause.",o:["injuries to some occupants","injuries to a large proportion of occupants","no injuries to occupants"],a:0,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"An aircraft system allocated a Criticality Category of Hazardous has a Software Level of.",o:["A","B","C"],a:1,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"An aircraft system that, should it fail due to a software error, would cause a slight increase in crew workload, has a software level of.",o:["D","B","C"],a:0,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"An aircraft system with a software level of D, should it fail due to a software error, may cause the aircraft safety margin to be.",o:["slightly decreased","slightly increased","significantly decreased"],a:0,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"If due to a software error in an aircraft system that would cause injuries to some of the occupants, the system has a software criticality category of.",o:["major effect","hazardous effect","minor effect"],a:0,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"An aircraft system that, should it fail due to a software error, would cause no injuries to occupants, has a criticality category of.",o:["major effect","minor effect","hazardous effect"],a:1,e:"DO-178/ED-12 or the old AWN 45."},
+{q:"Requirements for software control can be found in.",o:["JAR AWO","AWN 43","JAR OPS"],a:1,e:"Old AWN 43(Field Loadable Software) has been deleted at issue 133. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Software can be modified by.",o:["the manufacturer","using the same rules as apply as to modifications to hardware","licensed avionics engineers"],a:1,e:"NIL"},
+{q:"Who is responsible for producing the operational program of the FMS?",o:["The manufacturer","The pilot","The engineer"],a:0,e:"NIL"},
+{q:"Software documentation procedures are laid down in.",o:["MOE","JAA Ops","AWN(45)"],a:2,e:"AWN 45 has been deleted at issue 133. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Control of software is carried out by.",o:["the aircraft manufacturers","a licensed engineer","the National Aviation Authority"],a:2,e:"Old AWN 45."},
+{q:"What is the definition of level one software?",o:["Non-essential","Essential","Critical"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Who can sign for a software update?",o:["Design organization or the aircraft manufacturer","Engineer","Chief pilot"],a:1,e:"Old AWN 43. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"What is the effect of a level 1 software failure?",o:["Significant reduction in safety margins","Large reduction in safety margins","Loss of aircraft and/ or fatalities"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Software changes come under the responsibility of.",o:["the engineer","the national aviation authority","the aircraft constructor"],a:2,e:"AWN 45. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Who can design new software?",o:["BCAR section A8 approved company","BCAR section A1 approved company","The CAA"],a:0,e:"AWN45 a para 3.1.3(BCAR section A subsection A8). Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"As far as a software product is concerned.",o:["the 'Software Release' phase is the same as the 'Finished Product' phase","the 'Validation' phase is done to the software rather than to the component","the 'Verification' phase includes performance testing a programmed EPROM"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"AWN 43 requires that.",o:["the aircraft operator be responsible for software assessment","the CAA be responsible for software assessment","the aircraft constructors be responsible for software assessment"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Level 1 software failure.",o:["is defined as essential and will reduce safety margins","is defined as essential and may have a minor effect","is defined as critical and can lead to loss of aircraft"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Requirements for configuration management of software can be found in.",o:["AWN 43","JAR Ops(M)","ATA Chapter 46, Information Systems"],a:0,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Where would you find the rules regarding upgrade of software?",o:["JAR OPS","The aircraft manufacturer","AWN 43"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."}
+],
+"05.14. Electromagnetic Environment": [
+{q:"In order to maintain HIRF protection, bonding checks between airframe and electrical components carrying voltages greater than 50 volts RMS or DC or main earth return should not exceed.",o:["0.05 ohm","1 ohm","1 meg ohm"],a:1,e:"CAAIPs Leaflet 9-1 Table 1."},
+{q:"Ribbon cables effected by mutual impedance and current loop leakage should be protected by.",o:["earthing each alternative conductor to separate point","connecting all conductors to a common earth","shielding each individual conductor"],a:0,e:"NIL"},
+{q:"To shield a fibre optic from EMI you must.",o:["earth both transducer and couplings","shield it with a braided shield","use an opto-isolator"],a:2,e:"NIL"},
+{q:"Manufacturers of aircraft can ensure HIRF protection by.",o:["advising operators of all points susceptible to deterioration due to corrosion, moisture ingress, flexing etc","designing specific avionic areas that are shielded against HIRF","ensuring all single wires are shielded with metal conduit"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"Which of the following could be a primary cause of HIRF protection failure?",o:["Broken or missing static wicks","Corrosion on bonding leads","Unserviceable radio filters"],a:2,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"HIRF protection of LRUs is provided by.",o:["internally shielded cables","built in filters and overvoltage circuits","built in filters only"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"To stop earth loops forming, you would.",o:["earth both ends of the cable screen","leave both ends of the cable screen open circuit","earth only one end of the cable screen"],a:2,e:"NIL"},
+{q:"An aircraft may have been HIRF affected.",o:["A bonding load check is required","A static wick check is required","Test all radio frequencies for interference"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"Testing of HIRF on aircraft systems is done.",o:["by periodically listening for interference on all systems","at and during production and testing(initial certification)","only after a report of radio interference"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"When carrying out a bonding check on a surface protected by anodic film.",o:["the film is conductive so no preparations are required","the anodic film should be removed locally to ensure a good contact","add a bonding factor to the result of the test to account for the resistance of the anodic film"],a:1,e:"NIL"},
+{q:"When clamping cable looms containing co-axial cables.",o:["avoid distortion to the co-axial cable to maintain the dielectric constant","the clamps must be no more than 1 metre apart","distortion of the outer sheath is allowed providing the inner cable is not affected"],a:0,e:"NIL"},
+{q:"When incorporating an aerial cable it must be.",o:["in the centre of the other wires","outside the other wires for easy access","positioned separately from the loom"],a:2,e:"NIL"},
+{q:"When carrying out airframe bonding checks as part of a program of HIRF prevention the airframe bonding resistance should be less than.",o:["100 milliohms","1 ohm","50 milliohms"],a:2,e:"CAAIP Leaflet 9-1."},
+{q:"Electromagnetic compatibility is achieved by.",o:["shielding, screening, earthing, bonding and interference filters","coating in a conductive paint","enclosing the system with same frequency and strength of which screening is done"],a:0,e:"NIL"},
+{q:"To reduce HIRF on radio equipment.",o:["ensure all static wicks are in place","periodically check bonding leads for condition","transmit on all radio frequencies to determine which frequencies are causing the interference"],a:0,e:"NIL"},
+{q:"For braided cables, the amount of braiding.",o:["must conform to the requirement for the shielding to cover at least 50% of the surface of the cable","keeps radiated power inside the emitting assembly or away from the susceptible circuit","is a trade-off design feature"],a:1,e:"NIL"},
+{q:"HIRF is acronym for.",o:["Heavily Ionised Radio Frequencies","High Intensity Radiated Field","High Intensity Radio Frequencies"],a:1,e:"NIL"},
+{q:"HF aerials are protected against lightning strike by.",o:["current mode coupler","bus terminal","spark gap"],a:2,e:"NIL"}
+],
+"05.15. Typical Electronic/Digital Aircraft Systems": [
+{q:"An FMS system, besides controlling navigation, thrust and auto-nav, also provides.",o:["GPWS warnings","dedicated status and warnings","take-off and landing warnings"],a:1,e:"The FMS is not used for Take Off or Landing The GPWS warnings come from the GPWS Computer."},
+{q:"The minimum standards for aircraft instrumentation is set by.",o:["CAA","ICAO","JAA"],a:2,e:"NIL"},
+{q:"HSI heading is valid if the heading flag is.",o:["in view","green","out of view"],a:2,e:"Warning flags 'in view' indicate failure. Normally the only coloured flag used is RED, indicating failure."},
+{q:"MFD is the abbreviation for.",o:["Multi function display","Mandatory flight display","Master flight display"],a:0,e:"NIL"},
+{q:"ATCAS uses the radar mile definition in its calculations, which is.",o:["12.36 microsecond","6.18 microsecond","24.72 microsecond"],a:0,e:"NIL."},
+{q:"GPS navigation uses a constellation of satellites that is made up of.",o:["21 active and 3 spare","28 active and 7 spare","23 active and 5 spare"],a:0,e:"NIL"},
+{q:"An IRS is only certifed for alingment up to.",o:["+88.45 and-88.45 degrees","+78.25 and-78.25 degrees","+60 and-60 degrees"],a:1,e:"NIL"},
+{q:"The command bars on an ADI relate to.",o:["roll indications","path being followed","path required"],a:2,e:"Pallett- Aircraft Instruments Page 212."},
+{q:"ECAM has at its heart.",o:["a multi function symbol generator","a central maintenance computer","ACARS"],a:0,e:"NIL"},
+{q:"The recording medium in an FDR is.",o:["copper foil coated with ferrite","a high density floppy disc","magnetic tape coated with ferrite"],a:2,e:"NIL"},
+{q:"An FMS databank memory is updated.",o:["every 365 days","every 28 days","every 32 days"],a:1,e:"NIL"},
+{q:"What does the CADC feed?",o:["cabin pressure controller sensor/ machmeter/ altimeter","Altimeter/ FMS/ secondary radar","standby altimeter/ machmeter"],a:0,e:"Pallett- Aircraft Instruments Page 179 Fig. 7.12."},
+{q:"In a Flight Management System(FMS), data is input manually to the computing system through the.",o:["Data Acquisition Unit","Electronic Centralised Aircraft Monitoring control panel","Control and Display Unit"],a:2,e:"NIL"},
+{q:"In a Global Positioning System(GPS), the number of satellites required to achieve a 3 dimensional fix is.",o:["2","3","4"],a:2,e:"NIL"},
+{q:"In a Global Positioning System(GPS), each satellite transmission identifies the satellite using a.",o:["different channel frequency","pseudo random code","whisper shout method"],a:1,e:"NIL"},
+{q:"In a Global Positioning System(GPS) satellites below the Mask Angle are ignored as these may cause.",o:["range errors","clock errors","ephemeris errors"],a:0,e:"NIL"},
+{q:"Information required by a Flight Management System(FMS) to function correctly is indicated on the display by.",o:["dashes","a flashing cursor","boxes"],a:2,e:"NIL"},
+{q:"A flight data recorder can obtain information from aircraft instruments.",o:["provided there is adequate damping","provided there is adequate isolation","by direct connection to the instruments"],a:1,e:"NIL"},
+{q:"The inputs and outputs of a CADC are.",o:["pitot and static in; altitude, attitude, CAS and VS out","pitot and static in; altitude, CAS, mach and VS out","pitot in; static, altitude, mach, CAS and VS out"],a:1,e:"NIL"},
+{q:"EICAS provides the following:",o:["Engine parameters and engine warnings only","Engine parameters and system warnings only","Engine parameters only"],a:1,e:"Pallett- Aircraft Instruments Page 179 Fig. 7.12."},
+{q:"A central maintenance computer provides.",o:["ground and flight monitoring and testing on an on-board computer","ground and BITE testing using a portable control panel","display of system warnings and cautions"],a:0,e:"NIL"},
+{q:"The rising runway is positioned from information derived from.",o:["barometric height","radio altimeter","vertical speed"],a:1,e:"Boeing Maintenance Training notes for B757."},
+{q:"Where are the Digital Flight Data Recorder outputs supplied to?",o:["The recording unit","There are no outputs","Flight instruments"],a:1,e:"Information recorded in the DFDR is only accessible in the shop."},
+{q:"FMS failure and warnings are.",o:["EFIS warnings only","displayed on EICAS","engine warnings only"],a:1,e:"FMS warnings are displayed on EICAS and EFIS, but the answers given are 'EICAS' or 'EFIS only' so for the purposes of this question the correct answer is EICAS."},
+{q:"Flight director command bars are moved to the correct position by.",o:["calibration","position feedback","amplifier gain"],a:1,e:"NIL"},
+{q:"What information is required before completion of the alignment of an Inertial Navigation System?",o:["Aircraft present position","Heading and attitude","Aircraft present position and heading"],a:0,e:"NIL"},
+{q:"IRS accelerometers are mounted.",o:["90° to each other","45° to each other","60° to each other"],a:0,e:"NIL"},
+{q:"An FMS navigation database is updated.",o:["once a month","every 28 days","at the operators request"],a:1,e:"NIL"},
+{q:"A single failure of a fly-by-wire system.",o:["will reduce operational heights and speeds","will limit the flight profile","has no effect on aircraft operation"],a:2,e:"Redundant FBW systems will continue to fly the aircraft."},
+{q:"Fly-by-wire load alleviation function in turbulent conditions will result in.",o:["spoilers moving symmetrically upwards","ailerons moving symmetrically upwards","ailerons and spoilers moving symmetrically upwards"],a:2,e:"NIL"},
+{q:"Fly-by-wire roll control is achieved by.",o:["spoilers and ailerons","ailerons","spoilers"],a:0,e:"Automatic Flight Control, Pallett and Coyle Page 296."},
+{q:"The movement of fly-by-wire control surfaces are.",o:["hydraulically controlled and electrically actuated","both electrically controlled and electrically actuated","electrically controlled and hydraulically actuated"],a:2,e:"NIL"},
+{q:"If an EFIS has 3 symbol generators. What is the purpose of the 3rd symbol generator?",o:["Comparison with No.1 symbol generator","Parity function","Standby"],a:2,e:"NIL"},
+{q:"FMS operational program is updated every.",o:["90 days","28 days","7 days"],a:1,e:"NIL"},
+{q:"An FDR fitted to a helicopter begins recording.",o:["when power is applied to the aircraft","on take-off","on engine start-up"],a:2,e:"See ANO Art 53 para.1."},
+{q:"The FMS databases consist of.",o:["one navigation and one performance database","one performance and two navigation databases","two performance and one navigation database"],a:1,e:"Normally we consider the FMS as having 2 databases (1 navigational and 1 performance). However, the Navigational database is split in two. 1 is for Jeppesen data, uploaded on the ground, the other is for pilot input data."},
+{q:"The FMS can update the IRS position outputs by using information from either.",o:["VOR and DME only","GPS, DME, LOC and VOR","DME and GPS only"],a:1,e:"NIL"},
+{q:"The accepted error from INS/IRS is.",o:["3 miles/hour+ 3 miles","2 miles per hour+ 3 miles","1 mile/hour+3 miles"],a:0,e:"NIL"},
+{q:"Before an IRS can complete the alignment sequence.",o:["the current present position must be entered","either the last or current position must be entered","the shutdown present position must be entered"],a:0,e:"NIL"},
+{q:"What warnings can an FMS provide?",o:["Discrete warnings","Spurious faults","Ground faults only"],a:0,e:"This means it can warn of inoperative equipment, but not when equipment is providing incorrect data."},
+{q:"Electronic Centralised Aircraft Monitoring System.",o:["performs in-flight and ground tests of aircraft systems by carrying out a BITE interrogation","performs in-flight BITE interrogation only","give red warnings and amber cautions to display system status"],a:2,e:"NIL"},
+{q:"The control of the speed or rate that the flight director command bars move can be controlled by.",o:["position feedback","rate or velocity feedback","amplifier gain"],a:1,e:"NIL"},
+{q:"The Centralised Aircraft Monitoring System uses the maintenance mode of operation.",o:["on the ground only","in the air only","either in the air or on the ground"],a:0,e:"Aircraft Electricity and Electronics, Eismin, 5th Edition Page 359."},
+{q:"The third EFIS Symbol Generator is operated.",o:["in an emergency","with EICAS","as a standby to the No1 and No2 system"],a:2,e:"NIL"},
+{q:"EFIS displays of the right hand and left hand displays are compared by comparators in the.",o:["FMS","EICAS","Symbol Generators"],a:2,e:"NIL"},
+{q:"What is the approximate earth rate?",o:["10°/hour","5°/hour","15°/hour"],a:2,e:"Aircraft Instruments and Integrated Systems. Pallett Page 102."},
+{q:"An IRS has.",o:["two or three accelerometers depending on the system","three accelerometers","two accelerometers"],a:1,e:"Jeppesen Avionics Fundamentals Page 137."},
+{q:"IRS Laser Ring Gyros provide.",o:["rate of movement about an axis","displacement about an axis","both rate and displacement about an axis"],a:0,e:"Jeppesen Avionics Fundamentals Page 137."},
+{q:"What are the outputs of a Digital ADC?",o:["TAS, MACH, Altitude and TAT","TAS, MACH, Altitude, TAT and SAT","TAS, MACH and Altitude"],a:1,e:"Both Static and Total Air Temperatures are outputs of a digital ADC."},
+{q:"Fly By Wire systems in the fully active mode, the actuators will.",o:["both be active","both be in damping mode, awaiting control inputs","one in active mode, one in damping mode"],a:0,e:"Ref to B777 and A330 manuals, the term active mode will always be associated with fully operational of redundancy of all actuators or servo controls."},
+{q:"On a Fly By Wire system, what controls the stab trim?",o:["ELAC and SEC","SEC","ELAC"],a:0,e:"ELAC= Elevator Aileron Computer, SEC= Spoilers Elevator Computer and FAC= Flight Augmentation Computers(rudder)."},
+{q:"The minimum requirement for a cockpit voice recorder to begin operating is.",o:["on engine start-up","on commencing the takeoff roll","once established in the en-route climb"],a:0,e:"JAR Ops states that the CVR must begin when the aircraft is capable of moving under its own power."},
+{q:"Aircraft Communications Addressing and Reporting Systems is used to.",o:["download aircraft status reports","make telephone calls","allow the pilot of an aircraft to talk to base"],a:0,e:"NIL"},
+{q:"B-RNAV system must be capable of.",o:["holding six waypoints","displaying distance and bearing to waypoint","reversing the waypoints for"],a:1,e:"NIL"},
+{q:"The basic principle of radar is based upon.",o:["the amount of power in the signal returned","the time delay between outward and returning pulse","ultrasonic wave propagation"],a:1,e:"NIL"},
+{q:"What systems does the ADC feed?",o:["Altimeter/ FMS/ secondary radar","Cabin pressure controller sensor/ machmeter/ Altimeter","Standby altimeter/machmeter"],a:1,e:"NIL"},
+{q:"Which systems does a modern ADC give information to?",o:["EFIS","EICAS","Flight control computer, Air Data Instrument, Engine systems"],a:2,e:"NIL"},
+{q:"Where do the outputs from a DADC go?",o:["EHSI","EADI","IRMP: Inertial Reference Mode Panel"],a:1,e:"Aircraft Instruments and Integrated Systems by EHJ Pallett page 179."},
+{q:"How many satellite signals are required to achieve precise 3D positioning?",o:["4","5","6"],a:0,e:"NIL"},
+{q:"The minimum requirement for an aeroplane CVR is.",o:["from power on","from engine start","from beginning of take off roll"],a:1,e:"JAR OPS Para 1.700(c) OR answer c by CAP 393 Section I Para 53."},
+{q:"An Inertial Navigation System(INS/IRS) computes distance from acceleration by.",o:["two successive integrations","a simple integration","a differentiation followed by an integration"],a:0,e:"NIL"},
+{q:"Before the aircraft is moved from the loading pier the pilot must.",o:["insert the longitude and latitude of the first waypoint into the INS","set the altitude to be fed into the INS","insert the latitude and longitude of the pier into the IRS"],a:2,e:"NIL"},
+{q:"An IRS system requires data for wind computation from.",o:["Doppler System","satellites","central Air Data Computer"],a:2,e:"NIL"},
+{q:"The FMS carries out a Rho/Theta navigation function, the purpose of this is to.",o:["update the IRS system with an accurate position fix of latitude and longitude","to update the VOR and DME systems with an accurate position fix","to update the EMS with the new lateral flight profile for the flight plan"],a:0,e:"NIL"},
+{q:"The FMS is updated.",o:["automatically by update data from the ACARS","by an aircraft engineer updating the system either by a magnetic tape or floppy disc","by the aircrew by reference to the Tech Log"],a:1,e:"NIL"},
+{q:"Pitch Control of a fly by wire system is achieved by.",o:["stabilizer only","elevators only","stabilizer and elevator"],a:2,e:"NIL"},
+{q:"In a fly by wire system, if the pilot control input is derived from a side stick controller:",o:["there is no control surface feedback to the side stick","control surface feedback is fed to the side stick","there will be only control surface feedback to the side stick after a computer failure"],a:0,e:"NIL"},
+{q:"A basic IRS platform has.",o:["3 accelerometers and 2 laser gyros","2 Accelerometers and 3 laser gyros","3 accelerometers and 3 laser gyros"],a:2,e:"Jeppesen Avionics Fundamentals Page 137."},
+{q:"What must be entered into the IRS before the aircraft can be moved?",o:["Flight plan","Present position","Cruise height"],a:1,e:"NIL"},
+{q:"The FMS Operational Database is.",o:["updated once a month","is fed with information on aircraft weight, cruise altitude and cost index before take off","needs no update information"],a:1,e:"NIL"},
+{q:"Control surface feedback is fed back to.",o:["the Flight Control Computer only","the side stick controller only","the Flight Control Computer and side stick controller"],a:0,e:"NIL"},
+{q:"The accelerometer output in an INS/IRS is.",o:["integrated once to give distance","integrated twice to give velocity","integrated twice to give distance"],a:2,e:"NIL"},
+{q:"An INS/IRS Battery Unit provides.",o:["standby power only whilst in flight","standby power when airborne and on the ground","standby power only on the ground"],a:1,e:"Aircraft Instruments and Integrated Systems. Pallett Page 247& 248."},
+{q:"If a fly by wire actuator loses hydraulic power the control surface will.",o:["automatically move back to the neutral position","remain rigid in the failure position","remain in the failure position but may move due to aerodynamic pressure"],a:2,e:"NIL"},
+{q:"IRS alignment.",o:["takes up to 10 minutes and the present position can be entered at any time during alignment","takes up to 10 minutes and present position must be entered before alignment","takes up to 10 minutes and the previous flight shut down present position is used for the alignment"],a:0,e:"NIL"},
+{q:"A fault light appears on the IRS Mode Selector Unit during the alignment sequence. The correct action is.",o:["immediately switch off and select the standby system","select HDG/STS on the Inertial System Display Unit(ISDU), observe the action code in the right alpha/numeric display","refer to the warning display on the EICAS/ECAM system"],a:1,e:"NIL"},
+{q:"A FMS has a total of how many Databases.",o:["2","4","1"],a:0,e:"NIL"},
+{q:"Fly by wire High Speed protection is.",o:["to prevent tuck under","to increase the pitch angle as speed increases","to prevent high speed stall"],a:0,e:"NIL"},
+{q:"An IRS Laser gyro provides.",o:["detection of the rate of movement about an aircraft axis","detection of the earths gravitational force to establish true north","detection of the earths rotation to establish true north"],a:0,e:"Jeppesen Avionics Fundamentals Page 137."},
+{q:"The left and right cockpit displays.",o:["are supplied from separate Symbol Generators at all times","are supplied from the same Symbol Generator","will only be supplied from the same symbol generator when all other symbol generators have failed"],a:2,e:"NIL"},
+{q:"A single failure of a fly by wire control surface computer will.",o:["cause the system to revert to an alternate law of operation","not have any operational effect on the system","cause the system to revert to a direct law of operation"],a:1,e:"NIL"},
+{q:"What are the outputs from digital clocks used for?",o:["Flight data acquisition unit, Flight management computer and Voice recorder","VOR, ILS and DME","Weather radar, TCAS and ACARS"],a:0,e:"Only these require real time reference."},
+{q:"A full operation system BITE check will carry out a internal system test that ensures the system meets design requirements and is operational.",o:["but will not move the controls","as well as checking full system and will move the controls to their stops","as well as checking full system but will not move the controls to their stops"],a:2,e:"Digital Avionic Systems- Cary Spitzer. Page 109, Arinc report 604 guidance for design and use of built in test equipment states... 'BITE should exercise the hardware sufficiently to determine if it meets the performance requirements but should not drive it against mechanical stops'."},
+{q:"If on a flight deck EFIS system all the displays were missing one bit of information. This is most likely to be.",o:["the input sensor bus and display controller","the symbol generator and display","the display controller and symbol generator"],a:2,e:"By elimination, a fault in the display would be more general, and a fault with the sensor would still display, but an erroneous value."},
+{q:"A centralised monitoring computer system is used.",o:["to test system during flight and for BITE test of systems on the ground using a carry on control unit","to test systems in flight and on the ground using a centralised on board control unit","testing systems on the ground only"],a:1,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 270."},
+{q:"In an EFIS display, the lines, scales, indicator and synoptic are generated by.",o:["raster scan","synoptic scan","stroke pulse"],a:2,e:"757 MM 34-22-00 page 40(p) and 737 MM 34-22-00 page 47, 4(b)."},
+{q:"The method of producing (white) lines for aircraft symbols, V/S scale etc. on an EADI is by.",o:["raster scan","trapezoidal input","stroke pulse"],a:2,e:"MM 737-300/400/500, 34-22-00 page 47 4b or MM 757 34-22-00 page 40(p). 'The special symbols, characters, letters, vectors and arcs are displayed using the stroke method. The EADI sky/ground ball or EHSI weather radar are displayed using the raster method.'"},
+{q:"In modern aircraft, the output from the clock is used.",o:["to synchronise the signals on the control bus","to provide a clock pulse for CRT","to give GMT details to the flight recorder and other systems"],a:2,e:"NIL"},
+{q:"The operational database of the FMS may have to be modified in flight.",o:["It cannot be modified in flight","by the pilot","automatically by the DADC"],a:0,e:"NIL"},
+{q:"CADC outputs are.",o:["altitude, vertical speed, IAS, mach no","altitude, vertical speed, TAS, CAS, mach no, SAT, TAT","altitude,vertical speed, angle of attack, TAT, SAT"],a:1,e:"Aircraft Instruments and Integrated Systems Pallett Page 162."},
+{q:"If one EICAS CRT fails.",o:["the FMS CDU will display the failed CRT data","the remaining CRT will display primary EICAS data","the standby CRT will automatically take over"],a:1,e:"NIL"},
+{q:"Variations in light on EFIS displays are compensated for by.",o:["An external light dependant resistor mounted on the flight deck compensating for all displays in a parallel-parallel format","manual adjustment by flight crew on EFIS controller","integrated light dependant resistors in the display compensating for each display individual"],a:0,e:"Aircraft Instruments and Integrated Systems by EHJ Pallett pages 296& 299."},
+{q:"A method used in modern aircraft for reporting in flight faults to an engineering and monitoring ground station is.",o:["TCAS II","ACARS","TAWS"],a:1,e:"Aircraft Electricity and Electronics Eismin 5th Edition Page 299."},
+{q:"The self test function on an EFIS system can be tested.",o:["on the ground only","in the air only","in the air and on the ground"],a:2,e:"NIL"},
+{q:"Each of the symbol generator outputs in an EFIS system can be.",o:["displayed on each individual display","only no. 2 can be displayed on the no.1","can not be interchanged"],a:0,e:"NIL"},
+{q:"BITE tests are inhibited for ground use during.",o:["forward motion","gear retraction","take-off"],a:2,e:"NIL"},
+{q:"Modern aircraft with electronic displays would display information on airframe and engine on which system?",o:["Electronic centralised aircraft monitoring system(ECAM)","Flight management system","EADI"],a:0,e:"NIL"},
+{q:"The Flight data recorder starts recording.",o:["after take off","on aircraft roll out from stand","after the first engine has started"],a:2,e:"JAR OPS Subpart K 1.715 e."},
+{q:"Data to flight data recorder can be taken from a communal data bus if.",o:["the power is within flight data recorder limits","it goes directly to it","source isolation has been considered"],a:2,e:"NIL"},
+{q:"A central fault display system should be available through.",o:["a bite test","a central bite test box with clear LED indications","a easily accessible multifunction control display unit"],a:2,e:"NIL"},
+{q:"A flight data recorder should be capable of recording.",o:["the last 25 hours","the last 25 hours of aircraft flight","the last 25 hours with engines running"],a:2,e:"NIL"},
+{q:"BITE for ground use only is switched off.",o:["on take-off","when brakes are released","when undercarriage up"],a:0,e:"NIL"},
+{q:"During normal functioning of an ECAM system the engine data shown on the Engine/Warning display comes from the.",o:["EFIS channel of DMC3","ECAM channel of DMC1","ECAM channel of DMC3"],a:2,e:"A330-200 31-50-00 pg4."},
+{q:"Using I.N.S. an aircraft flies.",o:["rhumb line","course directed by ground station","great circle route"],a:2,e:"Jeppesen Avionics Fundamentals Page 132."},
+{q:"Aircraft heading (HDG) is.",o:["the angle between True North and the longitudinal axis of the aircraft","the angle between True North and the actual track","the angle between True North and the desired track"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 254."},
+{q:"For an IRS System to pass the Alignment System Performance Test the the latitude entered must be within given limits of the.",o:["latitude computed by IRU","entered present latitude and longitude must agree with the latitude and longitude at last power down","the No 1 and No 2 must both have the same latitude and longitude present position entered"],a:0,e:"Aircraft Instruments and Integrated Systems, Pallett pages 279-280."},
+{q:"Control Display Unit(CDU) selection of TKE(Track Angle Error), displays.",o:["difference in degrees that the aircraft is to the right or left of the desired track","distance perpendicular from the selected track","difference in degrees from True North in a clockwise direction from the desired track"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 256."},
+{q:"In the EICAS system, when is the maintenance mode available?",o:["Lower screen only-only available on the ground","In flight","On the upper and lower screens- only available on the ground"],a:0,e:"B747 Maintenance Manual. Aircraft Instruments and Integrated Systems. Pallett Page 380."},
+{q:"On a modern aircraft when are BITE checks carried out?",o:["Continuously when system is in use","After engine shutdown","Only when BITE selected"],a:0,e:"Aircraft Electricity and Electronics, 5th edition, Eismin, Pages 152 and 268."},
+{q:"In an IN system, the purpose of the stable platform is to.",o:["provide attitude reference","prevent unwanted acceleration affecting the accelerometers","stop the gyros from toppling"],a:1,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 260."},
+{q:"An IN system requires data from the.",o:["Doppler system","airdata computer","satellites"],a:1,e:"Jeppesen Avionics Fundamentals Page 138."},
+{q:"TK(cross track) is the.",o:["actual track across the earths surface","angle in degrees that the aircraft track is left or right of desired track","perpendicular distance from the desired track"],a:2,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 256."},
+{q:"The output of an INS can be fed to the.",o:["attitude indicators","altimeters","vertical speed indicators"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 247 fig 10.1. Jeppesen Avionics Fundamentals Page 137& 138."},
+{q:"The three accelerometers on a strapdown system are mounted.",o:["90° to each other","parallel to each other","120° apart"],a:0,e:"Jeppesen Avionics Fundamentals Page 135."},
+{q:"Gyro-compassing is the term used for.",o:["self-alignment in the vertical","use of the gyro-magnetic compass system to align the platform","self-alignment in azimuth"],a:2,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 280."},
+{q:"If part of a display is lost on a CRT, this could be due to.",o:["an inoperative symbol generator or control panel","an inoperative symbol generator or input sensor","loss of power to the CRT"],a:1,e:"NIL"},
+{q:"A cyclic test(watch dog) should be performed for ECAM.",o:["via MCDU","during power up","during flight"],a:2,e:"Aircraft Electricity and Electronics, Eismin, 5th Edition. Pg 154."},
+{q:"How does the symbol generator detect a program error?",o:["By looking at the even parity without error","By looking at the odd parity without error","By check sum bites for error detect"],a:1,e:"NIL"},
+{q:"Relationship of CMCs to BITE systems is best described as.",o:["CMCs replaced but is not related to the older BITE system","CMCs monitors the individual BITE systems and presents data","CMCs modifies and upgrades BITE systems"],a:1,e:"NIL"},
+{q:"An IRU interface test is carried out.",o:["in the air","only on the ground","on the ground or in the air"],a:1,e:"NIL"},
+{q:"FMS system gives warning indications for.",o:["take off and landings only","any flight phase","cruise"],a:2,e:"NIL"},
+{q:"FMS CDU warnings are.",o:["fail and MSG","OFST and Fail","MSG, fail and OFST"],a:2,e:"NIL"},
+{q:"CMC(central maintenance computer) works to.",o:["perform in-flight bite and ground tests of aircraft systems, i.e. BITE","give red warnings and amber cautions to display in accordance with system status","perform in-flight bite only"],a:0,e:"NIL"},
+{q:"BITE test carried out on input sensors and actuators performs.",o:["validation of the information of the LRU","a performance test of the system","a test of the LRU"],a:1,e:"NIL"},
+{q:"A BITE check for automatic performance and fault monitoring is carried out when?",o:["Power-up self test","For in-flight monitoring","To check the performance of the LRU"],a:0,e:"NIL"},
+{q:"In which of the following does TCAS II advise the pilot to make a manoeuvre?",o:["RA","TA","either RA or TA"],a:0,e:"NIL"},
+{q:"What are the shapes of traffic shown on a TCAS display?",o:["White circles, red diamonds and amber squares","White diamonds, red squares and amber circles","White squares, red diamonds and amber circles"],a:1,e:"NIL"},
+{q:"If a display shows a red cross only, it is due to.",o:["Symbol Generator failure","CRT failure","Altimeter failure"],a:0,e:"NIL"},
+{q:"ACARS is an acronym for.",o:["ARINC Communicating Addressing and Reporting System","Airborne Communicating Addressing and Reporting System","Aircraft Communicating Addressing and Reporting System"],a:2,e:"NIL"},
+{q:"When does the flight data recorder start recording?",o:["Undercarriage up","Parking brake released","When the first engine starts"],a:2,e:"NIL"},
+{q:"Brake temperature displayed on a flight deck CRT has.",o:["a master warning light","same colour throughout","different colour for different temperatures"],a:2,e:"NIL"},
+{q:"When performing test on Electronic Displays using the Built In Test system.",o:["CRT continues to display current data while the SGs and Display are internally tested","SG injects a test signal into the display system and the word TEST appears on the screen","displays cannot be tested it is only SG which are tested by BITE"],a:1,e:"NIL"},
+{q:"Heading reference required to establish initial heading during alignment sequence comes from.",o:["FMS which gathers data from other Radio devices","Magnetic compass installed on the airplane","Earths Rotation"],a:2,e:"NIL"},
+{q:"What is primary mode of navigation on a modern aeroplane?",o:["Both GPS and IRS","Only IRS","Inch precise GPS"],a:1,e:"NIL"},
+{q:"In a flight director, how are small deviations corrected?",o:["Pilot input","Instrument is calibrated at fitment to remove any possible error","Instrument feedback"],a:0,e:"NIL"},
+{q:"For a 3 dimensional fix in a Global Positioning System.",o:["Minimum of 3 satellites must be in view","Minimum of 2 satellites must be in view and altitude used to simulate a 3rd satellite","Minimum of 4 satellites must be in view"],a:2,e:"NIL"},
+{q:"In an aircraft equipped with TCAS II and EFIS.",o:["RA pitch command is shown on the EHSI and TA/RA traffic on the EADI","RA pitch command is shown on the VSI and TA/RA traffic on the EHSI","RA pitch command is shown on the EADI and TA/RA traffic on the EHSI"],a:2,e:"NIL"},
+{q:"The BITE indicator on a DFDR shows Yellow colour. This indicates.",o:["power is ON but DFDR is not recording data","power is ON and DFDR is recording data","power is OFF or DFDR is at Fault"],a:2,e:"NIL"},
+{q:"In a typical 'Glass Cockpit' EICAS provides the following.",o:["engine parameters and system warnings only","engine parameters and engine warnings only","engine warnings only"],a:0,e:"NIL"},
+{q:"What is the minimum requirement for CVR to operate?",o:["BEFORE take-off","BEFORE engine start","at any time the manufacturer decides"],a:0,e:"Minimum requirement is AT first engine start(according to JAR OPS) which is BEFORE take-off."},
+{q:"ECAM system was adopted for.",o:["Airbus A310","both Boeing and Airbus aircraft","Boeing 757 and 767 aircraft"],a:0,e:"NIL"},
+{q:"A modern electromagnetic Flight Data Recorder, for recording data, could use:",o:["a floppy disk","a plastic tape coated in ferrite","a copper oxide string"],a:1,e:"NIL"},
+{q:"What is the minimum requirement for a CVR to start recording?",o:["When parking brake is released","On commencement of flight","When aircraft is capable of moving under its own power"],a:2,e:"JAR Ops 1.700 para c."},
+{q:"As a minimum requirement when must a cockpit voice recorder start recording?",o:["Once airborne after take off","Before engine start","Once aircraft is ready to move under its own power"],a:2,e:"JAR Ops 1.700 para c."}
+],
+"05.16. Miscellaneous": [
+{q:"101012+ 110012=.",o:["462","468","4610"],a:2,e:"101012+ 110012= 1011102= 4610."}
+]
+};
+
+// ===== ตัวแปรสถานะ =====
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+// ===== โหลดหมวดลงใน dropdown =====
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+// ===== ฟังก์ชันสุ่ม (Fisher-Yates) =====
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== เริ่มทำข้อสอบ =====
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+
+  // รวมคำถาม
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+
+  // สุ่มลำดับคำถาม
+  pool = shuffle(pool);
+
+  // สุ่มลำดับตัวเลือกในแต่ละข้อ + เก็บ index คำตอบที่ถูกต้อง
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+// ===== แสดงคำถาม =====
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `
+        <label>
+          <input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">
+          ${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}
+        </label>`;
+    });
+
+    div.innerHTML = `
+      <div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div>
+      <div class="q-category">📂 ${escapeHtml(q.category)}</div>
+      <div class="options">${optionsHtml}</div>
+      <div class="explanation hidden" id="exp-${idx}"></div>
+    `;
+    area.appendChild(div);
+  });
+
+  // เพิ่มปุ่มส่งคำตอบ
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `
+    <button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button>
+    <button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>
+  `;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ===== บันทึกคำตอบ =====
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+// ===== อัปเดตสถิติ =====
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+// ===== ส่งคำตอบ =====
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+
+    // แสดงเฉลย
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+
+    // disable radios
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+
+  // แสดงคะแนน
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `
+    <div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div>
+    <div style="font-size: 32px; font-weight: bold;">${percent}%</div>
+  `;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+// ===== กรองข้อที่ถูก/ผิด =====
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+// ===== ทำใหม่ =====
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ===== เริ่มต้น =====
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
