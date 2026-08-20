@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 10 - Aviation Legislation Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 20px; line-height: 1.5; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls { background: #f5f5f5; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px; }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button { padding: 8px 14px; font-size: 14px; border: 1px solid #000; background: #fff; cursor: pointer; margin: 4px; }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats { display: flex; justify-content: space-between; flex-wrap: wrap; margin: 15px 0; padding: 10px; border: 1px solid #ccc; background: #fafafa; }
+  .stats div { margin: 4px 10px; }
+  .question { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 6px; background: #fff; }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border-radius: 4px; }
+  .options label:hover { background: #f0f0f0; }
+  .explanation { margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #f9a825; font-size: 14px; }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box { text-align: center; padding: 20px; margin: 20px 0; border: 2px solid #000; border-radius: 8px; display: none; }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar { width: 100%; height: 30px; background: #eee; border: 1px solid #000; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script>  
+</head>
+<body>
+<div class="container">
+  <h1>📜 Module 10 - Aviation Legislation Quiz</h1>
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+  <div id="quizArea"></div>
+</div>
+
+<script>
+const quizData = {
+"10.1. Regulatory Framework": [
+{q:"A register of airlines operating on an AOC is maintained by the.",o:["ICAO","CAA","FAA"],a:1,e:"NIL."},
+{q:"What category of aircraft are 'break-in' markings required?.",o:["All public transport aircraft above 2300Kg","All public transport aircraft above 5700Kg","All aircraft registered in the UK"],a:2,e:"Nil."},
+{q:"A Part-145 approval covers.",o:["base maintenance","the major part of the organisation","only line maintenance"],a:0,e:"The part-145 organisation covers ALL of the organisation, and not only line maintenance."},
+{q:"For UK registered aircraft, components must be.",o:["maintained by a part-145 approved organisation","any appropriately approved organisation","maintained by a part-145 approved organisation registered in the UK"],a:1,e:"The question is not specific about the 'type' of aircraft(light or heavy)."},
+{q:"Aircraft manufactured abroad, but registered in the UK.",o:["can fly with an export C of A","must have a C of A issued in the UK before it can fly","can fly with a foreign C of A"],a:2,e:"It can fly with a foreign C of A providing it is issued a CAA validation certificate."},
+{q:"To facilitate a repair, a drawing can be taken from.",o:["the CAA","the manufacturer","a part-145 organisation"],a:1,e:"The drawing must come from an organisation with Design Approval. Only the manufacturer automatically has that."},
+{q:"Documents to be carried on a specific aircraft for a specific purpose is given in.",o:["BCAR Section A and B","JAR-OPS","AOC"],a:1,e:"Nil."},
+{q:"Safe operation of the aircraft is the responsibility of the.",o:["part-M organisation","owner","operator"],a:2,e:"That's the purpose of the Air Operator's Certificate(AOC)."},
+{q:"The period of validity of a Certificate of Fitness for Flight under 'A' Conditions is.",o:["7 days","1 flight","2 days"],a:0,e:"BCAR Section A/B3-8."},
+{q:"The details of design of a particular aircraft can be found where?.",o:["The Maintenance Manual","The Declaration of Design and Performance","EASA Certification Specification 25"],a:1,e:"Nil."},
+{q:"The validity of an EASA permit to fly is.",o:["12 months","7 days","as stated on the certificate but not exceeding 14 days"],a:2,e:"AWN 9 Para.5."},
+{q:"Following a major defect the C of A.",o:["is not affected, however may run out on a time basis","will be invalidated and needs renewing","Nothing will happen"],a:0,e:"NIL."}
+],
+"10.2. Part-66 Certifying Staff": [
+{q:"An engineer may issue a CRS if they.",o:["have a company approval","are LWTR and company approved on the appropriate type of aircraft","are type rated on any equivalent aircraft type"],a:1,e:"AWN 3."},
+{q:"Where would you normally train for licences?.",o:["At a Part-147 approved organisation","At a Part-145 approved organisation","At a technical training school"],a:0,e:"Part-147 is approval for training organisations(both basic and type training)."},
+{q:"By when do BCAR licensed aircraft maintenance engineers have to conform to EASA Part-66?.",o:["28th September 2011","28th September 2006","28th September 2001"],a:1,e:"AWN 7 Para. 15."},
+{q:"By what date must all base maintenance certifying staff and B1 and B2 support staff for aircraft below 5700kg be part-66 qualified?.",o:["28 September 2008","28 September 2006","currently there is no date specified, such authorisations will always be covered by BCAR Section L"],a:0,e:"NIL."},
+{q:"If changes are made in a Part-66 license without the approval of the CAA.",o:["the license is cancelled and an enquiry is conducted","the license is cancelled from the point of the CAA becoming aware of the changes","all certifications made under that licence are invalid from the date the changes were made"],a:2,e:"66.A.40(b)."},
+{q:"If an engineer has a heavy cold, he/she.",o:["must take only the medication which is prescribed specifically to him/her","may take medication without advice","must seek medical advice from a doctor"],a:0,e:"AWN 47 Para.3.7."},
+{q:"To what does a B1-3 License apply to?.",o:["Helicopter with turbines, their engines, airframes and electrics","Light aircraft with piston engines","Helicopters with piston engines, their engines, airframes and electrics"],a:0,e:"66.A.1(b) and ELGD A5.2."},
+{q:"What can an A1 licensed engineer sign for?.",o:["Minor Scheduled Line Maintenance tasks on turbine engined helicopters","Minor Scheduled Line Maintenance tasks on turbine engined aircraft","Minor Scheduled Line Maintenance tasks on piston engined aircraft"],a:2,e:"66.A.1(a) and ELGD A5.1."},
+{q:"Who can sign a CRS?.",o:["Any licensed engineer","An appropriately licensed engineer","An unlicensed engineer who has permission from the Chief Inspector"],a:1,e:"66.A.20, and 145.A.50."},
+{q:"Where would you find the requirements and the syllabus for a maintenance license?.",o:["EASA Part-147","EASA Part-145","EASA Part-66"],a:2,e:"See Part-66."},
+{q:"An A1 licensed mechanic can sign for.",o:["Aeroplanes and Helicopters","Aeroplanes- Piston","Aeroplanes- Turbine"],a:2,e:"66.A.1."},
+{q:"From 28 September 2008, all engineers are required to be licensed in accordance with.",o:["EASA Part-66","ICAO","JAR 66"],a:0,e:"AWN 7 App.1 para 4."},
+{q:"A Part-66 licence can be used without amendment or exchange.",o:["only in the member state in which it was issued","throughout all member states","throughout the World"],a:1,e:"EASA Part-66 Appendix V para 10."},
+{q:"A part-66 licence holder wishing to work in another member state apart from the one it was issued, must have a licence printed in.",o:["English","only the originating member state's language","the language of the member state which the holder wishes to work in"],a:2,e:"NIL."},
+{q:"Who issues a part-66 licence?.",o:["EASA","A part 145 organisation","The competent authority of the member state"],a:2,e:"EASA Part-66 Appendix V para 6."},
+{q:"Who may amend or endorse a part-66 licence?.",o:["A part 145 organisation","The licence holder","A part 147 organisation"],a:0,e:"EASA Part-66 Appendix V para 7."},
+{q:"Whose responsibility is it that no unauthorised entries are made in a part-66 licence?.",o:["EASA or the national aviation authority of the member state","The licence holder","The part-145 organisation"],a:1,e:"EASA Part-66 Appendix V para 8."},
+{q:"EASA Form 26 is.",o:["the application for a part-66 licence","the application for an extension to a part-66 licence","the part-66 licence itself"],a:2,e:"EASA Part-66 Appendix V Page 150."},
+{q:"A part-66 licence is issued for.",o:["initially 2 years then re-issued for a period of 5 years","initially 5 years then re-issued for a period of 2 years","5 years"],a:2,e:"NIL."},
+{q:"A B2 License applies to.",o:["line maintenance on airframe structure and powerplants","line maintenance on electrical systems and avionics","line maintenance on airframe structure"],a:1,e:"66.A.20 para(a) 3."},
+{q:"What does a B1-3 approval apply to?.",o:["Light Aircraft with Piston Engines","Helicopters with Turbine Engines, airframe and electrics","Helicopters with Piston Engines, airframe and electrics"],a:1,e:"66.A.1(b)."},
+{q:"A Part-66 maintenance license remains valid.",o:["if he/she has received continuation training in the last 2 years","if he/she has worked on aircraft for 6 months in the last 2 years","if he/she has worked on aircraft for 4 months in the last 2 years"],a:2,e:"145.A.35 para (c)."},
+{q:"A category A licence.",o:["is automatically issued with a category B1 licence","is automatically issued with a category B2 licence","is automatically issued with both a category B1 and B2 licence"],a:0,e:"66.A.20(a) 2 and 3."},
+{q:"Who carries out the practical task training required for a category A licence?.",o:["Either a part-145 or a part-147 organisation","A part-147 organisation only","A part-145 organisation only"],a:0,e:"66.A.45(a)."},
+{q:"Who is responsible for the control and issue of engineers licenses?.",o:["EASA","CAA","JAA"],a:1,e:"In the UK only. 66.1."},
+{q:"When can a LAE sign a CRS?.",o:["For any aircraft for which he has a type rating","For any aircraft for which his company has Part-145 approval","For any aircraft for which he has a type endorsement on his license and holds the appropriate company approval"],a:2,e:"66.A.45(b)."},
+{q:"The time scale for retaining training records within a JAR-147 school is.",o:["five years after the candidate leaves the course","three years after the course","five years after the completion of the course"],a:2,e:"147.A.125."},
+{q:"A basic aircraft maintenance in category B1, B2 or C licence.",o:["does confer licensing responsibilities","allows you to sign a CRS but not CMR","does not confer any licensing responsibilities"],a:2,e:"66.A.45(b)."},
+{q:"If an engineer has an aircraft maintenance basic license he/she can.",o:["not sign anything, there are no certification rights offered by the license alone","sign the CRS","sign the CRS, as the license implies the rights of certification"],a:1,e:"66.A.45(b)."},
+{q:"With reference to the licensing of aircraft maintenance engineers, the requirements for the issue of a licence without type rating can be found in.",o:["BCAR section L","EASA IR Part-66","Airworthiness Notices"],a:0,e:"BCAR Section L- Note: A Part-66 licence is referred to as a 'Basic Licence', not a 'Licence Without Type Rating'."},
+{q:"Within an aircraft maintenance organisation approved in accordance with IR Part-145, the limitations of an individual's certification rights are recorded upon.",o:["the personnel authorisation certificate","the aircraft maintenance licence","the personnel records"],a:1,e:"Part-66 App. IV pg 151."},
+{q:"In the future BCAR section L will be replaced by.",o:["EASA IR Part-66","JAA JAR-66","EASA IR Part-145"],a:0,e:"AWN 7 App.4."},
+{q:"The term 'Extension' of a Part-66 licence means.",o:["to extend its validity for a further period of time","to add an additional basic category","to add a type approval"],a:1,e:"ELGD Section G."},
+{q:"A Category-A Part-66 licensed engineer can certify for work carried out.",o:["by him/herself only","by anyone within an approved organisation","by anyone, even if they are independent of an approved organisation"],a:0,e:"66.A.20(a) 1."},
+{q:"A part-66 licensed engineer must be able to speak.",o:["the language of the technical documentation and procedures for the maintenance of the aircraft for which they are certifying","English","the language of the European Member State which issued his/her licence"],a:0,e:"66.A.20(b) 3."},
+{q:"An aircraft type approval endorsement to a Part-66 licence is only provided after.",o:["adequate theoretical training","adequate theoretical and practical training","adequate practical training"],a:1,e:"66.A.45(d)."},
+{q:"EASA IR Part-66 applies to aircraft.",o:["below 5700 kg only","above and below 5700 kg","above 5700 kg only"],a:1,e:"AWN 46 Para.4.1."},
+{q:"An engineer's BCAR Section L licence for certification of aircraft above 5700 kg will, on 28 Sept 2006.",o:["automatically convert to EASA IR Part-66 without any action","remain usable but with restrictions if not converted to EASA IR Part-66","become invalidated if not converted to EASA IR Part-66"],a:2,e:"AWN 46 Para.1.4."},
+{q:"In order to obtain a type approval on an aircraft, an engineer must.",o:["must work on aircraft for 12 months within the last 24 months","have a manufacturers course within the last 3 years","work on the type for 12 months in the last 24 months"],a:2,e:"66.A.30(d)."},
+{q:"What experience is required for an A1 license.",o:["2 yrs or 1 yr if qualified in another profession","3 yrs or 2 yrs if qualified in another profession","5 yrs or 3 yrs if trained by 147 company"],a:1,e:"66.A.30."},
+{q:"The syllabus and requirements related to an aircraft maintenance engineers license for a light commercial air transport aircraft can be found in.",o:["BCAR Section L","JAR-66","IR Part-66"],a:2,e:"NIL."},
+{q:"The usual qualification route for a Category C licensed engineer is.",o:["3 years experience as a B1.1, B1.3 or B2 engineer","8 years experience as a B1.1, B1.3 or B2 engineer","5 years experience as a B1.1, B1.3 or B2 engineer"],a:0,e:"66.A.30 Para.3."},
+{q:"An EASA category A licensed mechanic can.",o:["certify minor line tasks which he has done himself and for which he has approval","certify minor line tasks which he or other line mechanics have done and for which he has approval","certify line maintenance checks"],a:0,e:"66.A.20 Para.(a)(1)."},
+{q:"The minimum experience for qualification of a B1 or B2 licensed engineer is.",o:["4 years reducing to 2 years if trained in a 147 approved organization","5 years reducing to 3 years if trained in a non-aviation trade","4 years reducing to 2 years if trained in a non-aviation trade"],a:0,e:"66.A.30 Para a 2."},
+{q:"Which of the following are the sub-sections of a Part-66 maintenance licence in category A?.",o:["Aeroplanes- Piston, helicopters Piston, Aeroplanes-Turbine and Helicopters Turbine","Aeroplanes- Piston and helicopters Piston","Aeroplanes- Turbine and helicopters Turbine"],a:0,e:"66.A.1.(b)."},
+{q:"A Part-66 A licensed engineer can.",o:["sign the CRS for minor line maintenance, within the limits of tasks specifically endorsed on the authorisation sign the CRS for minor line maintenance, within the limits of tasks specifically endorsed on the authorisation","sign the CRS for any line maintenance and defect repairs","sign the CRS for any minor line repairs as long as they have the aircraft type stamped in their license"],a:0,e:"66.A.20(a) 1."},
+{q:"An A licence is automatically granted with the issue of which of the following?.",o:["B1 or B2","B1","B2"],a:1,e:"66.A.20(a) 2."},
+{q:"IR Part-66 experience requirements may be reduced with.",o:["aircraft production experience","completion of training at a Part-147 approved school","completion of a university engineering degree"],a:1,e:"66.A.30."},
+{q:"A category C certifying staff authorisation permits the holder to issue a block CRS after.",o:["base maintenance","line maintenance and defect rectification","any line or base maintenance"],a:0,e:"66.A.20 Para.4."},
+{q:"When did/will the EASA IR Part-66 licence become sole code?.",o:["2011","2003","2006"],a:2,e:"AWN 7 App.4 Para.15."},
+{q:"An EASA IR B1.2 engineer can certify.",o:["aircraft- turbine engined","aircraft-both turbine and piston engined","aircraft- piston engined"],a:2,e:"66.A.1(b)."},
+{q:"An EASA IR B1.3 engineer can certify.",o:["helicopters- both turbine and piston engined","helicopters- piston engined","helicopters- turbine engined"],a:2,e:"66.A.1(b)."},
+{q:"How long is an EASA part-66 licence valid?.",o:["2 years once signed in ink","5 years once signed and verified that the information contained in the licence is the same as that contained in the competent authority records","5 years once signed in ink"],a:1,e:"66.A.40."}
+],
+"10.3. Part-145 Approved Organisations": [
+{q:"Who certifies maintenance of private category aircraft of mass 5700kg or less after 28 September 2006?.",o:["A type rated engineer independent of a Part145 organisation","A Part-66 licensed engineer","A certifying staff member of a Part-145 approved organisation"],a:2,e:"AWN 7 App.4 Para 13, 14 and 17.5."},
+{q:"A Part-145 organisation based outside the EU, the competent authority is.",o:["the CAA","the NAA of the country it is located in","the EASA"],a:2,e:"AWN 7 App. 1 Para 6 Note 1 and 145.1."},
+{q:"How many people sign a CRS after scheduled maintenance?.",o:["One","One in each category","Two"],a:0,e:"145.A.30(h)(iii) and 66.A.20(a) 4."},
+{q:"The independent audit part of a QA department of a large Part-145 company.",o:["must be part of the company","can be combined with the planning department","can be contracted out to another company"],a:0,e:"145.A.65(c) 1, and AMC 145.A.65(c)(1) 7 and AMC 145.A.65(c)(2) 7."},
+{q:"Maintenance documentation held by a Part-145 company is kept for.",o:["2 years after they were raised","5 years after they have expired","2 years after the aircraft has been returned to the operator"],a:2,e:"145.A.55."},
+{q:"A CRS must be issued.",o:["only if an aircraft part is replaced with a new part","if an aircraft part is removed then re-installed, even if it is the same part","only when an aircraft part is replaced with a modified part"],a:1,e:"AWN 3 Para.1.2(e) and 145.A.50(a) and Article 2 of EC 2042/2003(h) 'definitions'."},
+{q:"Who is a Part-145 approved organisation headed by?.",o:["The Technical Manager","The QA Manager","The Accountable Manager"],a:2,e:"145.A.30 and AMC 145.A.30(a)."},
+{q:"By what date must large aircraft but not used for commercial air transport, be maintained by a Part-145 company.",o:["28 September 2006","28 September 2008","currently there is no date specified, such maintenance will always covered under BCARs"],a:1,e:"AWN 7 App.1 Para 2 Note 2."},
+{q:"When the block CRS is finally issued for base maintenance at a Part-145 organisation, who is ultimately responsible for maintenance carried out during the check?.",o:["the Category B LAE","the Category C LAE","the Accountable Manager"],a:1,e:"145.A.30 para h(iii)."},
+{q:"A Part-145 approval is not required to carry out.",o:["daily checks(as long as 48 hours has not passed)","defect rectification","pre-flight checks"],a:2,e:"M.A.201 para(d) and 145.A.10 and 2042/2003 article 2(h)."},
+{q:"How long does a Part-145 approved organisation have to retain aircraft documents?.",o:["Two(2) years after the aircraft has been released from the organisation","At least four(4) years after the aircraft has been permanently withdrawn from service","Five(5) years after the aircraft has been permanently withdrawn from service"],a:2,e:"145.A.55."},
+{q:"An LAEs license remains valid.",o:["if he/she has received continuation training in the last two years","if he/she has worked on the aircraft type for at least 6 months within the last 2 years","if he/she has worked on the aircraft type for at least 4 months within the last 2 years"],a:2,e:"145.A.35(c)."},
+{q:"An approved Part-145 organisation is one which is.",o:["of a standard acceptable to the CAA and the FAA","of a standard acceptable to the EU","of a standard as defined in the ANO"],a:1,e:"NIL."},
+{q:"How long does an licensed engineer have to produce his/her authorisation certification if asked by the CAA or EASA?.",o:["immediately","7 days","24 hours"],a:2,e:"145.A.35(l)."},
+{q:"A Part-145 approved maintenance organisation is authorised to.",o:["approve major modifications","issue certificates for work completed in aircraft maintenance or overhaul","originate repair schemes and manufacture parts"],a:1,e:"145.A.70(e)."},
+{q:"Who can sign the CRS?.",o:["LAE","LAE who has the permission from the chief inspector","LAE who is authorised to do so"],a:2,e:"Part-145 AWN 3."},
+{q:"A situation is found which could hazard an aircraft, while it is undergoing maintenance by a Part-145 organisation. The situation must be reported within.",o:["48 hours","24 hours","72 hours"],a:2,e:"145.A.60."},
+{q:"If you are required to produce your License, this must be done.",o:["immediately","within 24 hours","within a reasonable time"],a:1,e:"145.A.35(l)."},
+{q:"How long does an approved organisation have to retain maintenance records?.",o:["Five years after aircraft leaves service or is scrapped","Two years after the organisation has released the aircraft","At least four years after the aircraft has been scrapped"],a:1,e:"145.A.55(c)."},
+{q:"How many people sign a CRS after scheduled maintenance?.",o:["Two, one for mechanical activities and one for the avionics","One in each category","One only"],a:2,e:"145.A.30(h)(iii)."},
+{q:"A Part-145 organisation finds a condition on an aircraft which could be hazardous, they must inform the CAA within.",o:["3 days","24 hours","7 days"],a:0,e:"145.A.60(e)."},
+{q:"In a Part-145 company, who is responsible for keeping technical information on certifying staff?.",o:["Tech Records","Quality Assurance","Personnel Department"],a:1,e:"AMC to 145.A.35(j) 2."},
+{q:"Who monitors how a company is adhering to Part-145?.",o:["Base Maintenance Manager","Accountable Manager","Quality Manager"],a:2,e:"145.A.65."},
+{q:"For which type of maintenance do you not need a Part-145 approval?.",o:["Hangar Base Maintenance","Preflight inspection","Weekly Check"],a:1,e:"145.A.30(j) 3."},
+{q:"CAA approval of a Part-145 organisation to undertake base maintenance of a particular aircraft type will be found in.",o:["the companys AOC data sheet","the company operations manual","the company limitation part of the approval schedule"],a:2,e:"Part 145 App III pg 72."},
+{q:"A maintenance company approved under EASA ECAR Part-145 is required for the maintenance of:.",o:["all UK civil registered aircraft operating for commercial air transport","all aircraft with a valid United Kingdom certificate of airworthiness","only those commercially operated, UK civil registered, aircraft over 5700 KG"],a:0,e:"AWN 7 App.1 para 2."},
+{q:"A Part-145 company is required to be headed by.",o:["a technical director","a licensed engineer","an accountable manager"],a:2,e:"145.A.30(a)."},
+{q:"Implementation procedures for IR Part-145 may be found in.",o:["Airworthiness Notice 14","BCAR section A","Air Navigation Regulations"],a:0,e:"AWN 14."},
+{q:"Unserviceable aircraft equipment should not be stored.",o:["in a goods-in store","on unserviceable shelves around the hangar","with serviceable spares"],a:2,e:"145.A.25(d)."},
+{q:"Under the Part-145 Approval System an A1 Rating relates to aircraft.",o:["on base maintenance only","of 5700 kg MTOM and below","exceeding 5700 kg MTOM"],a:2,e:"Part 145 App.II Table 1."},
+{q:"The Approval Reference Number for a typical Part-145 company would be.",o:["AI/1234/94","CAA 00023","UK.145.00505"],a:2,e:"See CAP 475 Directory of CAA Approved Organisations."},
+{q:"Line maintenance under Part-145 is defined as typically.",o:["C and D checks","preflight maintenance","A and B checks"],a:2,e:"AMC to 145.A.10."},
+{q:"Awards of the EASA Part-145 approval in the UK are made by the.",o:["ICAO","JAA","CAA"],a:2,e:"145.1 and see wording on the Approved Certificate on pg 71."},
+{q:"The responsibility for reporting incidents and occurrences during a flight rests with the.",o:["aircraft commander","engineer clearing the tech log","air stewards"],a:0,e:"ANO Art.145 5(a) and Directive 2003/42/EC Art 4."},
+{q:"The Authorised Release Certificate EASA Form 1 must be retained for.",o:["6 months","4 years","3 years after the aircraft has been destroyed or permanently withdrawn from service"],a:2,e:"Part-145 Appendix 1 Para 4."},
+{q:"Following the replacement and compensation of a direct reading compass certification is made in the form of a.",o:["certificate of compensation","certificate of conformity","CRS"],a:2,e:"JAR 145.5 BCAR A/B 6-7 ANO Art.16(11)(e)."},
+{q:"The minimum distribution of the Authorised Release Certificate EASA Form 1 is.",o:["1, to remain with the component to which it refers","2, one for the originator and one to remain with the component to which it refers","1, to be retained by the originator"],a:1,e:"Part-145 Appendix 1 Para 1."},
+{q:"The Authorised Release Certificate EASA Form 1 can.",o:["have several items entered onto it providing they are identical part numbers","have several items entered onto it of different part numbers","have only one item entered onto it"],a:1,e:"NIL."},
+{q:"Following satisfactory aircraft component replacement, adjustment, locking and functioning. Which of the following is issued?.",o:["Certificate of maintenance review","CRS","A maintenance statement"],a:1,e:"145.A.50(a)."},
+{q:"The authorised release certificate EASA form one is.",o:["issued from the tech log prior to the flight","an international parts release document issued by approved organisations","used to return or release unserviceable components from the aircraft"],a:1,e:"Part-145 Appendix 1."},
+{q:"An EASA form 1.",o:["may be in English or the language of the country to which the component to which it refers to, is being exported","must be printed in English regardless of the language of the country to which the component to which it refers to, is being exported","must be printed in the language of the country to which the component to which it refers to, is being exported"],a:1,e:"EASA Part 145 Appendix 1."},
+{q:"On completion of the overhaul of an aircraft component by an EASA Part-145 organization.",o:["the Worksheets with a certified CRS are retained by the overhaul organization and a JAA Form 1 is issued to the customer","the Worksheets with a certified CRS are placed in the aircraft file with the log books","the Worksheets are retained by the overhaul organization in their own files"],a:1,e:"145.A.50(d)."},
+{q:"The wording of a CRS issued by a Part-145 organisation can be found in.",o:["the ANO","EASA Part-145 Section A","The Acceptable Means of Compliance to EASA Part 145"],a:2,e:"AMC Part 145.A.50(b) 1."},
+{q:"Who issues a certification authorisation to a Part-66 licence holder?.",o:["The competent authority","The quality department of a Part-145 approved organisation","The base maintenance manager within an approved organisation"],a:1,e:"145.A.35(j)."},
+{q:"Independent audits of a department within a Part-145 approved organisation are to be carried out at least every.",o:["6 months","12 month","24 months"],a:1,e:"AMC to 145.A.65(c)(1) Para 5."},
+{q:"The EASA Form 1 is to be used when components are.",o:["both exported/imported and bought/sold domestically","exported or imported only","used bought and sold domestically only"],a:0,e:"AMC to 145.A.50(d)."},
+{q:"After a mandatory inspection has been carried out by a Licensed Engineer, what is issued?.",o:["Certificate of Release to Service","A Flight Release Certificate","A Certificate of Maintenance Review"],a:0,e:"145.A.50(a) and definition of 'Maintenance' in(EC) 2042/2003 Article 2."},
+{q:"When an item is removed from an aircraft, then subsequently refitted.",o:["no certificate of release to service is required if it is the same item","only one certificate of release to service is required to cover both the removal and the re-fitment","two certificates of release to service is required to cover the removal and the re-fitment respectively"],a:2,e:"AMC to 145.A.50(a) Para 1."},
+{q:"For the purposes of EASA Part-145, a 'Large aircraft' is.",o:["over 13610 kg MTOM","over 2730 kg MTOM","over 5700 kg MTOM"],a:2,e:"AWN 7 App.1 Para.2 Note 1."},
+{q:"An organisation holding an EASA Part-145 approval for light aircraft.",o:["must apply for and qualify for an equivalent BCAR(M3) approval seperately","automatically hold an equivalent BCAR(M3) approval also","are not permitted to hold the equivalent BCAR(M3) approval"],a:0,e:"BCAR A8-15 states that Organisations already holding JAR 145 approval must apply for approval under A8-15 M3 using the normal procedure."},
+{q:"If a temporary wiring repair has to be carried out on an aircraft which is away from its Maintenance Organization, how would this be certified?.",o:["No Certification need be made","Aircraft would be certified as Fit for Flight under 'A' conditions","By signing a Certificate of Release to Service"],a:2,e:"145.A.30(j) 5 One-off certification authorisation."},
+{q:"A company has approval reference of form EASA.145.00X? It is located.",o:["outside a European Member State","in the USA","within a European Member State"],a:0,e:"145.1."},
+{q:"On completion of the overhaul of an aircraft component by an overhaul organization.",o:["the worksheets with a certified CRS are retained by the overhaul organization and an EASA form 1 is issued to the customer","the worksheets with a certified CRS are placed in the aircraft file with the log books","the worksheets are retained by the overhaul organization in their own files"],a:0,e:"145.A.50(d)."},
+{q:"A Part-145 approved organisation may subcontract specialist work to.",o:["any non-approved company","any BCAR approved company","any BCAR approved company that is listed in their Maintenance Organisation Exposition"],a:2,e:"AWN 14 Appendix 3 Para.3.1(b)."},
+{q:"Signatories to the CRS will be found in.",o:["Airworthiness Notice No.3","the organization exposition","BCAR Section A-8/13, A-8/15, A-8/3"],a:1,e:"145.A.70 Para.3."},
+{q:"EASA IR Part-145.",o:["lists the minimum requirements acceptable to the CAA","applies to all European Aircraft","replaces the relevant chapters of BCAR Section A"],a:2,e:"Part-145 replaces parts of BCAR A8."},
+{q:"Aircraft and aircraft component records must be retained by a Part-145 approved organization for a period of.",o:["three years after the aircraft component is permanently removed from service or destroyed","two years after the aircraft or aircraft component has been released from the Part-145 approved maintenance organization","5 years after the aircraft or aircraft component has been destroyed or permanently removed from service"],a:1,e:"145.A.55(c)."},
+{q:"The staffing requirements for an organization approved to undertake maintenance on commercial transport aircraft are to be found in.",o:["EASA IR Part-145.30","JAR E.25D","EASA IR Part-25.13"],a:0,e:"145.A.30."},
+{q:"EASA IR Part-145 approved organizations are approved to maintain.",o:["all UK registered aircraft used for commercial transport purposes","all UK registered aircraft used for commercial transport purposes and aircraft exceeding 5700 kg MTWA in any C of A category","all UK registered aircraft above 5700 kg MTWA"],a:1,e:"Regulation(EC) No 2042/2003 Article 4, and AWN 7 App. 1 Para 2."},
+{q:"The extent of an organisation's Part-145 approval is stated.",o:["on the approval certificate","in the CAA's list of approved organisations","in the organisation's exposition"],a:0,e:"Part-145 Appendix II."},
+{q:"On a Certificate of Release for Service an adjustment to a control would come under the heading.",o:["replacement","repair","overhaul"],a:1,e:"AWN3/ Part-145 definitions."},
+{q:"To comply with IR Part-145.",o:["the Acceptable Means of Compliance can be used","any additional national directives must be used","JAA Joint Circulars should be used"],a:0,e:"NIL."},
+{q:"The list of typical tasks which cat-A line maintenance mechanic may perform is contained in.",o:["Part 145","Part 147","Part 66"],a:0,e:"AMC to 145.A.30(g)."},
+{q:"An aircraft component which comes with an EASA form 1.",o:["will not need a CRS when fitted as a form 1 is also a CRS","will also require a form 8130-3 if fitted to a British aircraft","will require a CRS to be issued when fitted to certify correct installation as the form 1 CRS applies only to the conformity of the component"],a:2,e:"AMC to 145.A.50."},
+{q:"An organisation seeking approval to carry out maintenance on an aeroplane of 6000kg MTWA carrying cargo only, would apply for approval under.",o:["CS 25","IR Part-145","BCAR section A or B depending on country of origin of aeroplane"],a:1,e:"AWN 7 App.1 Para.2."},
+{q:"Category C licensed engineers are backed up by.",o:["engineers holding existing BCAR section-L licence in the appropriate category","hangar based cat B1 and B2 licensed maintenance technicians and mechanics with appropriate type ratings","cat B1 and B2 technicians with type rating"],a:1,e:"145.A.30(g)."},
+{q:"Since EASA IR Part-145 came into effect.",o:["it lists the minimum requirements acceptable to the CAA","it has replaced the relevant chapters of BCAR","it currently applies only to transport passenger aircraft"],a:1,e:"EASA IR Part-145 is the requirements acceptable to the whole EASA(which rules out b.). It has replaced some of BCAR A8."},
+{q:"Part-66 certifying staff must be.",o:["not less than 21 years of age","There is no Age limitation","not less than 18 years of age"],a:0,e:"145.A.35(m)."},
+{q:"A Part-145 organisation's accountable manager is responsible for.",o:["ensuring that all line maintenance procedures are carried out","ensuring that all necessary resources are available to accomplish maintenance in accordance with Part 145.A.65(a)","ensuring that all base maintenance procedures are carried out"],a:1,e:"145.A.30(b)."},
+{q:"The list of EASA Part-145 approved maintenance organisations is found in.",o:["the CAA list of approved organisations","the maintenance schedule","the company's exposition"],a:0,e:"CAP475 Directory of CAA Approved Organisations."},
+{q:"After a modification on an aircraft system, a certificate of release to service is issued. To do this you require.",o:["Part-21 Subpart H approval","ICAO approval","Part-145 approval"],a:2,e:"Part 145."},
+{q:"What aircraft can an EASA part-145 company maintain?.",o:["Commercial Air Transport aircraft only","All aircraft over 5700 kg MTOM","All aircraft on its schedule of approval"],a:2,e:"See Part-145 Appendix II."},
+{q:"How long have you got, to produce a Part-66 licence when asked to do so?.",o:["Within 7 days","Within 5 days","Within 24 hours"],a:2,e:"145.A.35(l)."},
+{q:"An aircraft has an unapproved repair.",o:["Issue a CRS to approve it","Issue a Fitness for Flight cert","It cannot be certified until the repair is approved"],a:2,e:"See the wording on a CRS in AMC to Part-145."},
+{q:"The requirement for having a Quality Department to a maintenance organisation are set out in.",o:["IR Part 21","IR Part M","IR Part-145"],a:2,e:"NIL."}
+],
+"10.4. JAR-OPS Commercial Air Transport": [
+{q:"The responsibility for regularly weighing aircraft rests with the.",o:["operator","Part-145 maintenance organisation","CAA"],a:0,e:"JAR-OPS Subpart J."},
+{q:"Documents to be carried include.",o:["Certificate of Registration, Airworthiness, Insurance and Radio License","C of A, Permit to Fly, radio License, Crew Licenses, and C of R","Crew licenses, radio licence and aircraft dealers certificate"],a:0,e:"JAR OPS Subpart B 1.125."},
+{q:"The requirement for re-weighing an aircraft under JAR-OPS is.",o:["at manufacturer, then two years and five yearly thereafter","at manufacturer and then four yearly intervals","at manufacturer and then five yearly intervals"],a:1,e:"JAR OPS Subpart J."},
+{q:"Aircraft types which an operator can fly are listed in the.",o:["Aircraft Flight Manual","Air Operators Certificate","Company Maintenance Schedule"],a:1,e:"Appendix 1 to JAR-OPS 1.175."},
+{q:"Where can information on the aircraft documents to be carried be found?.",o:["ECAR Part-145","JAR-OPS subpart B","ANO schedule 3"],a:1,e:"JAR OPS Subpart B."},
+{q:"An aircraft registered in the UK and operating in the transport category will normally be operated.",o:["by the holder of an AOC","Under B conditions","by the owners"],a:0,e:"JAR OPS."},
+{q:"In which book would you expect to find all the following: a CMR, a maintenance statement, a sector record and a deferred defect?.",o:["Technical log book","Flight manual","Aircraft Log book"],a:0,e:"JAR-OPS Subpart M Para.1.915."},
+{q:"Amendments to JAR OPS are by way of.",o:["orange pages","grey pages","blue pages"],a:0,e:"All JARs are amended on orange papers."},
+{q:"Deferred defects are recorded in.",o:["the Deferred defect manual","the Technical Log","the Technical Manual"],a:1,e:"JAR-OPS 1.915 ANO Art.15."},
+{q:"Which of the following documents must be carried on an aircraft?.",o:["Certificate of Registration","Air operators Certificate","Engine Log Book"],a:0,e:"ANO Sched.10 and JAR-OPS Subpart B."},
+{q:"Large Aircraft Maintenance Schedules are produced by.",o:["manufacturer with CAA approval","operator","CAA Safety Regulation Group"],a:1,e:"JAR-OPS Subpart M 1.910, M.A.708(b) 2."},
+{q:"Aircraft over 5700kg MTOM are weighed.",o:["at the renewal of the Certificate of Airworthiness","prior to entry into service and then every 4 years","annually"],a:1,e:"JAR OPS 1.605."},
+{q:"JAR OPS subpart J covers.",o:["maintenance","instruments and equipment","mass and balance"],a:2,e:"See JAR OPS."},
+{q:"JAR OPS 3 applies to.",o:["commercial transport","aeroplanes","helicopters"],a:2,e:"JAR OPS 1 is Aeroplanes, JAR OPS 3 is helicopters."},
+{q:"Which of the following form part of the aircraft Technical Log?.",o:["Future maintenance program for the pilots information","Pilots name and number","CRS and weight and balance information"],a:0,e:"JAR OPS subpart M Para.1.915(a)(3)."},
+{q:"Which of the following documents are to be carried on an aircraft?.",o:["Tech log, full Operations Manual and Flight Manual","Tech Log and parts of the Operations Manual","Full Operations Manual and Flight Manual"],a:1,e:"JAR OPS Subpart B Para.1.130 and 1.135."},
+{q:"Who approves the aircraft Technical Log?.",o:["The Part-145 organisation maintaining the aircraft","The operator","The National aviation authority"],a:2,e:"JAR OPS Subpart M Para.1.915(b)."},
+{q:"The documents to be carried on an aircraft are stated in the.",o:["flight manual","JAR OPS","appropriate ANO article"],a:1,e:"Listing of Docs. to be carried are in Schedule 10 of ANO(for non-CAT aircraft), not the article. JAR OPS Subpart B Para.1.125 lists them for CAT aircraft."},
+{q:"What is the minimum legal decision height for Cat I auto landing?.",o:["100 to 200 ft","200 to 300 ft","400 to 500 ft"],a:1,e:"JAR Ops Subpart E Table 5."}
+],
+"10.5a. Aircraft Certification General": [
+{q:"A type certificate is.",o:["issued after a Certificate of Registration","issued before a Certificate of Airworthiness","issued after a Certificate of Airworthiness"],a:1,e:"BCAR A/B2-2 Para.2.1."},
+{q:"A Type Certificate is a.",o:["requirement prior to the issue of a C of A for aircraft in the Transport Category","requirement for aircraft above 2730Kg MTWA","prerequisite to the issue of a C of A"],a:2,e:"BCAR A/BA2-2."},
+{q:"A design organisation is approved in accordance with.",o:["IR Part-21","IR Part-145","BCARs"],a:0,e:"IR part-21."},
+{q:"The standard to which the B747-400 was certified to was.",o:["BCAR section D","JAR-25","JAR-21"],a:1,e:"Do a Google search for the Boeing 747-400 type certificate."},
+{q:"A Type Certificate is issued to.",o:["an aircraft type and its variants","all aircraft of a type(e.g. A340)","each aircraft of a type"],a:1,e:"BCAR A/B2-2."},
+{q:"A Certificate of design is raised.",o:["by the CAA","by the manufacturer","by the operator"],a:1,e:"The certificate of design certifies that the aircraft design conforms to BCARs or EASAs as appropriate and is signed by the chief designer."},
+{q:"Certificates of design certify.",o:["that a major mod has been designed adequately","that a company has design approval","that the aircraft meets current stated design requirements BCARs/EASA as specified"],a:2,e:"The certificate of design certifies that the aircraft design conforms to BCARs or EASAs as appropriate and is signed by the chief designer."},
+{q:"An aircraft manufacturer approved to EASA Part-21, may maintain aircraft and issue certificates of release to service.",o:["for any aircraft providing it is on its schedule of approval","only if it holds a Part-M or Part-145 approval also","only for the aircraft that it has produced"],a:2,e:"21.A.163(d)."},
+{q:"A prototype engine is defined as.",o:["a foreign built engine which has been issued with type certificates by both the airworthiness authority of the country of origin and the British CAA","a type of engine which has not been evaluated by the CAA before for the purpose of the issue of a British type certificate","a new engine but similar to one previously investigated by the CAA for the issue of a British type certificate"],a:1,e:"BCAR A/B4-2."},
+{q:"A type certificate issued to an aircraft by the CAA.",o:["shows approval of the design by the CAA only","shows approval of the design by the CAA and would be approved under EASA","shows approval of the design by the CAA but will not necessarily be approved under EASA"],a:2,e:"Aircraft could be certified(in UK) to BCAR Section D, which would not confer automatic type certification by EASA. However, all new aircraft will be certified to Part-21 CS 25, which would confer automatic type certification across EASA states."},
+{q:"An EASA Part-145 organisation may classify repairs as major or minor if approved in accordance with.",o:["EASA Part-145","EASA Part-21 subpart J","JAR OPS subpart M"],a:1,e:"21.A.263(c)."},
+{q:"A type certificate is issued to.",o:["aircraft identical in all major areas to a previous approved aircraft","aircraft similar to a previous aircraft but with design differences","a prototype aircraft"],a:2,e:"Section A/B 2-2 and 2-3."}
+],
+"10.5b. Aircraft Certification Documents": [
+{q:"What BCAR covers Noise Certification requirements?.",o:["Section D now replaced by EASA CS-25","Section A and B","Section N"],a:2,e:"Air Navigation(Noise Certification) Order 1990."},
+{q:"Which of the following does not require a Noise Certificate?.",o:["A helicopter under 5700 kg","A small business jet aircraft","A fixed wing aircraft under 2730 kg"],a:1,e:"Air Navigation(Noise Certification) Order 1990."},
+{q:"To what stage of flight is a Noise Certificate applicable?.",o:["Take-off and landing","All stages of flight","Take-off only"],a:0,e:"Air Navigation(Noise Certification) Order 1990."},
+{q:"When does an aircraft not require a Noise Certificate?.",o:["When flying with a Permit to Fly","When flying under A and B conditions","When flying in UK airspace only, and not crossing any international borders"],a:1,e:"Air Navigation(Noise Certification) Order 1990."},
+{q:"What could invalidate a Noise Certificate?.",o:["A modification","An unauthorised or unapproved repair is carried out","Once issued, nothing can invalidate it"],a:0,e:"Air Navigation(Noise Certification) Order 1990."},
+{q:"When is a Noise Certificate required to be carried aboard the aircraft?.",o:["At all times","When flying in UK airspace only","When flying in UK or any EU member state airspace"],a:2,e:"Air Navigation(Noise Certification) Order 1990."},
+{q:"On completion of a major modification to an EASA aircraft, for the purposes of a flight test.",o:["issue a Certificate of Fitness to Fly since the C of A has been invalidated","the C of A is valid providing it is still within the date shown on it","issue a Permit to Fly"],a:1,e:"AWN-9 issue4, para. 2.3."},
+{q:"The Flight Manual is part of the.",o:["JAA Form 1","Certificate of Airworthiness","Certificate of Registration"],a:1,e:"BCAR A/B7-2 Para.1."},
+{q:"What Certificate must an Operator have who flies for public transport and cargo carrying?.",o:["Air Navigation Certificate","Air Transport Licence","Air Operators Certificate"],a:2,e:"ANO Art.6."},
+{q:"The validity of a C of A extends for.",o:["six months","as stated on the certificate","the life of the aircraft or a change of ownership"],a:1,e:"ANO Art 8,9& 10."},
+{q:"A certificate of airworthiness is a requirement of.",o:["IR Part-21","JAR OPS","IR Part-M"],a:0,e:"EASA Part-21 Subpart H."},
+{q:"What is the period of validity for a Certificate of Registration?.",o:["Until a change of ownership or maintenance arrangements","Until a change of ownership","The same as for the aircrafts C of A"],a:1,e:"NIL."},
+{q:"A series EASA aircraft flying for the approval of a major modification flies under.",o:["A conditions","a permit to fly","B conditions"],a:1,e:"AWN 9."},
+{q:"When preparing a weight and C of G schedule, the variable load can be calculated from the.",o:["weight of the pilots and any special equipment that they carry","weight of APS and payload","Nothing"],a:0,e:"BCAR A/B6-4 Para 2.3."},
+{q:"A non-expiring EASA C of A will be issued by the CAA after.",o:["28 September 2005","28 September 2008","28 September 2007"],a:2,e:"AWN 7 Appendix 3 Para 4.4."},
+{q:"When a flight test is necessary and the C of A has expired.",o:["the flight can only be authorised by a CAA surveyor","a certificate for fitness of flight shall be issued","the pilot can authorise the flight in the tech log book"],a:1,e:"BCAR A/B3-8 ANO Sched.3 Part A 2(a)(i)."},
+{q:"A Certificate of Approval of Aircraft Radio Installation is awarded.",o:["before the aircraft obtains a C of A","after the aircraft obtains a C of A","regardless of the aircraft's C of A status"],a:2,e:"BCAR A/B3-11 Para 2.1."},
+{q:"A certificate of fitness for flight.",o:["clears an aircraft for a scheduled flight","permits the aircraft to fly under A condition","permits the aircraft to fly under B conditions"],a:1,e:"BCAR A/B3-8."},
+{q:"A Certificate of Clearance can be issued by organisations with BCAR approval.",o:["A8-13","A8-9","Primary Companies"],a:1,e:"BCAR A/B3-9."},
+{q:"A flight manual.",o:["must be carried on all public transport aircraft","forms part of the C of A","is sometimes called the operations manual"],a:1,e:"BCAR A/B7-2."},
+{q:"A radio station license becomes invalid.",o:["whenever a radio Flight test is required","upon change of ownership of aircraft","when the cofa is due for renewal"],a:1,e:"BCAR A/B3-11 para 5.1."},
+{q:"A certificate of approval of Aircraft Radio Installation is issued to.",o:["an aircraft","an air operator","a company approved for such installations"],a:0,e:"ANO Art.15, Sched. 5 and BCAR A/B3-11."},
+{q:"A C of A for export is.",o:["to allow an aircraft to be flown away on export","A statutory document","necessary for each exported aircraft"],a:2,e:"BCAR A/B3-6 Para 1."},
+{q:"The purpose for which an aircraft may be flown on a special category C of A is.",o:["applicable to ex military aircraft only","stated on the certificate","for private use only"],a:1,e:"BCAR A/B1-2 Para 2.2(e)."},
+{q:"The period of validity of a Permit Flight Release Certificate is.",o:["stated on the permit to fly","until the end of the days flying","stated in the maintenance schedule"],a:0,e:"Appendix 3 to BCAR A3-7."},
+{q:"A permit to fly is valid.",o:["for 12 months","until the date stated on it","only for evaluating a modification"],a:1,e:"BCAR A3-7 para 9."},
+{q:"C of As for EASA aircraft are.",o:["necessary for all aircraft","required by IR Part 145","required by ANO"],a:2,e:"IR Part 21 Article 1 and Subpart H."},
+{q:"The period of validity of an EASA C of A is.",o:["as stated on certificate","36 months","indefinite"],a:2,e:"21A.181(a)."},
+{q:"An aircraft with a Standard category C of A may be used for.",o:["any purpose","carrying passenger and/or freight only","carrying passengers only"],a:0,e:"ANO Schedule 3 Part B."},
+{q:"A C of R is renewable.",o:["when aircraft is sold abroad","every year","when ownership changes in U.K. only"],a:0,e:"ANO Art 3 and 4."},
+{q:"A C.of R.",o:["is issued by Ministry of Trade and Industry","may not be issued if aircraft could be more suitable registered elsewhere","is valid only in country of origin"],a:1,e:"ANO Art.3."},
+{q:"When an aircraft is sold, the Certificate of Airworthiness.",o:["must be reapplied for only if it is sold to an owner within another member state","must always be reapplied for","does not need to be reapplied for regardless of where it is sold"],a:2,e:"21A.179(a)."},
+{q:"A Noise certificate is valid for.",o:["unlimited duration","until a change in ownership of the aircraft to an owner located in another member state","until a change in ownership of the aircraft"],a:1,e:"21A.211."},
+{q:"Categories with respect to the C of A are.",o:["Transport, Aerial Work, Passenger and Special","Standard and Special","Transport(Passenger) and Passenger(Cargo)"],a:1,e:"ANO Sched. 3 Part B."},
+{q:"When is a Certificate of Fitness for Flight under A conditions required?.",o:["To allow an unregistered aircraft to fly for air test","After a Certificate of Maintenance Review has been signed","To allow an aircraft to fly on air test to check out a modification"],a:2,e:"ANO Art.8 Para 2.(d) Sched.2."},
+{q:"An aircraft Radio License has to be renewed.",o:["every three years","every five years","only on change of aircraft ownership"],a:2,e:"BCAR A/B3-11 Para.5.1."},
+{q:"An aircraft is awaiting spares. What effect has this on the Certificate of Maintenance Review?.",o:["Deduct time","Remains unchanged","Add time"],a:1,e:"BCAR A/B6-2 Para.5.2(c)."},
+{q:"An aircraft with a transport category C of A cannot be flown for hire and reward except.",o:["under the terms of an air operators certificate","under the terms of an aerial work certificate","under the terms of an aircraft dealers certificate"],a:0,e:"ANO Art.6."},
+{q:"If an EASA aircraft is required to be flown without a C of A, for the issue of a C of A.",o:["an EASA Permit to Fly is applied for","it can be flown with special permission from the competent authority","it can be flown under A Conditions"],a:0,e:"AWN 9, Para 2.2."},
+{q:"A British aircraft manufacturer must apply for a Certificate of Airworthiness.",o:["to the Department of Trade and Industry","to the I.C.A.O","to the C.A.A"],a:2,e:"ANO Art.9."},
+{q:"A Noise Certificate is a requirement of.",o:["IR Part-21","JAR OPS","IR Part-M"],a:0,e:"EASA Part-21 Subpart I."},
+{q:"Variable load is weight of.",o:["fuel, oil and non-expendable equipment relevant to role","crew, their baggage and equipment relevant to role","basic weight plus operating weight"],a:1,e:"BCAR A/B6-4 Para.2.3."},
+{q:"A Flight Manual is.",o:["part of the Certificate of Registration","part of the Certificate of Airworthiness","for information of the crew only"],a:1,e:"BCAR A/B7-2 Para.1.1."},
+{q:"What is the period of validity of a C of A for an aircraft in the Special Category below 2730 kg?.",o:["On-going, provide the aircraft is maintained to an Approved Maintenance Schedule","1 Year","3 Years"],a:1,e:"A Special Category certificate is not normally issued for more than 12 months."},
+{q:"A new imported series aircraft requires flight testing prior to the issue of its first UK C of A. this flight test should be carried out under.",o:["A Conditions of the A.N.O","an EASA Permit to Fly","B Conditions of Schedule 2 of the A.N.O"],a:1,e:"AWN 9."},
+{q:"Which of the following would an EASA Permit to Fly NOT be used for?.",o:["To proceed to a place where the aircraft will be painted","To fly passengers or cargo domestically","To check a modification"],a:1,e:"Art. 12 and Art. 11 Para.2."},
+{q:"Part A of the Weight Schedule refers to.",o:["the aircraft prepared for service weight","the variable load","the basic weight"],a:2,e:"BCAR A/B7-10 Para.2.7."},
+{q:"How many copies of the Certificate of Registration are required?.",o:["two copies, one for the flight manual, one for the filing system","two copies, one for the owner, one for the aircraft","one copy for the owner/operator"],a:2,e:"ANO Art.4."},
+{q:"Details of aircraft weight and C of G may be obtained from information given in.",o:["CAA Publication CAP 562. Section 1-8","CAA Publications CAAIP Leaflet 1-4","Schedule 4 of the ANO"],a:1,e:"CAAIPs Leaflet 1-4."},
+{q:"When preparing a weight and C of G schedule, the variable load can be calculated from the.",o:["weight of the passengers plus fuel and cargo","weight of the pilots and any special equipment that they require","weight of the APS and payload"],a:1,e:"BCAR A/B5-4 Para.2.3."},
+{q:"When a major defect occurs during an aircraft's Certificate of Airworthiness period of validity.",o:["the C of A immediately becomes invalid","the C of A is suspended until the defect is rectified","the C of A is not affected"],a:0,e:"NIL."},
+{q:"Before an aircraft, issued with a Permit to Fly is flown, the aircraft and its equipment must be certified as fit for flight by the certification of.",o:["a Fitness for Flight Certificate","a Certificate of Release to Service","a Permit Flight Release Certificate"],a:2,e:"BCAR A/B3-7 Para.7."},
+{q:"The aircraft weight schedule must be preserved by the operator.",o:["for a maximum period of nine months","for a period of six months following the next occasion on which the aircraft is weighed","for a minimum period of three months"],a:1,e:"ANO Article 23 Para.(3)."},
+{q:"Mandatory equipment required to be fitted on an aircraft would be found in.",o:["BCAR Section C","BCAR Section K or EASA Part-21 CS 25","BCAR Section E"],a:1,e:"BCAR K is Light Aeroplanes. Part-21 CS 25 is Large Aeroplanes."}
+],
+"10.6. Aircraft Weight and Balance": [
+{q:"Fore and aft limits of the CG.",o:["are determined by the pilot when calculating the loading data","are specified by the manufacturer"],a:1,e:"Leaflet 1-4 3.3.2."},
+{q:"What angle of turn will double the weight of the aircraft?.",o:["30°","60°","45°"],a:1,e:"NIL."},
+{q:"The basic equipment of an aircraft is.",o:["that equipment which is required for every role of the aircraft for which the aircraft is operated plus unusable fuel","all equipment including fuel and oil necessary for a particular flight","the crew equipment, and other equipment including fuel and oil necessary for a particular flight"],a:0,e:"Leaflet 1-4 1.2 a."},
+{q:"Aircraft measurements aft of the datum are.",o:["either positive or negative","positive","negative"],a:1,e:"Leaflet 1-4 3.2.1."},
+{q:"A Weight and Centre of Gravity Schedule is required by.",o:["all aircraft above 2730 kg MTWA","all aircraft not exceeding 2730 kg MTWA","all aircraft regardless of weight"],a:0,e:"Leaflet 1-4 2.9.1(a)."},
+{q:"Aircraft below 5700kg not used for commercial air transport purposes are required to be reweighed.",o:["every 2 years","every 5 years","as required by the CAA"],a:2,e:"CAIPs BL/6-3 6.4."},
+{q:"Variable load is weight of.",o:["crew, their baggage and equipment relevant to role","fuel, oil and non-expendable equipment relevant to role","basic weight plus operating weight"],a:0,e:"BL/ 1-11 Para 1-2(c)."},
+{q:"The term 'reaction' used in weighing an aircraft refers to.",o:["the sum of the loads on the main landing gear only","the individual loads on each landing gear","the sum of the loads on all of the landing gear"],a:1,e:"Leaflet 1-4 1.2(f)."},
+{q:"Aircraft must be reweighed.",o:["after two years from manufacture only","after two years from manufacture then at periods not exceeding five years","at periods not exceeding five years"],a:1,e:"Leaflet 1-4 2.2."},
+{q:"For purposes of calculating weight and C of G position, an adult male(with baggage) is considered to have a mass of.",o:["85 kg","65 kg","75 kg"],a:0,e:"JAR OPS(with baggage) and AN(G)R Para 4 refers to Flight Crew mass of 85 kg.(Cabin crew 75 kG)."},
+{q:"Points forward of the datum point are.",o:["negative","neutral","positive"],a:0,e:"Leaflet 1-4 3.2.1."},
+{q:"Where would you find documented, the fore and aft limits of the C of G position?.",o:["In the aircraft Maintenance Manual","In the Flight Manual(or the documentation associated with the C of A)","In the technical log"],a:1,e:"Leaflet 1-4 2.9.4 and 3.3.2."},
+{q:"Previous weighing records are.",o:["retained for 2 yrs only","are kept with aircraft records","destroyed after 5 yrs"],a:1,e:"Leaflet 1-4 2.7."},
+{q:"A Load Sheet is compiled in the order of.",o:["Variable Load, Fuel Load, Disposable Load, Basic Weight","Basic Weight, Variable Load, Disposable Load, Fuel Load","Basic Weight, Variable Load, Fuel Load, Disposable Load"],a:2,e:"Leaflet 1-4 Page 24."},
+{q:"A Weight and Centre of Gravity Schedule must be signed by.",o:["the CAA","the pilot","a Licensed aircraft engineer"],a:2,e:"Leaflet 1-4 2.9."},
+{q:"An aircraft which has its C of G forward of the Forward Limit.",o:["the take-off run will not be affected","will have a longer take-off run","will have a shorter take-off run"],a:1,e:"Leaflet 1-4 3.3.1."},
+{q:"The basic weight of an aircraft is.",o:["the pilot, flight crew and their luggage","the passengers, baggage and fuel","the aircraft, minimum equipment, unusable fuel and oil"],a:2,e:"CAIPs BL/ 1-11 Para 1-2(b)."},
+{q:"When an aircraft has been reweighed under JAR OPS, what should be done to the old Weight and Balance Report?.",o:["Kept in the aircraft logbook","Destroyed after 3 months","Kept in the weight and balance schedule"],a:1,e:"JAR OPS Subpart P."},
+{q:"If the C of G of an aircraft with a full complement of fuel is calculated. Then.",o:["the C of G will always be within limits if it was within limits with full fuel tanks","the C of G must be recalculated with zero fuel to ensure it will still be within limits","the C of G will only need to be recalculated if the fuel weight is behind the aircraft C of G position"],a:1,e:"NIL."},
+{q:"Cargo placed aft of the datum will produce a.",o:["neutral moment","negative moment","positive moment"],a:2,e:"Leaflet 1-4 5.4.4(a)."},
+{q:"A Load Sheet.",o:["need not be carried on the aircraft if one remains at base","is always carried on the aircraft","is never carried on the aircraft"],a:1,e:"NIL."},
+{q:"The Datum point on an aircraft, for measuring C of G position could be.",o:["the front bulkhead","anywhere on the aircraft","the nose of the aircraft"],a:1,e:"AC 43 Page 10-1 para F, and A&P general textbook 6-4 Pg 250 'Datum'."},
+{q:"Increasing the weight of an aircraft.",o:["increases the glide range","has no affect on the glide range","decreases the glide range"],a:1,e:"Mechanics of Flight Kermode Page 194."},
+{q:"A Load Sheet must be signed by.",o:["a licensed aircraft engineer","the Commander of the aircraft","the Loading Officer"],a:1,e:"NIL."},
+{q:"What is meant by empty weight?.",o:["Basic weight only","Basic weight minus unusable fuel plus oil","Basic weight plus unusable fuel plus oil"],a:2,e:"Jeppesen A&P General Textbook 6-2."},
+{q:"A Weight and Centre of Gravity Schedule is to be raised.",o:["in triplicate, for the CAA, the operator and the maintenance organisation","in duplicate, for the CAA and the operator","once only, for the CAA"],a:1,e:"Leaflet 1-4 2.9.4."},
+{q:"Where would you find the information on the conditions for weighing the aircraft?.",o:["Maintenance Manual","Technical Log","Flight Manual in conjunction with the documents associated with the CofA"],a:0,e:"The information is in both Flight Manual and AMM. However the Flight Manual is for the loaded aircraft, and the AMM is for the Basic Aircraft, the latter being most relevant to the aircraft engineer."},
+{q:"In aeronautical weighing terms.",o:["all arms for forward of the reference datum are positive(+) and all arms aft of the reference datum are negative(-)","all reference datum are as per company procedures","all arms for forward of the reference datum are negative(-) and all arms aft of the reference datum are positive(+)"],a:2,e:"NIL."},
+{q:"Details on recording of weight and C of G position can be found in.",o:["BCAR section A","Air Navigation Order","Airworthiness Notices"],a:0,e:"Leaflet 1-4 2.1."},
+{q:"If a new Weight and Centre of Gravity Schedule is issued, the old one must be retained for.",o:["one year","two years","six months"],a:2,e:"JAR OPS 1.920."}
+],
+"10.7a. Applicable National and International Requirements": [
+{q:"A register of airlines operating on an AOC is maintained by the.",o:["ICAO","CAA","FAA"],a:1,e:"Nil."},
+{q:"What category of aircraft are 'break-in' markings required?.",o:["All public transport aircraft above 2300Kg","All public transport aircraft above 5700Kg","All aircraft registered in the UK"],a:2,e:"Nil."},
+{q:"A Part-145 approval covers.",o:["base maintenance","the major part of the organisation","only line maintenance"],a:0,e:"The part-145 organisation covers ALL of the organisation, and not only line maintenance."},
+{q:"For UK registered aircraft, components must be.",o:["maintained by a part-145 approved organisation","any appropriately approved organisation","maintained by a part-145 approved organisation registered in the UK"],a:1,e:"The question is not specific about the 'type' of aircraft(light or heavy)."},
+{q:"Aircraft manufactured abroad, but registered in the UK.",o:["can fly with an export C of A","must have a C of A issued in the UK before it can fly","can fly with a foreign C of A"],a:2,e:"It can fly with a foreign C of A providing it is issued a CAA validation certificate."},
+{q:"To facilitate a repair, a drawing can be taken from.",o:["the CAA","the manufacturer","a part-145 organisation"],a:1,e:"The drawing must come from an organisation with Design Approval. Only the manufacturer automatically has that."},
+{q:"Documents to be carried on a specific aircraft for a specific purpose is given in.",o:["BCAR Section A and B","JAR-OPS","AOC"],a:1,e:"Nil."},
+{q:"Safe operation of the aircraft is the responsibility of the.",o:["part-M organisation","owner","operator"],a:2,e:"That's the purpose of the Air Operator's Certificate(AOC)."},
+{q:"The period of validity of a Certificate of Fitness for Flight under 'A' Conditions is.",o:["7 days","1 flight","2 days"],a:0,e:"BCAR Section A/B3-8."},
+{q:"The details of design of a particular aircraft can be found where?.",o:["The Maintenance Manual","The Declaration of Design and Performance","EASA Certification Specification 25"],a:1,e:"Nil."},
+{q:"The validity of an EASA permit to fly is.",o:["12 months","7 days","as stated on the certificate but not exceeding 14 days"],a:2,e:"AWN 9 Para.5."},
+{q:"Following a major defect the C of A.",o:["is not affected, however may run out on a time basis","will be invalidated and needs renewing","Nothing will happen"],a:0,e:"NIL."},
+{q:"When storing parts you should use.",o:["monitor the temperature","silica gel","place in a sealed container"],a:1,e:"CAAIPs Leaflet 1-8 2.2.3."},
+{q:"ATA specification 100 is.",o:["the procedures which must be complied with before an aircraft can be given a Certificate of Airworthiness in the Transport Category(Passenger)","the International standardization of maintenance manuals, illustrated parts catalogues, overhaul and repair manuals, service bulletins and letters","the American FAA specification controlling the manufacture of aluminium and its alloys"],a:1,e:"Jeppesen A&P General Textbook 14-12."},
+{q:"An aircraft should carry at least the following number of spare fuses:",o:["10","3","3 or 10%, whichever is greater"],a:2,e:"ANO Schedule 4."},
+{q:"Maintenance Schedules are issued.",o:["in a folder with the operators name on the cover","with an approval certificate by the CAA","by the operator with CAA approval"],a:2,e:"BCAR A/B 6-2 Para. 3.4."},
+{q:"After a mandatory inspection has been carried out by a Licensed Engineer, what is issued.",o:["a Certificate of Maintenance Review","Certificate of Release to Service","a Flight Release Certificate"],a:1,e:"NIL."},
+{q:"A hard time engine inspection involves.",o:["replacement with a new or overhauled component","an in-situ function test","removal of an engine component, its inspection and refitting"],a:0,e:"Leaflet 1-7 2.2.1."},
+{q:"Who approves Maintenance Manuals?.",o:["The CAA","The Department of Trade and Industry","The Board of Trade"],a:0,e:"NIL."},
+{q:"A Certificate of Release to Service must be issued after.",o:["a repair has been carried out in accordance with an approved repair scheme","a re-fuel has been done","engine runs"],a:0,e:"NIL."},
+{q:"If the operator varies the content of the maintenance schedule, what action must be taken?.",o:["Amend the Maintenance Schedule and seek the CAA approval","Await CAA approval before amending the Maintenance Schedule","Amend the Maintenance Schedule"],a:1,e:"NIL."},
+{q:"When is an EASA Permit to Fly conditions required?.",o:["To allow an unregistered aircraft to fly for air test","To allow an aircraft to fly on air test to check out a modification","After a Certificate of Maintenance Review has been signed"],a:1,e:"NIL."},
+{q:"When there is an overlap of responsibility, how is the CRS signed?.",o:["Appropriate Type Rated Licensed Aircraft Engineers must each certify the parts appropriate to their license coverage","Only one appropriate Type Rated Licensed Aircraft Engineer may sign the CRS as he assumes responsibility for the operation, the other engineers must sign the paperwork","An appropriate Type Rated Licensed Aircraft Engineer and an ATPL holder sign the CRS when the aircraft is away from base"],a:0,e:"AWN 3."},
+{q:"Information contained in the ANO is.",o:["of a legal nature in all sections and is therefore mandatory","of a mandatory nature where safety is concerned","written in compliance of the Civil Aviation Act of 1943 ratifying the ICAO Convention"],a:0,e:"NIL."},
+{q:"An 'On Condition' Inspection involves.",o:["a program of inspections used to increase the life of lifed components","an inspection of a component with a view to continued operation if its condition warrants such action","replacement of life expired components for new ones"],a:1,e:"CAAIPs BL/ 1-16 Para 2-2-2."},
+{q:"Air Navigation General Regulations are to be found in.",o:["Airworthiness Requirements CAP 455","British Civil Airworthiness Requirements Section A","CAA Printed Manual CAP 393"],a:2,e:"CAAIPs BL/1-9 Para 8-11."},
+{q:"The information in the ANO is given in the form of.",o:["Articles of Law, some of which are further clarified by Schedules","Chapters, each one dealing with a different aspect of Civil Aviation, these chapters being backed up by the schedules","Regulations, each one covering a different aspect of Civil Aviation and as such is mandatory"],a:0,e:"CAAIPs BL/1-9 Para 4."},
+{q:"British Civil Airworthiness Requirements.",o:["form the Technical requirements for the design and operation of aircraft and their equipment","interpret the ANO and form the Technical requirements for the design","are printed by the CAA and are of an advisory nature"],a:1,e:"CAAIPs BL/1-9 Para 4-4."},
+{q:"A CMR is raised after.",o:["defect rectification","scheduled servicing at specified intervals","major overhaul"],a:1,e:"NIL."},
+{q:"Compliance with the ANO is restricted to.",o:["aircraft and their equipment which are on the UK Civil Register only","aircraft and their equipment which are on the UK & Commonwealth Civil Registers","All civil aircraft and their equipment on the international Civil Register"],a:0,e:"NIL."},
+{q:"A Certificate of Release to service states that.",o:["a task has been carried out in accordance with the ANO","an operator has satisfied the CAA of his competence","the aircraft has been maintained to an approved schedule"],a:0,e:"NIL."},
+{q:"Technical and Administrative information is officially circulated to L.A.M.E.S. in.",o:["B.C.A.R.s","A.W.N.s","C.A.I.P.s"],a:1,e:"NIL."},
+{q:"Vital point inspections are carried out.",o:["after an area is disturbed","on a 'C' check","on an 'A' Check"],a:0,e:"BCAR A5-3 para 3."},
+{q:"What colour is used to identify a 'primary structure' when using the aircraft Maintenance Manual?.",o:["Yellow","Green","Red"],a:2,e:"NIL."},
+{q:"Which of the following NDT methods can be carried out and certified by a mechanic not approved specifically for NDT inspections.",o:["Ultrasonic","Magnetic Particle","Neither of the above"],a:2,e:"AWN 3 para 1.7."},
+{q:"B.C.A.R's.",o:["contain minimum requirements to be met","are issued by Ministry of Trade and Industry","detail mandatory requirements for aircraft design and construction"],a:0,e:"CAAIPs BL/ 1-9 Para 6-1."},
+{q:"The purpose of the CRS is.",o:["to ensure that the log book entry is complete","to turn a log book or job card entry into a legal document and to ensure that the signatory takes full responsibility for the work done","to comply with article 15 of the ANO which states that an aircraft must not fly unless it is properly equipped for the intended flight"],a:1,e:"AWN 3 para 1.5."},
+{q:"Duplicate inspections are.",o:["inspections which have to be duplicated but which can finally be certified by one LAE or approved signatory","inspections certified by one approved signatory or LAE and then certified by a second approved signatory or LAE","inspections signed by a mechanic and countersigned by an approved signatory or licensed engineer"],a:1,e:"NIL."},
+{q:"When related to aeronautical engineering, the term 'Inspection' is defined in the publication.",o:["Airworthiness Notice(AWN) 3","ANO article 11","BCAR Section L"],a:0,e:"AWN 3 page 2 para 1.2(d)."},
+{q:"The technical laws relating to Civil Aviation are contained in.",o:["the Civil Aircraft Inspection Procedures","the Air Navigation Order","the Civil Aviation Act 1971"],a:1,e:"NIL."},
+{q:"Civil aircraft manufactured in the UK are constructed from parts that have been.",o:["manufactured to approved drawings","manufactured by British Aerospace","tested to destruction"],a:0,e:"NIL."},
+{q:"Design drawings of aircraft components are produced by organizations approved by.",o:["C.A.A. in accordance with BCAR","British Standards Institute","S.B.A.C"],a:0,e:"CAAIPs BL/ 1-4 Para 2."},
+{q:"Civil Aircraft Airworthiness Information Procedures.",o:["contain information of a mandatory nature","contain approved inspection schedules","are a guide to the general maintenance of aircraft"],a:2,e:"NIL."},
+{q:"British Civil Airworthiness Requirements.",o:["specify the minimum qualifications for air crew and engineers","list the minimum design requirements for aircraft","give General technical information"],a:1,e:"CAAIPs BL/ 1-9 Para 6-1."},
+{q:"What work has to be recorded and signed for?.",o:["Only work which entails a duplicate inspection","Only work involving replacements","All work carried out"],a:2,e:"NIL."},
+{q:"Are CAAIP. mandatory?.",o:["Only selected parts which are in B.C.A.R","Yes, but only for six months at a time","No, nothing in CAAIPs is mandatory"],a:2,e:"NIL."},
+{q:"With a serviceable chain not required for use, how should you store it?.",o:["Lay the chain flat in full length, lubricate and wrap in brown paper to exclude all dirt and moisture","Clean, lubricate, wrap the chain in grease proof paper and suspend","Carefully coil, lubricate, lay flat and wrap in grease proof paper"],a:2,e:"Leaflet 5-4 6.7. CAAIPs AL/3-2 Para 6.7."},
+{q:"What is the licensed engineer responsible for when fitting a new component to an aircraft?.",o:["That the paperwork is signed by an approved signatory","That is has a green serviceable tag","The correct part number, the modification state and the serviceability of the component"],a:2,e:"NIL."},
+{q:"If an aircraft exceeded the RVSM, when shall the crew report the incident in the appropriate channels.",o:["48 hrs","24 hrs","72 hrs"],a:2,e:"JAR OPS Subpart D. Para.1.420."},
+{q:"If the aircraft is away from base who may certify the second part of the duplicate inspection?.",o:["a pilot with a licence for the aircraft type","a pilot with a licence for any similar aircraft type","any licensed engineer"],a:0,e:"BCAR A/B 6-2 10.3.9."},
+{q:"Block cumulative maintenance means that.",o:["all the checks require the same man hour input except for the major inspections","each check usually involves an increased aircraft down time","all the maintenance is carried out in blocks"],a:1,e:"NIL."},
+{q:"A separate modification record book is required for.",o:["passenger aircraft exceeding 2730 kgs MTWA","all aircraft","passenger aircraft exceeding 3600 kgs MTWA"],a:0,e:"BCAR A/B 7-9 Para.1.3."},
+{q:"Sector record pages from the Tech Logs, must be.",o:["at least duplicated","retained for two years from the date of issue","retained for four years from the last effective date"],a:0,e:"BCAR A/B 7-8 Para.4.1."},
+{q:"Minimum equipment to be carried is listed in.",o:["JAR 145","JAR OPS","JAR 25"],a:1,e:"JAR OPS subpart K."},
+{q:"What should be checked before a licensed engineer signs a CRS?.",o:["That he/she has worked for 6 months on the aircraft type within the previous 2 years","That he/she has worked for 4 months on the aircraft type within the previous 2 years","That he/she has had continuation training within the previous 2 years"],a:0,e:"JAR 145.35 and associated IEM."},
+{q:"Rubber components should be stored.",o:["in a cool dark area","in warm and humid conditions","in a well lit room"],a:0,e:"Leaflet 1-8 3.13.1 and 3.13.3."},
+{q:"Storage of components to prevent corrosion is helped.",o:["by using silica gel","by wrapping in grease proof paper","by placing them in a plastic box"],a:0,e:"BL/1-7 2.2.3."},
+{q:"Dye penetrant kits should be stored.",o:["out of sunlight in a dry place","in direct sunlight to keep it dry","in a dark damp cupboard"],a:0,e:"NIL."},
+{q:"When receiving new parts it is the responsibility of the engineer to check.",o:["it has a green serviceable label attached","it is of the correct modification state and is serviceable","it was designed to acceptable standards"],a:1,e:"AWN 3."},
+{q:"For airworthiness purposes, aircraft structural parts are graded as.",o:["primary, secondary and tertiary","class A, B and C","1, 2 and 3"],a:0,e:"NIL."},
+{q:"If an unauthorized repair is carried out.",o:["the aircraft can fly with a Certificate of Fitness for Flight","the Cof A is invalidated until an authorized repair has been done","the Cof A is not invalidated providing a CRS is issued"],a:1,e:"NIL."},
+{q:"A C.of A. for export.",o:["does not give authority by itself for the aircraft to fly","gives authority for the aircraft to fly","is required before aircraft registration in a foreign country"],a:0,e:"NIL."},
+{q:"A fitness for flight is issued for an aircraft after a major modification by.",o:["the pilot, type rated on that particular aircraft","a appropriate licensed aircraft engineer","a CAA surveyor or person approved within the CAA"],a:1,e:"NIL."},
+{q:"An unauthorised repair has been carried out.",o:["sign a CRS for the repair","apply for it as a modification","carryout an approved repair"],a:2,e:"NIL."},
+{q:"A Part-66 licensed engineer, when signing a CRS for a non-Part-145 company would need to have.",o:["maintenance experience for 6 months within the last 24 months","an aircraft type refresher in the last 24 months","maintenance experience for 4 months within the last 24 months"],a:0,e:"NIL."},
+{q:"A National UK licensed engineer, when signing a CRS would need to have.",o:["an aircraft type refresher in the last 24 months","maintenance experience for 4 months within the last 24 months","maintenance experience for 6 months within the last 24 months"],a:2,e:"AWN 3(issue 20) pg 4 para 1.8."},
+{q:"Vital point inspections.",o:["are points which require special certifying LAEs","are components which involve duplicate inspections","are lifed components"],a:1,e:"BCAR A5-3 para 3."},
+{q:"On a pre flight check you notice an instrument glass is cracked. You should.",o:["enter into technical log","check MEL","tell oncoming captain"],a:1,e:"NIL."},
+{q:"A Category-A licensed engineer can sign a CRS for what?.",o:["A task he has been locally trained for","An aircraft that he has sufficient type ratings for","A task that someone else has completed"],a:0,e:"NIL."},
+{q:"When removing a piece of equipment from an aircraft that supports the aircraft, what should you do?.",o:["Go ahead and remove the part","Wait for the new part to arrive before replacing","Fit a jury strut in place of the removed part"],a:2,e:"NIL."},
+{q:"How do you prime a dead weight tester?.",o:["wind handle fully out and pour fluid in the reservoir","Remove the weights and pour fluid into the hole","wind handle fully in and pour fluid in the reservoir"],a:2,e:"NIL."},
+{q:"When you change an EGT gauge, you should.",o:["do a test without considering ambient temperature, as it is already accounted for by the instrument","do a test immediately, taking ambient temperature into consideration","do test letting new gauge 'soak' for 30 minutes then do test taking ambient temperature into consideration"],a:2,e:"NIL."},
+{q:"What is the problem with using a megger on a piece of equipment containing capacitors.",o:["Fluctuating readings will occur while the capacitors charge up","Feedback from the capacitors will blow the megger up","Impedance in the capacitors will give a false high reading"],a:0,e:"NIL."},
+{q:"Watermarks on bearings are indications of.",o:["bearing insufficiently lubricated","intergranular corrosion","bearing been run dry"],a:1,e:"Jepperson A& P Airframe Technician Textbook page 9-9 fig 9-11."},
+{q:"What is the allowable reaction on a rivet?.",o:["2D","1D","1.5D"],a:1,e:"Allowance is 1.5D, formed tail is 0.5D, so reaction must be 1.0D."}
+],
+"10.7b. Applicable National and International Requirements": [
+{q:"101012 + 110012 =.",o:["462","468","4610"],a:2,e:"101012 + 110012 = 1011102 = 4610."}
+]
+};
+
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+  pool = shuffle(pool);
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `<label><input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</label>`;
+    });
+    div.innerHTML = `<div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div><div class="q-category">📂 ${escapeHtml(q.category)}</div><div class="options">${optionsHtml}</div><div class="explanation hidden" id="exp-${idx}"></div>`;
+    area.appendChild(div);
+  });
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `<button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button><button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>`;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `<div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div><div style="font-size: 32px; font-weight: bold;">${percent}%</div>`;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
