@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 08 - Basic Aerodynamics Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 20px; line-height: 1.5; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls { background: #f5f5f5; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px; }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button { padding: 8px 14px; font-size: 14px; border: 1px solid #000; background: #fff; cursor: pointer; margin: 4px; }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats { display: flex; justify-content: space-between; flex-wrap: wrap; margin: 15px 0; padding: 10px; border: 1px solid #ccc; background: #fafafa; }
+  .stats div { margin: 4px 10px; }
+  .question { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 6px; background: #fff; }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border-radius: 4px; }
+  .options label:hover { background: #f0f0f0; }
+  .explanation { margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #f9a825; font-size: 14px; }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box { text-align: center; padding: 20px; margin: 20px 0; border: 2px solid #000; border-radius: 8px; display: none; }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar { width: 100%; height: 30px; background: #eee; border: 1px solid #000; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script> 
+</head>
+<body>
+<div class="container">
+  <h1>✈️ Module 08 - Basic Aerodynamics Quiz</h1>
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+  <div id="quizArea"></div>
+</div>
+
+<script>
+const quizData = {
+"08.1. Physics of the Atmosphere": [
+{q:"The ISA.",o:["assumes a standard day.","is taken from the equator.","is taken from 45 degrees latitude."],a:2,e:"The properties of a standard day are related to sea level at latitude 45 degrees latitude."},
+{q:"At higher altitudes as altitude increases, pressure.",o:["decreases at constant rate.","decreases exponentially.","increases exponentially."],a:1,e:"Pressure decreases- sure! But the rate of decrease reduces with altitude. At 18000 ft, half the pressure is lost already, and there is still another 40,000ft or so to go."},
+{q:"When the pressure is half of that at sea level, what is the altitude?.",o:["12,000 ft.","18,000 ft.","8,000 ft."],a:1,e:"Just one of those facts you have to learn- but it is quoted in just about every text book on CAA reading list."},
+{q:"If gauge pressure on a standard day at sea level is 25 PSI, the absolute pressure is.",o:["39.7 PSI.","10.3 PSI.","43.8 PSI."],a:0,e:"Absolute pressure = gauge pressure plus atmospheric pressure. Atmospheric pressure at sea level = 14.7 PSI."},
+{q:"Pressure decreases.",o:["inversely proportional to temperature.","proportionally with a decreases in temperature.","Pressure and temperature are not related."],a:1,e:"Temperature and volume are directly proportional- Charles' Law."},
+{q:"As air gets colder, the service ceiling of an aircraft.",o:["reduces.","increases.","remains the same."],a:1,e:"As air gets colder it gets denser. Lift increases(remember the lift equation has density) and the engines produce more thrust- so it can climb higher."},
+{q:"What is sea level pressure?.",o:["1012.3 mb.","1013.2 mb.","1032.2 mb."],a:1,e:"Learn the ISA sea level quantities, in all units."},
+{q:"How does IAS at the point of stall vary with height?.",o:["It decreases.","It is practically constant.","It increases."],a:1,e:"The stalling IAS at altitude is practically the same as it is at sea level. That's because IAS is not corrected for density."},
+{q:"What is the lapse rate with regard to temperature?.",o:["4°C per 1000 ft.","1.98°C per 1000 ft.","1.98°F per 1000 ft."],a:1,e:"The lapse rate is approximately 2°C per 1000 feet (in the troposphere)."},
+{q:"Standard sea level temperature is.",o:["20 degrees Celsius.","0 degrees Celsius.","15 degrees Celsius."],a:2,e:"15 degrees C is standard sea level temperature!."},
+{q:"As altitude increases, pressure.",o:["decreases exponentially.","decreases at constant rate.","increases exponentially."],a:0,e:"As altitude increases, pressure decreases exponentially. Since pressure is given by density* gravity* height, both density and height decreases(that is, height above the point you measuring) so the decrease in pressure is exponential."},
+{q:"Lapse rate usually refers to.",o:["Density.","Pressure.","Temperature."],a:2,e:"Temperature lapse rate is constant up to 36000ft-2degrees per 1000ft."},
+{q:"Temperature above 36,000 feet will.",o:["increase exponentially.","decrease exponentially.","remain constant."],a:2,e:"Temperature lapse rate up to 36,000 feet(the tropopause) is approximately 2 degrees centigrade per 1000 feet. Above the tropopause it is constant."},
+{q:"With increasing altitude pressure decreases and.",o:["temperature decreases at the same rate as pressure reduces.","temperature decreases but at a lower rate than pressure reduces.","temperature remains constant to 8000 ft."],a:1,e:"See a graph of pressure against altitude and temperature against altitude. Pressure decreases faster than temperature therefore pressure has a greater effect upon the performance of the aircraft."},
+{q:"What is the temperature in comparison to ISA conditions at 30,000ft?.",o:["-60°C.","0°C.","-45°C."],a:2,e:"ISA= 15°C temperature lapse rate is 2°C per 1000ft. Therefore 30000= -60+15= 45."},
+{q:"At what altitude is the tropopause?.",o:["36,000 ft.","57,000 ft.","63,000 ft."],a:0,e:"The tropopause is 36,000 ft. Above the tropopause is the stratosphere."},
+{q:"What approximate percentage of oxygen is in the atmosphere?.",o:["12%.","21%.","78%."],a:1,e:"21% oxygen, 78% nitrogen, 1% other gases."},
+{q:"Which has the greater density?.",o:["Air at low altitude.","Air at high altitude.","It remains constant."],a:0,e:"Air density reduces with altitude."},
+{q:"At what altitude does stratosphere commence approximately?.",o:["Sea level.","36,000 ft.","63,000 ft."],a:1,e:"The stratosphere is above 36,000 ft."},
+{q:"A pressure of one atmosphere is equal to.",o:["14.7 psi.","1 inch Hg.","100 millibar."],a:0,e:"One atmosphere is 14.7 psi."},
+{q:"The millibar is a unit of.",o:["atmospheric temperature.","pressure altitude.","barometric pressure."],a:2,e:"Barometric pressure is measured in millibar."},
+{q:"With an increase in altitude under I.S.A. conditions the temperature in the troposphere.",o:["remains constant.","decreases.","increases."],a:1,e:"Temperature reduces at a lapse rate of 1.98 degrees celsius per thousand feet from sea level to about 36000ft(the tropopause)."},
+{q:"A barometer indicates.",o:["pressure.","density.","temperature."],a:0,e:"A barometer indicates pressure."},
+{q:"The amount of water vapour capacity in the air (humidity holding capacity of the air) is.",o:["greater on a colder day, and lower on a hotter day.","doesn't have a significant difference.","greater on a hotter day and lower on a colder day."],a:2,e:"The amount of water vapour capacity in the air is greater on a hotter day."},
+{q:"Which condition is the actual amount of water vapour in a mixture of air and water?.",o:["Relative humidity.","Absolute humidity.","Dew point."],a:1,e:"Absolute humidity is the 'actual' amount of water in a mixture of air and water."},
+{q:"Which will weigh the least?.",o:["98 parts of dry air and 2 parts of water vapour.","50 parts of dry air and 50 parts of water vapour.","35 parts of dry air and 65 parts of water vapour."],a:2,e:"Water vapour is 62% the weight of dry air."},
+{q:"Which is the ratio of the water vapour actually present in the atmosphere to the amount that would be present if the air were saturated at the prevailing temperature and pressure?.",o:["Absolute humidity.","Dew point.","Relative humidity."],a:2,e:"Relative humidity is the ratio of the water vapour actually present to the water vapour that the air would hold if it were saturated."},
+{q:"The speed of sound in the atmosphere.",o:["changes with a change in pressure.","varies according to the frequency of the sound.","changes with a change in temperature."],a:2,e:"Speed of sound is affected by air temperature only."},
+{q:"What is sea level pressure?.",o:["1032.2 mb.","1012.3 mb.","1013.2 mb."],a:2,e:"Sea level pressure is 1013.2 mb."},
+{q:"Which statement concerning heat and/or temperature is true?.",o:["Temperature is a measure of the kinetic energy of the molecules of any substance.","Temperature is a measure of the potential energy of the molecules of any substance.","There is an inverse relationship between temperature and heat."],a:0,e:"Temperature is a measure of the kinetic energy of the molecules of a substance. Heat is a form of energy exchange."},
+{q:"What is absolute humidity?.",o:["The temperature to which humid air must be cooled at constant pressure to become saturated.","The actual amount of the water vapour in a mixture of air and water.","The ratio of the water vapour actually present in the atmosphere to the amount that would be present if the air were saturated at the prevailing temperature and pressure."],a:1,e:"Absolute Humidity is the actual amount of water vapor in a liter of gas."},
+{q:"The temperature to which humid air must be cooled at constant pressure to become saturated is called.",o:["relative humidity.","dew point.","absolute humidity."],a:1,e:"The temperature to which humid air must be cooled to become saturated is called the 'due point'."},
+{q:"Density changes with altitude at a rate.",o:["of 2kg/m3 per 1000 ft.","which changes with altitude.","which is constant until 11 km."],a:1,e:"The rate of change of density is not constant- it diminishes with altitude. So no single figure for lapse rate can be quoted."},
+{q:"Above 65,800 ft temperature.",o:["decreases by 1.98°C up to 115,000 ft.","remains constant up to 115,000 ft.","increases by 0.303°C up to 115,000 ft."],a:2,e:"65,800ft is the upper stratosphere boundary. Temperature increases with altitude in the stratosphere."},
+{q:"At sea level, ISA atmospheric pressure is.",o:["14.7 kPa.","10 Bar.","14.7 PSI."],a:2,e:"An alternative to 1013.2mb."},
+{q:"On a very hot day with ambient temperature higher than ISA, the pressure altitude is 20,000 ft. How much will the density altitude be?.",o:["the same.","greater than 20,000ft.","less than 20,000ft."],a:1,e:"Density Altitude is pressure altitude corrected for temperature and humidity. Assuming constant humidity(we are told no different) ISA or above temperature will further thin the air for a given pressure altitude thus making the density altitude higher."},
+{q:"The atmospheric zone where the temperature remains fairly constant is called the.",o:["Stratosphere.","Ionosphere.","Troposphere."],a:0,e:"The stratosphere starts at 36,000ft and rises to about 66,000ft."},
+{q:"In the ISA the height of the tropopause is.",o:["11,000 feet.","11,000 metres.","36,000 metres."],a:1,e:"11,000 metres or 36,000 feet approximately."},
+{q:"In the ISA the sea level pressure is taken to be.",o:["14 PSI.","1013.2 mb.","1.013 mb."],a:1,e:"1013.2 millibars."},
+{q:"In the ISA the temperature lapse rate with altitude is taken to be:.",o:["dependent on pressure and density changes.","linear.","non linear."],a:1,e:"NIL."},
+{q:"Put in sequence from the ground up.",o:["tropopause, stratosphere, troposphere.","tropopause, troposphere, stratosphere.","troposphere, tropopause, stratosphere."],a:2,e:"NIL."},
+{q:"The International Standard Atmosphere can be described as.",o:["the atmosphere at 45 degrees north latitude.","the atmosphere at the equator with certain conditions.","the atmosphere which can be used Worldwide to provide comparable performance results."],a:2,e:"NIL."},
+{q:"The temperature lapse rate below the tropopause is.",o:["1°C per 1000 ft.","2°C per 1000 ft.","3°C per 1000 ft."],a:1,e:"1.98°C per 1000 ft to be exact."},
+{q:"Above the tropopause air pressure.",o:["decreases at a constant rate.","decreases exponentially.","increases exponentially."],a:1,e:"Air pressure continues to decrease exponentially in the stratosphere."},
+{q:"Which of the following is correct?.",o:["Absolute pressure+ Atmospheric pressure= Gauge pressure.","Absolute pressure= Gauge pressure+ Atmospheric pressure.","Atmospheric pressure= Absolute pressure+ Gauge pressure."],a:1,e:"Absolute pressure= Gauge pressure+ Atmospheric pressure."},
+{q:"As the altitude increases what happens of the ratio of Nitrogen to Oxygen?.",o:["Increases.","Decreases.","Stays the same."],a:2,e:"NIL."},
+{q:"What happens to the density of air as altitude is increased?.",o:["Decreases.","Stays the same.","Increases."],a:0,e:"NIL."}
+],
+"08.2. Aerodynamics": [
+{q:"An aircraft is travelling at a speed of 720 nautical miles per hour. To calculate speed in MPH you.",o:["divide by 0.83.","multipy by 0.83.","multiply by 1.15."],a:2,e:"1nmph= 1.15mph 1mph= 0.83nmph."},
+{q:"Lift on a delta wing aircraft.",o:["increases with an increased angle of incidence(angle of attack).","does not change with a change in angle of incidence(angle of attack).","decreases with an increase in angle of incidence(angle of attack)."],a:0,e:"This question is much easier than it looks at first read. All wing types (straight, swept, delta etc.) increase lift with an increase in angle of attack(up to the stall angle)."},
+{q:"The CofP is the point where.",o:["the lift can be said to act.","the three axis of rotation meet.","all the forces on an aircraft act."],a:0,e:"NIL."},
+{q:"When an aircraft experiences induced drag.",o:["air flows under the wing span wise towards the root and on top of the wing span wise towards the tip.","Neither a) or b) since induced drag does not caused by span wise flow.","air flows under the wing span wise towards the tip and on top of the wing span wise towards the root."],a:2,e:"The high pressure under the wing flows around the tip to the low pressure on top of the wing. The resulting vortex is what causes induced drag."},
+{q:"At stall, the wing tip stagnation point.",o:["doesn't move.","moves toward the lower surface of the wing.","moves toward the upper surface of the wing."],a:1,e:"At stall the angle of attack is high(all along the wing) and the stagnation point moves towards the lower surface of the wing."},
+{q:"The rigging angle of incidence of an elevator is.",o:["the angle between the bottom surface of the elevator and the longitudinal datum.","the angle between the bottom surface of the elevator and the horizontal in the rigging position.","the angle between the mean chord line and the horizontal in the rigging position."],a:2,e:"The angle of incidence of any surface is measured from the mean chord line."},
+{q:"Which of the following is true?.",o:["Lift acts at right angles to the relative airflow and weight acts vertically down.","Lift acts at right angles to the wing chord line and weight acts vertically down.","Lift acts at right angles to the relative air flow and weight acts at right angles to the aircraft centre line."],a:0,e:"Lift acts at right angles to the relative airflow and weight acts vertically down."},
+{q:"The vertical fin of a single engined aircraft is.",o:["parallel with the longitudinal axis but not the vertical axis.","parallel with both the longitudinal axis and vertical axis.","parallel with the vertical axis but not the longitudinal axis."],a:1,e:"Single engined aircraft fin is offset to left to counter torque...i.e. chord of fin is at an angle to.longitudinal axis."},
+{q:"What happens to air flowing at the speed of sound when it enters a converging duct?.",o:["Velocity increases, pressure and density decreases.","Velocity, pressure and density increase.","Velocity decreases, pressure and density increase."],a:2,e:"Subsonic air in incompressible, so density does not change. But this is sonic speed, and everything(P and V) change opposite to what they would if it were subsonic air."},
+{q:"As the angle of attack of an airfoil increases the centre of pressure.",o:["remains stationary.","moves aft.","moves forward."],a:2,e:"As the angle of attack of the aerofoil increases, the centre of pressure moves forward."},
+{q:"Vapour trails from the wing tips of an aircraft in flight are caused by.",o:["low pressure above the wing and high pressure below the wing causing vortices.","low pressure above the wing and high pressure below the wing causing a temperature rise.","high pressure above the wing and low pressure below the wing causing vortices."],a:0,e:"Vapour trails are caused by wing tip vortices which are caused by low pressure above the wing and high pressure below the wing."},
+{q:"The chord line of a wing is a line that runs from.",o:["the centre of the leading edge of the wing to the trailing edge.","half way between the upper and lower surface of the wing.","one wing tip to the other wing tip."],a:0,e:"The chord line is a STRAIGHT line which goes from the leading edge of the wing to the trailing."},
+{q:"The angle of incidence of a wing is an angle formed by lines.",o:["parallel to the chord line and longitudinal axis.","parallel to the chord line and the vertical axis.","parallel to the chord line and the lateral axis."],a:0,e:"The angle of incidence is the angle between the chord line and the longitudinal axis."},
+{q:"The centre of pressure of an aerofoil is located.",o:["30- 40% of the chord line forward of the leading edge.","50% of the chord line back from the leading edge.","30- 40% of the chord line back from the leading edge."],a:2,e:"The centre of pressure is positioned roughly 30- 40% of the chord line BACK from the leading edge."},
+{q:"Compressibility effect is.",o:["drag associated with the form of an aircraft.","the increase in total drag of an aerofoil in transonic flight due to the formation of shock waves.","drag associated with the friction of the air over the surface of the aircraft."],a:1,e:"Compressibility effect is associated with an increase in drag during the transonic flight stage."},
+{q:"A high aspect ratio wing will give.",o:["high profile and low induced drag.","low profile and high induced drag.","low profile and low induced drag."],a:0,e:"A high aspect ratio has a lower induced drag(due to less wing tip effect) and a higher frontal area therefore greater profile drag."},
+{q:"Aerofoil efficiency is defined by.",o:["lift over drag.","lift over weight.","drag over lift."],a:0,e:"At plus 4degrees AOA the lift weight ratio is greatest. This is the optimum AOA therefore the wing is at its most efficient when lift is greatest and drag is at a minimum."},
+{q:"The relationship between induced drag and airspeed is, induced drag is.",o:["directly proportional to the square of the speed.","directly proportional to speed.","inversely proportional to the square of the speed."],a:2,e:"Induced drag decreases proportionally with the square of the speed."},
+{q:"What is the definition of Angle of Incidence?.",o:["The angle the underside of the mainplane or tailplane makes with the horizontal.","The angle the underside of the mainplane or tailplane makes with the longitudinal datum line.","The angle the chord of the mainplane or tailplane makes with the horizontal."],a:2,e:"Angle of incidence is the 'wing setting angle'. That is the angle of the chord of the mainplane or tailplane with the horizontal- or aircraft centre line when in the rigging position."},
+{q:"What is Boundary Layer?.",o:["Separated layer of air forming a boundary at the leading edge.","Sluggish low energy air that sticks to the wing surface and gradually gets faster until it joins the free stream flow of air.","Turbulent air moving from the leading edge to trailing edge."],a:1,e:"The boundary layer is the layer of air immediately in contact with the aircraft skin which is slowed down by the skin friction."},
+{q:"What is the collective term for the fin and rudder and other surfaces aft of the centre of gravity that helps directional stability?.",o:["Empennage.","Fuselage surfaces.","Effective keel surface."],a:2,e:"All the side surfaces aft of the centre of gravity which aid the directional stability are collectively called the EFFECTIVE KEEL SURFACE."},
+{q:"A decrease in incidence toward the wing tip may be provided to.",o:["prevent adverse yaw in a turn.","retain lateral control effectiveness at high angles of attack.","prevent span wise flow in maneuvers."],a:1,e:"A decrease in incidence towards the wingtip(known as washout) causes the wing root to stall before the wing tip. So, even after the wing roots have stalled, the wing tips are still flying and full aileron control is provided."},
+{q:"For a given aerofoil production lift, where P= pressure and V= velocity.",o:["P1 is greater than P2, and V1 is less than V2.","P1 is greater than P2, and V1 is greater than V2.","P1 is less than P2 and V1 is greater than V2."],a:0,e:"Bernoulli's principle applies."},
+{q:"Low wing loading.",o:["increases stalling speed, landing speed and landing run.","increases lift, stalling speed and maneuverability.","decreases stalling speed, landing speed and landing run."],a:2,e:"Wing loading is aircraft weight divided by wing area, therefore an aircraft with a low wing loading will require less landing speed, less landing run and have a decreased stalling speed."},
+{q:"As a general rule, if the aerodynamic angle of incidence(angle of attack) of an aerofoil is slightly increased, the centre of pressure will.",o:["move towards the tip.","move forward towards the leading edge.","never move."],a:1,e:"As the angle of attack increases the centre of pressure moves towards the leading edge."},
+{q:"The 'wing setting angle' is commonly known as.",o:["angle of dihedral.","angle of incidence.","angle of attack."],a:1,e:"The wing setting angle is commonly known as the 'angle of incidence'."},
+{q:"When does the angle of incidence change?.",o:["It never changes.","When the aircraft attitude changes.","When the aircraft is ascending or descending."],a:0,e:"The angle of incidence is the angle at which the wing is 'set' into the fuselage. It never changes."},
+{q:"As the angle of attack decreases, what happens to the centre of pressure?.",o:["It moves rearwards.","Centre of pressure is not affected by angle of attack decrease.","It moves forward."],a:0,e:"The centre of pressure moves FORWARDS with an INCREASE in angle of attack. Therefore it moves REARWARDS with a DECREASE in angle of attack."},
+{q:"A decrease in pressure over the upper surface of a wing or aerofoil is responsible for.",o:["approximately 2/3(two thirds) of the lift obtained.","approximately 1/2(one half) of the lift obtained.","approximately 1/3(one third) of the lift obtained."],a:0,e:"Look at a diagram of the lift distributions on the top and bottom surfaces of a wing. 2/3rds of the lift is provided by the top surface."},
+{q:"Which of the following types of drag increases as the aircraft gains altitude?.",o:["Interference drag.","Parasite drag.","Induced drag."],a:2,e:"As density decreases with altitude, the lift must be compensated by increasing angle of attack. Induced drag increases with angle of attack, therefore induced drag increases with altitude."},
+{q:"The layer of air over the surface of an aerofoil which is slower moving, in relation to the rest of the airflow, is known as.",o:["none of the above.","camber layer.","boundary layer."],a:2,e:"The boundary layer is the layer of air in immediate contact with the skin of the aircraft which is slowed down by skin friction."},
+{q:"What is a controlling factor of turbulence and skin friction?.",o:["Countersunk rivets used on skin exterior.","Aspect ratio.","Fineness ratio."],a:0,e:"Countersunk rivets increase skin friction and turbulence."},
+{q:"If the C of G is aft of the Centre of Pressure.",o:["when the aircraft yaws the aerodynamic forces acting forward of the Centre of Pressure.","changes in lift produce a pitching moment which acts to increase the change in lift.","when the aircraft sideslips, the C of G causes the nose to turn into the sideslip thus applying a restoring moment."],a:1,e:"If the C of G is aft of the centre of pressure(not normal, but possible), an increase in lift will pitch the aircraft nose-up, which will increase the lift even further etc. etc."},
+{q:"The upper part of the wing in comparison to the lower.",o:["develops less lift.","develops the same lift.","develops more lift."],a:2,e:"Look at the lift distribution diagram of an aerofoil and see how approximately 2/3rds of the lift is derived from the top surface."},
+{q:"What effect would a forward CG have on an aircraft on landing?.",o:["Increase stalling speed.","Reduce stalling speed.","No effect on landing."],a:0,e:"A forward CG would require the tail of the aircraft to exert more download to keep the nose level. This will increase the wing loading and thus the aircraft would stall at a higher speed."},
+{q:"Q NH refers to.",o:["quite near horizon.","setting the altimeter to zero.","setting the mean sea level atmospheric pressure so an altimeter reads the aerodrome altitude above mean sea level."],a:2,e:"Q' is the mathematical symbol for pressure.'NH' stands for Nautical Height. QNH refers to the setting of actual sea level atmospheric pressure so the altimeter indicates the actual altitude above sea level of the non-standard day."},
+{q:"QNE refers to.",o:["setting the mean sea level atmospheric pressure in accordance with ICAO standard atmosphere i.e. 1013 millibars.","Setting an altimeter to read aerodrome altitude above sea level.","quite new equipment."],a:0,e:"Q' is the mathematical symbol for pressure. 'NE' stands for Nautical Elevation. QNE refers to the setting of the standard sea level atmospheric pressure (i.e. 1013mb) so the altimeter indicates the elevation above mean sea level."},
+{q:"An aspect ratio of 8: 1 would mean.",o:["span 64, mean chord 8.","mean chord 64, span 8.","span squared 64, chord 8."],a:0,e:"Aspect Ratio is the ratio of the span to the chord."},
+{q:"Q FE is.",o:["airfield pressure.","difference between sea level and airfield pressure.","sea level pressure."],a:0,e:"Q' is the mathematical symbol for pressure.'FE' stands for Field Elevation. QFE refers to setting airfield pressure so the altimeter indicates zero on the runway."},
+{q:"For any given speed, a decrease in aircraft weight, the induced drag will.",o:["decrease.","remain the same.","increase."],a:0,e:"Induced drag is 'lift dependant drag'. Less lift and there will be less induced drag."},
+{q:"The amount of lift generated by a wing is.",o:["greatest at the tip.","constant along the span.","greatest at the root."],a:2,e:"See a diagram of the lift distribution of the wing(viewed from the front) and you will see it is parabolic. The wing tip vortices decrease the lift at the tips."},
+{q:"Induced Drag is.",o:["greatest towards the tip and downwash decreases from tip to root.","greatest towards the wing tip and downwash is greatest towards the root.","greatest towards the wing root and downwash is greatest at the tip."],a:0,e:"Induced drag is associated with wing tip vortices. The greater the vortices at the tip, the greater is the induced drag."},
+{q:"Induced Drag is.",o:["never equal to profile drag.","equal to profile drag at Vmd.","equal to profile drag at stalling angle."],a:1,e:"Sketch the drag curves(drag against speed). Induced drag decreases exponentially with speed. Profile drag increases exponentially with speed. Vmd (minimum drag speed) is where they meet."},
+{q:"With an increase in aircraft weight.",o:["Vmd will be at a higher speed.","Vmd will be at the same speed.","Vmd will be at a lower speed."],a:0,e:"Sketch the drag curves(drag against speed). Induced drag decreases exponentially with speed. Profile drag increases exponentially with speed. The induced drag is elevated with weight(since it is lift dependant) and so cuts the profile drag further to the right(higher Vmd)."},
+{q:"For a given IAS an increase in altitude will result in.",o:["an increase in induced drag.","no change in the value of induced drag.","an increase in profile drag."],a:0,e:"With a decrease in density the aircraft must fly with a greater angle of attack(CL) to compensate for the loss of lift. Induced drag is dependant upon AOA, therefore induced drag increases with altitude."},
+{q:"As the angle of attack of a wing is increased in level flight.",o:["the C of G moves aft and the CofP forward.","the CofP and transition point move forward.","the CofP moves forward and the stagnation point aft over the upper surface."],a:1,e:"As AOA increases in level flight, CofP moves forward and the Transition Point(the point at which the laminar flow breaks away and forms into turbulent flow) also moves forward."},
+{q:"Stall inducers may be fitted to a wing.",o:["at the root to cause the root to stall first.","at the tip to cause the root to stall first.","at the root to cause the tip to stall first."],a:0,e:"Stall inducers(or stall strips) are placed at the root of the wing to trip up the airflow just before full stall to ensure the wing stalls first at the root(and maintains the aileron authority even with a partially stalled wing)."},
+{q:"The optimum angle of attack of an aerofoil is the angle at which.",o:["the aerofoil produces maximum lift.","the aerofoil produces zero lift.","the highest lift/drag ratio is produced."],a:2,e:"The optimum angle of attack is the angle at which the highest lift/drag ratio is produced."},
+{q:"A high aspect ratio wing has a.",o:["increased induced drag.","decreased skin friction drag.","decreased induced drag."],a:2,e:"Induced drag decreases with increasing aspect ratio.(However, skin friction drag also reduces with an increased chord length due to thickening of the boundary layer- but this is less significant.)."},
+{q:"Minimum total drag of an aircraft occurs.",o:["when induced drag is least.","at the stalling speed.","when profile drag equals induced drag."],a:2,e:"Sketch the drag curves(drag against speed). Induced drag decreases exponentially with speed. Profile drag increases exponentially with speed. Vmd (minimum drag speed) is where they meet."},
+{q:"If the weight of an aircraft is increased, the induced drag at a given speed.",o:["will increase.","will decrease.","will remain the same."],a:0,e:"If weight is increased, for a given speed the aircraft must fly at a greater angle of attack (CL). Induced drag increases with increased AOA."},
+{q:"The transition point on a wing is the point where.",o:["the boundary layer flow changes from laminar to turbulent.","the flow divides to pass above and below the wing.","the flow separates from the wing surface."],a:0,e:"The transition point is a point on the surface of the wing where the boundary layer changes from laminar to turbulent."},
+{q:"The boundary layer of a body in a moving airstream is.",o:["a layer of air over the surface where the airspeed is changing from free stream speed to zero speed.","a layer of separated flow where the air is turbulent.","a thin layer of air over the surface where the air is stationary."],a:0,e:"The boundary layer is a thin layer of slowed air in contact with the surface of the skin which is slowed by friction. Speed ranging from stationary to free stream speed."},
+{q:"A laminar boundary layer will produce.",o:["more skin friction drag than a turbulent one.","the same skin friction drag as a turbulent one.","less skin friction drag than a turbulent one."],a:2,e:"Skin friction drag is greater in a turbulent boundary layer than in a laminar boundary layer."},
+{q:"The boundary layer is.",o:["thickest at the leading edge.","thickest at the trailing edge.","constant thickness from leading to trailing edges."],a:1,e:"The boundary layer is thickest at the trailing edge."},
+{q:"The amount of thrust produced by a jet engine or a propeller can be calculated using.",o:["Newton's 3rd law.","Newton's 2nd law.","Newton's 1st law."],a:1,e:"Newton's second law is Force= Mass x Acceleration."},
+{q:"An engine which produces an efflux of high speed will be.",o:["less efficient.","more efficient.","speed of efflux has no affect on the engine efficiency."],a:0,e:"A pure turbojet accelerates a low mass of air at a high rate and is less efficient than a turbo fan or turbo prop. This is because the wasted energy is 1/2mV2 of the jet efflux."},
+{q:"Wing loading is calculated by weight.",o:["divided by lift.","divided by gross wing area.","multiplied by gross wing area."],a:1,e:"Wing loading is weight divided by wing area and measured in Newtons per square metre."},
+{q:"Induced drag is.",o:["nothing to do with speed.","proportional to speed.","inversely proportional to the square of speed."],a:2,e:"Induced drag is inversely proportional to the square of the speed- i.e. it reduces with the square of the speed."},
+{q:"As the angle of attack increases the stagnation point.",o:["moves towards the upper surface.","does not move.","moves towards the lower surface."],a:2,e:"The stagnation point is the stationary air at the leading edge of the wing. As the angle of attack increases the stagnation point moves towards the lower surface."},
+{q:"The term pitch-up is due to.",o:["compressibility effect.","ground effect.","longitudinal instability."],a:2,e:"Pitch-up' is a longitudinal instability. It is caused by wing tip stall on swept wings, resulting ina drop of the tail."},
+{q:"In a steady climb at a steady IAS, the TAS is.",o:["more than IAS.","the same.","less than IAS."],a:0,e:"IAS= TAS x square root of sigma. Sigma is the ratio of density at altitude to density at sea- level. Sigma is always less than 1."},
+{q:"An untapered straight wing will.",o:["have no yaw effect in banking.","stall at the root first.","have no change in induced drag in the bank."],a:1,e:"The straight wing will always stall at the root first. This is the desired stall characteristic."},
+{q:"With the ailerons away from the neutral, induced drag is.",o:["higher on the lower wing plus profile drag increases.","unchanged but profile drag is higher.","higher on the upper wing plus profile drag increases."],a:2,e:"Induced drag is 'lift dependant drag'. The upper wing has more lift and hence more induced drag. It also has more profile drag due to the aileron's protrusion into the airflow."},
+{q:"All the lift can be said to act through the.",o:["centre of pressure.","centre of gravity.","normal axis."],a:0,e:"All the lift is said to act through the centre of pressure."},
+{q:"The concept of thrust is explained by.",o:["Bernoulli's theorem.","Newton's 3rd law.","Newton's 1st law."],a:1,e:"Newton's Third Law states 'Every action has an equal and opposite reaction'."},
+{q:"The camber of an aerofoil section is.",o:["the angle which the aerofoil makes with the relative airflow.","the curvature of the median line of the aerofoil.","the angle of incidence towards the tip of a wing."],a:1,e:"Aerofoil camber is the curvature of the median line of the aerofoil."},
+{q:"Induced drag.",o:["is caused by skin friction.","is associated with the lift generated by an aerofoil.","results from disturbed airflow in the region of main plane."],a:1,e:"Induced drag is often called'lift dependant drag' because it increases with increasing lift(due to increased AOA)."},
+{q:"As air flows over the upper cambered surface of an aerofoil, what happens to velocity and pressure?.",o:["Velocity increases, pressure increases.","Velocity increases, pressure decreases.","Velocity decreases, pressure decreases."],a:1,e:"As air flows over the upper cambered surface of an aerofoil, velcity increases and pressure decreases. This is Bernoulli's effect."},
+{q:"What is the force that tends to pull an aircraft down towards the earth?.",o:["Thrust.","Weight.","Drag."],a:1,e:"Weight tends to pull the aircraft down towards the earth."},
+{q:"The angle at which the chord line of the aerofoil is presented to the airflow is known as.",o:["angle of attack.","resultant.","angle of incidence."],a:0,e:"Angle of Attack is the angle at which the chord line of the aerofoil is presented to the airflow."},
+{q:"The imaginary straight line which passes through an aerofoil section from leading edge to trailing edge is called.",o:["the chord line.","the direction of relative airflow.","centre of pressure."],a:0,e:"The Chord Line is the imaginary straight line which passes through the aerofoil from leading edge to trailing edge."},
+{q:"What is the angle between the chord line of the wing, and the longitudinal axis of the aircraft, known as?.",o:["Angle of dihedral.","Angle of attack.","Angle of incidence."],a:2,e:"Angle of incidence is the angle between the chord line of the wing and the longitudinal axis of the aircraft."},
+{q:"Wing tip vortices create a type of drag known as.",o:["form drag.","profile drag.","induced drag."],a:2,e:"Induced drag is associated with wing tip vortices."},
+{q:"Which of the following describes the 'Empennage'?.",o:["Tail section of the aircraft, including fin, rudder, tail plane and elevators.","Nose section of an aircraft, including the cockpit.","The wings, including the ailerons."],a:0,e:"Empannage' is the whole tail of the aircraft including fin, rudder, tailplane and elevator."},
+{q:"As the angle of attack is increased(up to the stall point), which of the following is correct?.",o:["Both a) and b) are correct.","Pressure difference between top and bottom of the wing increases.","Lift increases."],a:0,e:"As the angle of attack is increased the pressure difference between the upper and lower surfaces of the wing is increased. This causes the lift to increase."},
+{q:"What type of drag, depends on the smoothness of the body, and surface area over which the air flows?.",o:["Form drag.","Parasite drag.","Skin friction drag."],a:2,e:"Skin friction drag depends upon the smoothness of the body and the surface area."},
+{q:"When airflow velocity over an upper cambered surface of an aerofoil decreases, what takes place?.",o:["Pressure decreases, lift increases.","Pressure increases, lift decreases.","Pressure increases, lift increases."],a:1,e:"When airflow velocity over the upper cambered surface of an aerofoil DECREASES, the pressure increases and thus the lift decreases."},
+{q:"When an aircraft stalls.",o:["lift increases and drag decreases.","lift and drag increase.","lift decreases and drag increases."],a:2,e:"When an aircraft stalls the drag increases and the lift decreases."},
+{q:"Wing loading is.",o:["the maximum all up weight multiplied by the total wing area.","the maximum all up weight divided by the total wing area.","the ratio of the all up weight of the aircraft to its basic weight."],a:1,e:"Wing Loading is weight divided by wing area. Measured in Newtons per Square Metre."},
+{q:"An aircraft wing with an aspect ration of 6: 1 is proportional so that.",o:["the wing area is six times the span.","the mean chord is six times the thickness.","the wing span is six times the mean chord."],a:2,e:"If aspect ratio is 6: 1 the wing span is 6 times the mean chord."},
+{q:"Upward and outward inclination of a mainplane is termed.",o:["dihedral.","sweep.","stagger."],a:0,e:"Upward and outward inclination of a mainplane is termed dihedral."},
+{q:"Which of the following forces act on an aircraft in level flight?.",o:["Lift, drag, thrust.","Lift, thrust, and weight.","Lift, thrust, weight, and drag."],a:2,e:"Lift, thrust, weight and drag act on an aircraft in level flight."},
+{q:"With reference to altimeters, QFE is.",o:["the manufacturers registered name.","quite fine equipment.","setting aerodrome atmospheric pressure so that an altimeter reads zero on landing and take off."],a:2,e:"Q is the mathematical symbol for pressure. FE stands for Field Elevation. QFE refers to setting the altimeter to aerodrome atmospheric pressure so the altimeter reads zero on landing and takeoff."},
+{q:"Under the ICAO' Q' code there are which three settings?.",o:["QEF, QNH, QEN.","QE, QN, QQE.","QFE, QNH, QNE."],a:2,e:"The ICAO' Q' codes are QFE. QNE, QNH."},
+{q:"Wing loading is.",o:["WING AREA* WING CHORD.","GROSS WEIGHT divided by GROSS WING AREA.","the ultimate tensile strength of the wing."],a:1,e:"Wing loading is gross weight divided by wing area measured in Newtons per Square Metre."},
+{q:"Weight is equal to.",o:["mass* acceleration.","mass* gravity.","volume* gravity."],a:1,e:"Weight= mass* gravity in straight and level flight. In a manoeuvre, additional accelerations are present, which are sometimes considered to increase weight."},
+{q:"Induced drag.",o:["increases with increase in aircraft weight.","increases with an increase in speed.","reduces with an increase in angle of attack."],a:0,e:"Induced drag increase with aircraft weight because it is 'lift dependant drag'."},
+{q:"Airflow over the upper surface of the wing generally.",o:["flows towards the tip.","flows towards the root.","flows straight from leading edge to trailing edge."],a:1,e:"Due to wing tip vortices there is a general flow of air from tip to root on the top surface, and root to tip on the lower surface."},
+{q:"With an increase in aspect ratio for a given IAS, induced drag will.",o:["reduce.","remain constant.","increase."],a:0,e:"A long slender wing(high aspect ratio) has a low induced drag."},
+{q:"If the density of the air is increased, the lift will.",o:["remain the same.","increase.","decrease."],a:1,e:"See the formula for lift. Lift is directly proportional to air density."},
+{q:"All the factors that affect the lift produced by an aerofoil are.",o:["angle of attack, velocity, wing area, aerofoil shape, air density.","angle of attack, air temperature, velocity, wing area.","angle of attack, air density, velocity, wing area."],a:0,e:"Lift formula is CL(includes aerofoil shape and angle of attack)* 1/2* air density* velocity squared."},
+{q:"A wing section suitable for high speed would be.",o:["thin with high camber.","thick with high camber.","thin with little or no camber."],a:2,e:"A high speed wing is thin with little camber."},
+{q:"The induced drag of an aircraft.",o:["increases if aspect ratio is increased.","decreases with increasing speed.","increases with increasing speed."],a:1,e:"Induced drag decreases with increasing speed."},
+{q:"As the speed of an aircraft increases, the profile drag.",o:["decreases at first then increase.","increases.","decreases."],a:1,e:"Profile drag increases with increasing speed."},
+{q:"The stagnation point on an aerofoil is the point where.",o:["the boundary layer changes from laminar to turbulent.","the suction pressure reaches a maximum.","the airflow is brought completely to rest."],a:2,e:"The stagnation point on the aerofoil is the point where the airflow is brought completely to rest on the leading edge."},
+{q:"The stalling of an aerofoil is affected by the.",o:["transition speed.","airspeed.","angle of attack."],a:2,e:"The stall position of an aerofoil is determined by its angle of attack only."},
+{q:"The most fuel efficient of the following types of engine is the.",o:["turbo-jet engine.","turbo-fan engine.","rocket."],a:1,e:"The turbo fan is the most fuel efficient engine."},
+{q:"The quietest of the following types of engine is the.",o:["turbo-jet engine.","rocket.","turbo-fan engine."],a:2,e:"The turbo fan is the quietest engine."},
+{q:"Forward motion of a glider is provided by.",o:["the weight.","the drag.","the engine."],a:0,e:"The weight provides forward motion of a glider."},
+{q:"Profile drag consists of what drag types?.",o:["Form, induced and interference.","Form, induced and skin friction.","Form, skin friction and interference."],a:2,e:"Profile drag(known as Parasite drag in the USA) consists of Form Drag, Skin Friction Drag and Interference Drag."},
+{q:"An aircraft in straight and level flight is subject to.",o:["a load factor of 1.","a load factor of ½.","zero load factor."],a:0,e:"An aircraft in straight and level flight is subject to a load factor of 1(i.e. 1g)."},
+{q:"Aspect ratio is given by the formula.",o:["Mean Chord/ Span.","Span2/ Area.","Span2/ Mean Chord."],a:1,e:"Aspect Ratio is span/mean chord. Multiply top and bottom by span and you get span2/area."},
+{q:"An aspect ratio of 8 means.",o:["the mean chord is 8 times the span.","the span is 8 times the mean chord.","the area is 8 times the span."],a:1,e:"An Aspect Ratio of 8 means the span is 8 times the chord."},
+{q:"A high aspect ratio wing.",o:["has a higher stall angle than a low aspect ratio wing.","is stiffer than a low aspect ratio wing.","has less induced drag than a low aspect ratio wing."],a:2,e:"A long slender wing(high aspect ratio) has less induced drag than a short stubby wing."},
+{q:"Induced downwash.",o:["reduces the effective angle of attack of the wing.","increases the effective angle of attack of the wing.","has no effect on the angle of attack of the wing."],a:0,e:"Induced downwash reduces the effective angle of attack of the wing."},
+{q:"A straight rectangular wing, without any twist, will.",o:["have less angle of attack at the tip.","have greater angle of attack at the tip.","have the same angle of attack at all points along the span."],a:2,e:"Due to wingtip vortices, there is more downwash at the tip, and therefore there is less angle of attack at the tip."},
+{q:"Given 2 wings, the first with a span of 12m and a chord of 2 m. The second has a span of 6m and a chord of 1m. How do their Aspect Ratios compare?.",o:["The first is higher.","They are the same.","The second is higher."],a:1,e:"Aspect ratio= Span/Chord."},
+{q:"The C of G moves in flight. The most likely cause of this is.",o:["movement of passengers.","consumption of fuel and oils.","movement of cargo."],a:1,e:"Consumption of fuel and oil causes the C of G to move in flight."},
+{q:"A straight rectangular wing, without any twist, will.",o:["stall equally along the span of the wing.","stall first at the tip.","stall first at the root."],a:2,e:"A straight rectangular wing will stall first at the root. This is because the effective angle of attack is reduced at the tips because of the greater downwash at the tips."},
+{q:"When an aircraft experiences induced drag.",o:["air flows under the wing span wise towards the root and on top of the wing span wise towards the tip.","air flows under the wing span wise towards the tip and on top of the wing span wise towards the root.","Neither a) or b) since induced drag does not cause span wise flow."],a:1,e:"Induced drag causes air to flow under the wing span wise towards the tip and on top of the wing span wise towards the root."},
+{q:"An aeroplane wing is designed to produce lift resulting from relatively.",o:["positive air pressure below and above the wing's surface.","positive air pressure below the wing's surface an negative air pressure above the wing's surface.","negative air pressure below the wing's surface and positive air pressure above the wing's surface."],a:1,e:"The wing is designed to produce lift resulting from relatively positive air pressure below the wing surface and negative air pressure above the wing surface."},
+{q:"Aspect ratio of a wing is defined as the ratio of the.",o:["wing span to the mean chord.","wing span to the wing root.","square of the chord to the wingspan."],a:0,e:"Aspect ratio is defined as the ratio of the wing span to mean chord."},
+{q:"Which of the following is true?.",o:["Lift acts at right angles to the relative airflow and weight acts vertically down.","Lift acts at right angles to the wing chord line and weight acts vertically down.","Lift acts at right angles to the relative air flow and weight acts at right angles to the aircraft centre line."],a:0,e:"Lift acts at right angles to the relative airflow and weight acts vertically down."},
+{q:"The airflow over the upper surface of a cambered wing.",o:["increases in velocity and reduces in pressure.","increases in velocity and pressure.","reduces in velocity and increases in pressure."],a:0,e:"Airflow flowing over the upper surface of an aerofoil increases in velocity and decreases in pressure."},
+{q:"With increased speed in level flight.",o:["profile drag increases.","induced drag increases.","profile drag remains constant."],a:0,e:"With increased speed in level flight, the profile drag increases and the induced drag decreases."},
+{q:"An aeroplane wing is designed to produce lift resulting from relatively.",o:["positive air pressure below the wing's surface and negative air pressure above the wing's surface.","negative air pressure below the wing's surface and positive air pressure above the wing's surface.","positive air pressure below and above the wing's surface."],a:0,e:"The wing is designed to produce lift resulting from relatively positive air pressure below the wing surface and negative air pressure above the wing surface."},
+{q:"The angle of attack of an aerofoil section is the angle between the.",o:["underside of the wing surface and the mean airflow.","chord line and the relative airflow.","chord line and the centre line of the fuselage."],a:1,e:"Angle of attack of an aerofoil is the angle between the chord line and the relative air flow."},
+{q:"A swept wing tends to stall first at the.",o:["centre section.","root.","tip."],a:2,e:"A swept wing tends to stall first at the tip."},
+{q:"The trailing vortex on a pointed wing(taper ratio= 0) is.",o:["at the tip.","equally all along the wing span.","at the root."],a:2,e:"The vortex of a pointed wing concentrated at the root of the wing- exactly opposite to straight wings."},
+{q:"The lift curve for a delta wing is.",o:["more steep than that of a high aspect ratio wing.","less steep than that of a high aspect ratio wing.","the same as that of a high aspect ratio wing."],a:1,e:"A delta wing produces less lift for any given angle of attack than any other type of wing."},
+{q:"An increase in the speed at which an aerofoil passes through the air increases lift because.",o:["the increased speed of the airflow creates a greater pressure differential between the upper and lower surfaces.","the increased speed of the airflow creates a lesser pressure differential between the upper and lower surfaces.","the increased velocity of the relative wind increases the angle of attack."],a:0,e:"Increasing the speed of an aerofoil increases the pressure differential between the upper and lower surfaces."},
+{q:"A delta wing has.",o:["a lower stall angle than a straight wing.","a higher stall angle than a straight wing.","the same stall angle than a straight wing."],a:1,e:"A delta wing has a much higher stall angle than a normal wing(some as much as 40 degrees)."},
+{q:"The airflow over the upper surface of a cambered wing.",o:["reduces in velocity and increases in pressure.","increases in velocity and reduces in pressure.","increases in velocity and pressure."],a:1,e:"Airflow over the upper surface of a cambered surface of the wing increases in velocity and decreases in pressure."},
+{q:"The speed of air over a swept wing which contributes to the lift is.",o:["less than the aircraft speed.","the same as the aircraft speed.","more than the aircraft speed."],a:0,e:"If aircraft speed is V, speed of airflow over wing which contributes to lift is Vcos(sweep angle). Cos(sweep angle)< 1."},
+{q:"For a given angle of attack, induced drag is.",o:["greater on a high aspect ratio wing.","greater towards the wing root.","greater on a low aspect ratio wing."],a:2,e:"A low aspect ratio wing(short-stubby wing) has a greater induced drag."},
+{q:"In straight and level flight, the angle of attack of a swept wing is.",o:["less than the aircraft angle to the horizontal.","more than the aircraft angle to the horizontal.","the same as the aircraft angle to the horizontal."],a:0,e:"Since the'effective' velocity vector over a swept wing is not parallel with the forward direction of the aircraft, a change in pitch of the aircraft has lesser effect upon the AOA of the wing."},
+{q:"Induced drag.",o:["is equal to the profile drag at Vmd.","is equal to the profile drag at the stalling speed.","is never equal to the profile drag."],a:0,e:"Induced drag is equal to profile drag at Vmd."},
+{q:"A delta wing aircraft flying at the same speed(subsonic) and angle of attack as a swept wing aircraft of similar wing area will produce.",o:["more lift.","less lift.","the same lift."],a:1,e:"A delta wing aircraft at any given angle of attack and speed will produce less lift than any other type of wing."},
+{q:"The stagnation point is.",o:["static pressure minus dynamic pressure.","dynamic pressure only.","static pressure plus dynamic pressure."],a:2,e:"At stagnation, the pressure is total(static plus dynamic)."},
+{q:"On a swept wing aircraft, due to the adverse pressure gradient, the boundary layer on the upper surface of the wing tends to flow.",o:["towards the root.","towards the tip.","directly from leading edge to trailing edge."],a:1,e:"Due to adverse pressure gradient on a swept wing, the boundary layer slides towards the tip and thickens at the tip. This is why swept wings stall first at the tips."},
+{q:"With increased speed in level flight.",o:["induced drag increases.","profile drag increases.","profile drag remains constant."],a:1,e:"Profile drag increases with speed, induced drag decreases with speed."},
+{q:"If a swept wing stalls at the tips first, the aircraft will.",o:["pitch nose up.","roll.","pitch nose down."],a:0,e:"Since the tips are behind the Centre of Gravity, losing the lift at the tips will cause the nose to rise."},
+{q:"The thickness/ chord ratio of the wing is also known as.",o:["fineness ratio.","mean chord ratio.","aspect ratio."],a:0,e:"The thickness/chord ratio of the wing is also known as the fineness ratio.(Technically, thickness/chord ratio= 1/fineness ratio)."},
+{q:"Flexure of a rearward swept wing will.",o:["increase the lift and hence increase the flexure.","increase the lift and hence decrease the flexure.","decrease the lift and hence decrease the flexure."],a:2,e:"Flexure of a rearward swept wing will decrease the lift(since the wing presents its upper surface to the airflow and the angle of attack reduces) and so the wing flexes back."},
+{q:"A High Aspect Ratio wing is a wing with.",o:["short span, long chord.","long span, long chord.","long span, short chord."],a:2,e:"Aspect ratio is the ratio of span to chord."},
+{q:"Stall commencing at the root is preferred because.",o:["it provides the pilot with a warning of complete loss of lift.","the ailerons become ineffective.","it will cause the aircraft to pitch nose up."],a:0,e:"Stall commencing at the root causes turbulent air to hit the tailplane. The resulting'buffet' warns the pilot just before complete stall."},
+{q:"An aircraft flying in 'ground effect' will produce.",o:["the same lift as a similar aircraft outside of ground effect.","less lift than a similar aircraft outside of ground effect.","more lift than a similar aircraft outside of ground effect."],a:2,e:"An aircraft flying in ground effect will have more lift than an aircraft not flying in ground effect(which is why seagulls glide close to the water surface)."},
+{q:"If the angle of attack of a wing is increased in flight, the.",o:["CofP will move aft.","CofP will move forward.","C of G will move aft."],a:1,e:"Increasing the AOA moves the CofP forward."},
+{q:"The Rams Horn Vortex on a forward swept wing will be.",o:["more than a rearward swept wing.","less than a rearward swept wing.","the same as a rearward swept wing."],a:1,e:"A forward swept wing does not suffer from the Rams Horn Vortex."},
+{q:"For a cambered wing section the zero lift angle of attack will be.",o:["4 degrees.","zero.","negative."],a:2,e:"A non symmetrical wing will produce some lift at zero degrees. Therefore it must have a negative angle of attack to produce zero lift."},
+{q:"Airflow at subsonic speed is taken to be.",o:["compressible.","either a or b depending on altitude.","incompressible."],a:2,e:"Subsonic airflow is always considered to be incompressible."},
+{q:"Bernoulli's equation shows that.",o:["at constant velocity the kinetic energy of the air changes with a change of height.","with a change in velocity at constant height the static pressure will change.","with a change in speed at constant height both kinetic and potential energies change."],a:1,e:"Bernoulli's theorem states that if velocity increases, the static pressure decreases, and vice versa."},
+{q:"If fluid flow through a venturi is said to be incompressible, the speed of the flow increases at the throat to.",o:["allow for a reduction in static pressure.","maintain a constant volume flow rate.","allow for an increase in static pressure."],a:1,e:"Volume flow rate is constant at all parts of the flow(if fluid in incompressible) regardless of cross sectional area."},
+{q:"To produce lift, an aerofoil must be.",o:["asymmetrical.","symmetrical.","either symmetrical or asymmetrical."],a:2,e:"To produce lift, the aerofoil can be either symmetrical or asymmetrical."},
+{q:"Lift is dependent on.",o:["the net area of the wing,the density of the fluid medium and the velocity.","the area of the wing, the density of the fluid medium, and the square of the velocity.","the frontal area of the wing, the density of the fluid medium and the velocity."],a:1,e:"See the formula for lift."},
+{q:"A wing develops 10,000 N of lift at 100 knots. Assuming the wing remains at the same angle of attack and remains at the same altitude, how much lift will it develop at 300knots?.",o:["30,000 N.","900,000 N.","90,000 N."],a:2,e:"See the formula for lift. Velocity is squared, so if you triple the velocity, the lift is 9 times."},
+{q:"The angle of attack is.",o:["related to angle of incidence.","always kept below 15 degrees.","not related to the angle of incidence."],a:2,e:"See definitions of angle of attack and angle of incidence."},
+{q:"The difference between the mean camber line and the chord line of an aerofoil is.",o:["neither are straight.","they both may be curved.","one is always straight and the other may be straight."],a:2,e:"See the definitions of mean camber and chord line."},
+{q:"If the C of G is calculated after loading as within limits for take off.",o:["a further calculation is required prior to landing to allow for fuel and oil consumption.","a further calculation is required prior to landing to allow for flap deployment.","no further calculation is required."],a:0,e:"If the CG of the fuel is not directly on the empty aircraft CG, the loaded aircraft CG must be calculated twice(with and without fuel)."},
+{q:"Helicopter rotor blades create lift by.",o:["pushing the air down.","working like a screw.","creating low pressure above the blades."],a:2,e:"A pure aerodynamicist would say all three are correct. But probably a) is technically most correct."},
+{q:"The span wise component of the airflow is.",o:["greater at higher speeds.","unaffected by speed.","less at higher speeds."],a:2,e:"The tip vortices are less at high speed(due to lower AOA at high speed). The tip vortices cause the span wise flow."},
+{q:"A wing fence.",o:["acts as a lift dumping device.","reduces span wise flow on a swept wing thus reducing induced drag.","increases lateral control."],a:1,e:"A wing fence reduces span wise flow."},
+{q:"With all conditions remaining the same, if the aircraft speed is halved, by what factor is the lift reduced?.",o:["Half.","By a factor of 4.","Remains the same."],a:1,e:"Lift is proportional to the square of aircraft speed."},
+{q:"The boundary layer over an aerofoil is.",o:["a layer of air close to the aerofoil which is moving at a velocity less than free stream air.","a layer of turbulent air close to the aerofoil which is moving at a velocity less than free stream air.","a layer of air close to the aerofoil that is stationary."],a:0,e:"Boundary layer air consists of turbulent and laminar airflow."},
+{q:"On a swept wing aircraft, the fineness ratio of an aerofoil is.",o:["highest at the root.","equal throughout the span.","highest at the tip."],a:2,e:"Fineness ratio(chord/thickness) is greatest at the tip. Fineness ratio is the inverse of thickness/chord ratio."},
+{q:"Streamlining will reduce.",o:["induced drag.","skin friction drag.","form drag."],a:2,e:"Form drag is a function of shape."},
+{q:"If an aircraft has a gross weight of 3000 kg and is then subjected to a total weight of 6000 kg the load factor will be.",o:["2G.","9 G.","3 G."],a:0,e:"Load factor is a measure of how many times heavier the aircraft'feels' compared to how heavy it actually is."}
+],
+"08.3. Theory of Flight": [
+{q:"Flaps at landing position.",o:["decrease landing speed.","decrease take off and landing speeds.","decrease take off speed."],a:0,e:"Although an aircraft will take-off with flaps at landing position, this is not normal."},
+{q:"As a subsonic aircraft speeds-up, its Centre of Pressure.",o:["moves aft.","moves forward.","is unaffected."],a:0,e:"Assuming that the aircraft is to remain at constant altitude, it must reduce its angle of attack as it speeds-up. This alone will move the CofP rearwards, in accordance with the sub-sonic angle of attack change theory."},
+{q:"Lowering of the flaps.",o:["increases drag.","increases lift.","increases drag and lift."],a:2,e:"Jeppesen A+P Technician General Textbook. Page 1-17."},
+{q:"Wing spoilers, when used asymmetrically, are associated with.",o:["rudder.","elevators.","ailerons."],a:2,e:"Pallett Automatic Flight Control 4th Edition Page 51. Jeppesen A&P Technician Airframe Textbook Page 1-12."},
+{q:"What do ruddervators do?.",o:["Control yaw and roll.","Control pitch and yaw.","Control pitch and roll."],a:1,e:"Jeppesen A+P Technician General Textbook. Page 1-16 fig 1-36."},
+{q:"What controls pitch and roll on a delta wing aircraft?.",o:["Ailerons.","Elevons.","Elevators."],a:1,e:"Jeppesen A+P Technician General Textbook. Page 1-17."},
+{q:"What does a trim tab do?.",o:["Allows the C of G to be outside the normal limit.","Provides finer control movements by the pilot.","Eases control loading for pilot."],a:2,e:"A&P General Textbook Pg 2-35."},
+{q:"How does a balance tab move?.",o:["In the same direction a small amount.","In the opposite direction proportional to the control surface it is attached to.","In the same direction proportional to the control surface it is attached to."],a:1,e:"A&P General Textbook Pg 2-36."},
+{q:"If an aircraft is yawing to the left, where would you position the trim tab on the rudder?.",o:["To the centre.","To the left.","To the right."],a:1,e:"Automatic flight control, Pallett, 4th Edition Page 43."},
+{q:"If an aircraft is flying with a left wing low, where would you move the left aileron trim tab?.",o:["Down.","Up.","Moving the aileron trim tab will not correct the situation."],a:1,e:"Automatic flight control, Pallett, 4th Edition Page 43."},
+{q:"When a leading edge flap is fully extended, what is the slot in the wing for?.",o:["To re-energise the boundary layer.","To increase the lift.","To allow the flap to retract into it when it retracts."],a:0,e:"Pallett Automatic Flight Control 2nd Edition Page 50. Jeppesen A&P Technician Airframe Textbook Page 1-32."},
+{q:"With respect to differential aileron control, which of the following is true?.",o:["The up going and down going ailerons both deflect to the same angle.","The up going Aileron moves through a smaller angle than the down going aileron.","The down going aileron moves through a smaller angle than the up going aileron."],a:2,e:"Mechanics of Flight, Kermode, Page 301. The down going aileron moves less, to reduce the induced drag which causes adverse aileron yaw."},
+{q:"The aeroplane fin is of symmetrical aerofoil section and will therefore provide a side-load.",o:["only when the rudder is moved.","if a suitable angle of attack develops due either yaw or rudder movement.","only if a suitable angle of attack develops due to yaw."],a:1,e:"Rudder deflection or yaw."},
+{q:"An aircraft left wing is flying low. The aileron trimmer control to the left aileron trim tab in the cockpit would be.",o:["moved up causing the left aileron to move up.","moved up causing the left aileron to move down.","moved down causing the left aileron to move down."],a:1,e:"Down aileron required- which requires up trim."},
+{q:"An elevator tab moves down.",o:["to make the nose go down.","to counteract for the aircraft flying nose heavy.","to counteract for the aircraft flying tail heavy."],a:1,e:"Elevator tab DOWN, elevator UP, aircraft nose UP."},
+{q:"The stall margin is controlled by.",o:["speed bug cursor.","EPR limits.","angle of attack and flap position."],a:2,e:"Flight Instruments and Automatic Flight Control Page 143/4."},
+{q:"Other than spoilers, where are speed brakes located?.",o:["Under the Fuselage.","Either side of the Fuselage.","On the wing."],a:1,e:"Reference BAe 146 etc."},
+{q:"With a trailing edge flap being lowered, due to rising gusts, what will happen to the angle of attack?.",o:["Tend to decrease.","Stay the same.","Tend to increase."],a:2,e:"Assuming that 'rising gust' means it has a vertical component."},
+{q:"A device used do dump lift from an aircraft is.",o:["leading edge flaps.","trailing edge flaps.","spoiler."],a:2,e:"Spoilers are sometimes called 'lift dumps'."},
+{q:"The purpose of a slot in a wing is to.",o:["provide housing for the slat.","speed up the airflow and increase lift.","act as venturi, accelerate the air and re-energise boundary layer."],a:2,e:"A slot is to act as venturi, accelerate the air and re-energise boundary layer."},
+{q:"Large flap deployment.",o:["causes increased span wise flow towards tips on wing upper surface.","causes increased span wise flow towards tips on wing lower surface.","has no effect on span wise flow."],a:1,e:"Flaps increase the pressure differential between top and bottom surfaces, increase tip vortices and span wise flow."},
+{q:"Which part of the wing of a swept-wing aircraft stalls first?.",o:["Tip stalls first.","Both stall together.","Root stalls first."],a:0,e:"The tip of a swept wing stalls first."},
+{q:"During flight, an aircraft is yawing to the right. The aircraft would have a tendency to fly.",o:["right wing low.","left wing low.","nose up."],a:0,e:"The leading wing(left wing) has increased lift, causing it to rise."},
+{q:"In the reversed camber horizontal stabilizer.",o:["there is an increased tail plane up-force.","the elevator causes tail down movement i.e. increased tail plane down force.","there is an increased tailplane down-force."],a:2,e:"The lower cambered surface produces a down-force on the tail."},
+{q:"When the trailing edge flap is extended.",o:["CP moves rearward.","the CP moves forward but the CG does not change.","the CP moves forward and the pitching moment changes to nose up."],a:0,e:"CP moves rearwards when the flap is extended."},
+{q:"With a drop in ambient temperature, an aircraft service ceiling will.",o:["rise.","not be affected.","lower."],a:0,e:"As ambient temperature drops, density increases and aircraft performance increases."},
+{q:"What type of flap is this?.",o:["Split flap.","Plain flap.","Fowler flap."],a:0,e:"Split flap."},
+{q:"Servo tabs.",o:["enable the pilot to bring the control surface back to neutral.","move in such a way as to help move the control surface.","provide artificial feel."],a:1,e:"A&P Technician Airframe Textbook Pg.1-29."},
+{q:"Spring Tabs.",o:["provide artificial feel.","enable the pilot to bring the control surface back to neutral.","move in such a way as to help move the control surface."],a:2,e:"A&P Technician Airframe Textbook Pg.1-29."},
+{q:"Extending a leading edge slat will have what effect on the angle of attack of a wing?.",o:["Increase the angle of attack.","Decrease the angle of attack.","No effect on angle of attack."],a:1,e:"NIL."},
+{q:"To ensure that a wing stalls at the root first, stall wedges are.",o:["installed on the wing leading edge at the wing root.","installed on the wing leading edge at the wing tip.","installed at the wing trailing edge at the wing root."],a:0,e:"NIL."},
+{q:"Krueger flaps make up part of the.",o:["wing lower surface leading edge.","wing lower surface trailing edge.","wing upper surface leading edge."],a:0,e:"Jeppesen A&P Technician Airframe Textbook 1-37. Automatic Flight Control Pallett Page 53 fig 1.37(Note: lower surface when retracted, upper surface when extended.)."},
+{q:"In a turn, wing spoilers may be deployed.",o:["to assist the up going aileron.","in unison with both the up going and down going ailerons.","to act as an air brake, interacting with the ailerons."],a:0,e:"NIL."},
+{q:"Dutch role is movement in.",o:["yaw and pitch.","yaw and roll.","pitch and roll."],a:1,e:"Avionic Fundamentals Jeppesen page 291."},
+{q:"What is the main purpose of a frize aileron?.",o:["Increased drag on the up going wing.","Decreased drag on the up going wing.","Help pilot overcome aerodynamic loads."],a:1,e:"The Frise aileron increases drag on the up-going aileron, which is on the downgoing wing. And Vise versa on the other aileron."},
+{q:"Flap asymmetry causes the aircraft to.",o:["nose down.","go one wing down.","nose up."],a:1,e:"NIL."},
+{q:"If an aircraft moves in yaw, what axis is it moving about?.",o:["Longitudinal.","Lateral.","Normal."],a:2,e:"NIL."},
+{q:"If an aircraft is aerodynamically stable.",o:["aircraft returns to trimmed attitude.","CofP moves back.","aircraft becomes too sensitive."],a:0,e:"NIL."},
+{q:"What are ground spoilers used for?.",o:["To assist the aircraft coming to a stop.","To slow the aircraft.","To dump lift."],a:2,e:"NIL."},
+{q:"Mass balance weights are used to.",o:["balance the trailing edge of flying control surfaces.","counteract flutter on control surfaces.","balance the tabs."],a:1,e:"NIL."},
+{q:"What is a slot used for?.",o:["Increased angle of attack during approach.","Increase the speed of the airflow.","To reinforce the boundary layer."],a:2,e:"Automatic Flight Control Pallett Page 53."},
+{q:"Angle of Attack is the angle between cord line and.",o:["horizontal axis.","relative air flow.","tip path plane."],a:1,e:"Automatic Flight Control Pallett Page 3."},
+{q:"A high lift device is used for.",o:["take-off only.","take-off and landing.","landing only."],a:1,e:"Automatic Flight Control Pallett Page 50."},
+{q:"How is a spoiler interconnected to other flight control systems?.",o:["Spoiler to elevator.","Spoiler to aileron.","Spoiler to flap."],a:1,e:"Automatic Flight Control Pallett Page 54."},
+{q:"What is aileron droop?.",o:["The droop of ailerons with no hydraulics on.","The leading edge of both ailerons presented to the airflow.","One aileron lowered."],a:0,e:"NIL."},
+{q:"Earth's atmosphere is.",o:["3/5 oxygen, 2/5 nitrogen.","4/5 oxygen, 1/5 nitrogen.","1/5 oxygen, 4/5 nitrogen."],a:2,e:"NIL."},
+{q:"An anti-balance tab is used.",o:["to relieve stick loads.","for trimming the aircraft.","to give more feel to the controls."],a:2,e:"Jeppesen A&P Technician Airframe Textbook 1-29."},
+{q:"The fin helps to give.",o:["directional stability about the normal axis.","directional stability about the longitudinal axis.","longitudinal stability about the normal axis."],a:0,e:"Jeppesen A&P Technician Airframe Textbook 1-22."},
+{q:"If an aircraft moves in roll, it is moving about the.",o:["longitudinal axis.","normal axis.","lateral axis."],a:0,e:"Mechanics of flight by A.C. Kermode page 241."},
+{q:"What effect does lowering the flaps for take-off have?.",o:["Increases lift& reduces drag.","Increases lift and drag.","Increase lift only."],a:1,e:"Avionics Fundamentals. Jeppesen Page 244."},
+{q:"What effect does lowering flaps for takeoff have?.",o:["Reduces takeoff speeds only.","Reduces landing speeds only.","Reduces takeoff and landing speeds."],a:0,e:"Avionics Fundamentals. Jeppesen Page 244."},
+{q:"When the flaps are lowered.",o:["the lift vector moves rearward.","there is no effect on the lift vector.","the lift vector moves forward."],a:0,e:"Automatic Flight Control, Pallett Page 51."},
+{q:"At take-off, if the flaps are lowered there is a.",o:["large increase in lift and drag.","large increase in lift and small increase in drag.","small increase in lift and drag."],a:0,e:"Avionics Fundamentals. Jeppesen Page 244."},
+{q:"Wing spoilers be used.",o:["to assist the respective down going aileron in a turn.","as ground spoilers on landing.","to assist the elevators."],a:1,e:"Automatic Flight Control. Pallett page 55. A&P Technician Airframe Textbook by Jeppesen. 1-14."},
+{q:"Differential aileron control will.",o:["cause a nose down moment.","prevent yawing in conjunction with rudder input.","cause a nose up moment."],a:1,e:"NIL."},
+{q:"Dutch Roll affects.",o:["pitch and yaw simultaneously.","yaw and roll simultaneously.","pitch and roll simultaneously."],a:1,e:"Automatic Flight Control. Pallett page 26."},
+{q:"Which of the following are primary control surfaces?.",o:["Elevators, ailerons, rudder.","Roll spoilers, elevators, tabs.","Elevators, roll spoilers, tabs."],a:0,e:"NIL."},
+{q:"A split flap.",o:["forms part of the trailing edge's lower surface when retracted.","forms part of the leading edge's lower surface when retracted.","forms part of the trailing edge's upper surface when retracted."],a:0,e:"Jeppesen A&P Airframe Technician Textbook Page1-30/31."},
+{q:"An anti-servo tab.",o:["assists the pilot to move the controls back to neutral.","moves in the opposite direction to the control surface to assist the pilot.","moves in the same direction as the control surface to assist the pilot."],a:0,e:"NIL."},
+{q:"Slats.",o:["keep the boundary layer from separating for longer.","increase the overall surface area and lift effect of wing.","act as an air brake."],a:0,e:"Jeppesen A& P technician airframe textbook page 1-32."},
+{q:"Due to the change of lift forces resulting from the extension of flaps in flight.",o:["nose should be lowered, reducing AOA.","nose should be raised, increasing AOA.","nose should remain in the same position, maintaining same AOA."],a:0,e:"The main purpose of flaps is to increase lift so that the pilot can lower the nose, increase decent angle and get a better view of the runway."},
+{q:"Flight spoilers.",o:["can be deployed on the down going wing in a turn to increase lift on that wing.","can be used to decrease lift to allow controlled decent without reduction of airspeed.","can be used with differential ailerons to reduce adverse yaw in a turn."],a:1,e:"NIL."},
+{q:"If the aircraft is flying nose heavy, which direction would you move the elevator trim tab?.",o:["Up to move elevator down.","Up to move elevator up.","Down to move elevator up."],a:2,e:"NIL."},
+{q:"Wing tip vortices are strongest when.",o:["flying high speed straight and level flight.","flying into a headwind.","flying slowly at high angles of attack."],a:2,e:"NIL."},
+{q:"Aerodynamic balance.",o:["will reduce aerodynamic loading.","will cause CP to move forward of hinge and cause overbalance.","will cause CP to move towards the trailing edge and cause instability."],a:0,e:"NIL."},
+{q:"A balance tab.",o:["effectively increases the area of the control surface.","assists the pilot to move the controls.","is used to trim the appropriate axis of the aircraft."],a:1,e:"Jeppesen A& P Technician Textbook pg 1-29."},
+{q:"Elevons combine the functions of both.",o:["rudder and elevator.","elevator and aileron.","rudder and aileron."],a:1,e:"Jeppesen A&P Technician Airframe Textbook Page 1-16 Fig 1-36."},
+{q:"Flutter can be reduced by using.",o:["a horn balance.","mass balancing.","servo tabs."],a:1,e:"NIL."},
+{q:"An elevator provides control about the.",o:["longitudinal axis.","lateral axis.","horizontal stabilizer."],a:1,e:"NIL."},
+{q:"The outboard ailerons on some large aircraft.",o:["are isolated at high speeds.","are isolated to improve sensitivity.","are isolated at low speeds."],a:0,e:"NIL."},
+{q:"Which wing increases drag when the ailerons are moved?.",o:["Both wings increase drag but the wing with the up-going aileron increases more.","Both wings have an equal increase in drag.","Both wings increase drag but the wing with the down-going aileron increases more."],a:2,e:"Jeppesen A& P Technician Airframe Textbook page 1-26."},
+{q:"Which flap will increase wing area and camber?.",o:["Slot.","Split.","Fowler."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 20."},
+{q:"Wing loading of an aircraft.",o:["varies with dynamic loading due to air currents.","is independent of altitude.","decreases with density."],a:1,e:"Wing loading= aircraft weight/wing area."},
+{q:"An automatic slat will lift by itself when the angle of attack is.",o:["high.","high or low.","low."],a:0,e:"NIL."},
+{q:"On aircraft fitted with spoilers for lateral control, roll to the right is caused by.",o:["left spoilers extending, right spoilers remaining retracted.","right spoilers extending, left spoilers remaining retracted.","left and right spoilers extending."],a:1,e:"NIL."},
+{q:"A split flap increases lift by increasing.",o:["the angle of attachment of the lower hinged portion.","the surface area.","the camber of the top surface."],a:0,e:"Jeppesen A& P Technician Airframe Textbook page 1-30."},
+{q:"When the trailing edge flaps are lowered, the aircraft will.",o:["pitch nose up.","pitch nose down.","sink."],a:1,e:"Due to the centre of pressure moving."},
+{q:"In aileron control.",o:["the up going aileron moves further than down going aileron.","the down going aileron moves further than up going aileron.","it is assisted by the rudder."],a:0,e:"NIL."},
+{q:"The aircraft is controlled about the lateral axis by the.",o:["ailerons.","elevator.","rudder."],a:1,e:"NIL."},
+{q:"The aircraft is controlled about the normal axis by the.",o:["ailerons.","elevator.","rudder."],a:2,e:"NIL."},
+{q:"Dutch roll is.",o:["a combined yawing and rolling motion.","primarily a pitching instability.","a type of slow roll."],a:0,e:"NIL."},
+{q:"The aircraft is controlled about the longitudinal axis by the.",o:["ailerons.","elevator.","rudder."],a:0,e:"NIL."},
+{q:"Ruddervators when moved, will move.",o:["opposite to each other only.","together only.","either opposite each other or together, depending on the selection."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 16."},
+{q:"As a consequence of the C of G being close to its aft limit.",o:["the stick forces will be high in fore and aft pitch, due to the high longitudinal stability.","the stick forces to manoeuvre longitudinally will be low due to the low stability.","the stick forces when pitching the nose down will be very high."],a:2,e:"NIL."},
+{q:"What is the term used for the amount of water in the atmosphere?.",o:["Relative humidity.","Absolute humidity.","Dew point."],a:1,e:"NIL."},
+{q:"An anti-balance tab is moved.",o:["via a fixed linkage.","hydraulically.","when the C. G. changes."],a:0,e:"NIL."},
+{q:"A servo tab is operated.",o:["directly by the pilot to produce forces which in turn move the main control surfaces.","automatically, and moves in the same direction as the main control surfaces.","by a trim wheel and moves in the opposite direction to the main control surfaces when moved."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 23."},
+{q:"On an aircraft with an all-moving tailplane, pitch up is caused by.",o:["decreasing tailplane incidence.","up movement of the elevator trim tab.","increasing tailplane incidence."],a:0,e:"NIL."},
+{q:"When checking full range of control surface movement, they must be positioned by.",o:["moving them by hand directly until against the primary stops.","moving them by hand directly until against the secondary stops.","operating the control cabin controls until the system is against the primary stops."],a:2,e:"NIL."},
+{q:"An excess of aerodynamic balance would move the control surface centre of pressure.",o:["rearwards, resulting in too much assistance.","rearwards, resulting in loss of assistance.","forwards, resulting in an unstable overbalance."],a:2,e:"NIL."},
+{q:"A flying control mass balance weight.",o:["keeps the control surface C of G as close to the trailing edge as possible.","tends to move the control surface C of G close to the hinge line.","ensures that the C of G always acts to aid the pilot thus relieving control column load."],a:1,e:"NIL."},
+{q:"The type of flap which extends rearwards when lowered is called a.",o:["plain flap.","split flap.","Fowler flap."],a:2,e:"NIL."},
+{q:"Which of the following trailing edge flaps give an increase in wing area?.",o:["Split flap.","Fowler flap.","Slotted flap."],a:1,e:"NIL."},
+{q:"Which of the following is not a primary flying control?.",o:["Elevator.","Tail plane.","Rudder."],a:1,e:"NIL."},
+{q:"A leading edge slat is a device for.",o:["increasing the stalling angle of the wing.","decreasing the stalling angle of the wing.","decreasing wing drag."],a:0,e:"NIL."},
+{q:"A Krueger flap is.",o:["a flap which extends rearwards but does not lower.","a leading edge flap which hinges forward.","a leading edge slat which extends forward."],a:1,e:"NIL."},
+{q:"A tab which assists the pilot to move a flying control by moving automatically in the opposite direction to the control surface is called a.",o:["servo tab.","geared balance tab.","trim tab."],a:1,e:"NIL."},
+{q:"What is attached to the rear of the vertical stabilizer?.",o:["Elevator.","Aileron.","Rudder."],a:2,e:"NIL."},
+{q:"What is fitted on the aircraft to enable the pilot to reduce his speed rapidly in event of severe turbulence, or speed tending to rise above the Never Exceed Limit?.",o:["Lift dumpers.","Air brakes.","Wheel brakes."],a:1,e:"NIL."},
+{q:"When spoilers are used asymmetrically, they combine with.",o:["ailerons.","rudder.","elevators."],a:0,e:"NIL."},
+{q:"What is used to correct any tendency of the aircraft to move towards an undesirable flight attitude?.",o:["Trim tabs.","Spring tabs.","Balance tabs."],a:0,e:"NIL."},
+{q:"The layer of air over the surface of an aerofoil which is slower moving, in relation to the rest of the airflow, is known as.",o:["none of the above are correct.","camber layer.","boundary layer."],a:2,e:"NIL."},
+{q:"A control surface which forms a slot when deployed is called a.",o:["slat.","slot.","flap."],a:0,e:"NIL."},
+{q:"Asymmetric flaps will cause.",o:["the aircraft to descend.","the aircraft to ascend.","one wing to rise."],a:2,e:"NIL."},
+{q:"When airflow velocity over an upper cambered surface of an aerofoil decreases, what takes place?.",o:["Pressure decreases, lift increases.","Pressure increases, lift decreases.","Pressure increases, lift increases."],a:1,e:"NIL."},
+{q:"What is a controlling factor of turbulence and skin friction?.",o:["Countersunk rivets used on skin exterior.","Aspect ratio.","Fineness ratio."],a:0,e:"NIL."},
+{q:"Changes in aircraft weight.",o:["cause corresponding changes in total drag due to the associated lift change.","will not affect total drag since it is dependant only upon speed.","will only affect total drag if the lift is kept constant."],a:0,e:"NIL."},
+{q:"When an aircraft stalls.",o:["lift increases and drag decreases.","lift and drag increase.","lift decreases and drag increases."],a:2,e:"NIL."},
+{q:"Spoiler panels are positioned so that when deployed.",o:["roll will not occur.","pitch trim is not affected.","no yaw takes place."],a:1,e:"NIL."},
+{q:"The aircraft stalling speed will.",o:["only change if the MTWA were changed.","be unaffected by aircraft weight changes since it is dependant upon the angle of attack.","increase with an increase in weight."],a:2,e:"NIL."},
+{q:"In a bank and turn.",o:["extra lift is not required if thrust is increased.","extra lift is not required.","extra lift is required."],a:2,e:"NIL."},
+{q:"The method employed to mass balance control surfaces is to.",o:["fit bias strips to the trailing edge of the surfaces.","attach weights forward of the hinge line.","allow the leading edge of the surface to project into the airflow."],a:1,e:"NIL."},
+{q:"Control surface flutter may be caused by.",o:["excessive play in trim tab attachments.","high static friction in trim tab control tabs.","incorrect angular movement of trim tabs."],a:0,e:"NIL."},
+{q:"A differential aileron control system results in.",o:["aileron drag being reduced on the inner wing in a turn.","aileron drag being reduced on the outer wing in a turn.","aileron drag being compensated by small rudder movements."],a:1,e:"NIL."},
+{q:"The primary function of a flap is.",o:["to trim the aircraft longitudinally.","to alter the position of the centre of gravity.","to alter the lift of an aerofoil."],a:2,e:"Jeppesen A& P Technician Airframe Textbook page 1-30."},
+{q:"The angle of attack at which stall occurs.",o:["can be varied by using flaps and slats.","depends on the weight of the aircraft.","cannot be varied, it is always constant."],a:0,e:"NIL."},
+{q:"The stalling speed of an aircraft.",o:["is increased when it is heavier.","does not change.","is increased when it is lighter."],a:0,e:"NIL."},
+{q:"A wing flap which has dropped or partially extended on one wing in flight will lead to.",o:["a fixed banked attitude which would be corrected by use of the rudder.","a pitching moment which would be corrected by used of the elevators.","a steady rolling tendency which would be corrected by use of the ailerons."],a:2,e:"NIL."},
+{q:"With an increase in the amount of flap deployment, the stalling angle of a wing.",o:["remains the same.","increases.","decreases."],a:2,e:"NIL."},
+{q:"Aerodynamic balance of a control surface may be achieved.",o:["by a horn at the extremity of the surface forward of the hinge line.","by weights added to the control surface aft of the hinge line.","by a trimming strip at the trailing edge of the surface."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 24 Para 7."},
+{q:"A control surface is provided with aerodynamic balancing to.",o:["assist the pilot in moving the control.","increase stability.","decrease the drag when the control is deflected."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 24 Para 7."},
+{q:"Downward displacement of an aileron.",o:["increases the angle at which its wing stalls.","decreases the angle at which its wing will stall.","has no effect on its wing stalling angle, it only affects the stalling speed on that wing."],a:1,e:"NIL."},
+{q:"Due to the tailplane angle of attack change, the flap-induced downwash on the tailplane.",o:["will tend to cause an aircraft nose-up pitch.","may cause a nose-down or nose-up pitch depending upon the initial tailplane load.","will tend to cause an aircraft nose down pitch."],a:0,e:"NIL."},
+{q:"Due to the change in lift coefficient accompanying extension of the flaps, to maintain the lift constant it would be necessary to.",o:["raise the nose.","lower the nose.","keep the pitch attitude constant."],a:1,e:"NIL."},
+{q:"The extension to the rudder(shaded portion shown on the diagram), is provided to.",o:["make the pilot aware of the aerodynamic forces encountered when moving the control.","provide aerodynamic assistance for the pilot when moving the rudder.","prevent control surface flutter."],a:1,e:"Jeppesen A&P Technician Airframe Textbook Page 25 Para 7."},
+{q:"A differential aileron control is one which gives.",o:["the down-going aileron more travel than the up-going one.","equal aileron travel in each direction, but variable for stick movement.","a larger aileron up travel than down."],a:2,e:"NIL."},
+{q:"Which leading edge device improves the laminar flow over the wing?.",o:["Flap and slat.","Slat.","Flap."],a:1,e:"NIL."},
+{q:"The balance tab is an auxiliary surface fitted to a main control surface.",o:["operating automatically to assist the pilot in moving the controls.","operated independently at which point in the length of cable the tensiometer is applied.","operating automatically to provide feel to the controls."],a:0,e:"NIL."},
+{q:"Aerodynamic balancing of flight controls is achieved by.",o:["placing a weight ahead of the hinge point.","placing a weight in the leading edge of the control surface.","providing a portion of the control surface ahead of the hinge point."],a:2,e:"AL/3-24 para 4.2."},
+{q:"Aerodynamic balance is used to.",o:["reduce the control load to zero.","make the flying controls easier to move.","prevent flutter of the flying controls."],a:1,e:"NIL."},
+{q:"A horn balance is.",o:["a rod projecting forward from the control surface with a weight on the end.","a rod projecting upward from the main control surface to which the control cables are attached.","a projection of the outer edge of the control surface forward of the hinge line."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 16."},
+{q:"A control surface is mass balanced by.",o:["the attachment of weights acting on the hinge line.","fitting a balance tab.","the attachment of weights acting forward of the hinge line."],a:2,e:"NIL."},
+{q:"The purpose of anti-balance tabs is to.",o:["relieve stick loads.","trim the aircraft.","give more feel to the control column."],a:2,e:"NIL."},
+{q:"You have adjusted the elevator trim tab to correct for nose heavy. What was the direction of travel of the trim tab?.",o:["The elevator trim tab has moved down.","The elevator trim tab has moved up.","The port elevator tab has moved up and starboard moved down."],a:0,e:"NIL."},
+{q:"The tropopause exists at about.",o:["18,000 ft.","30,000 ft.","36,000 ft."],a:2,e:"NIL."},
+{q:"Induced drag curve characteristics of a slender delta wing are such that there is.",o:["an increasing gradient with wing speed.","no change in gradient with wing speed.","decrease in gradient with wing speed."],a:2,e:"NIL."},
+{q:"If an aircraft is yawing left, the trim tab on the rudder would be positioned.",o:["to the right, moving the rudder left.","to the centre.","to the left, moving the rudder right."],a:2,e:"NIL."},
+{q:"Instability giving roll and yaw.",o:["is dutch roll.","is longitudinal stability.","is lateral stability."],a:0,e:"NIL."},
+{q:"Vortex generators are fitted to.",o:["move transition point rearwards.","move transition point forwards.","advance the onset of flow separation."],a:1,e:"NIL."},
+{q:"Leading edge flaps.",o:["increase stalling angle of the wing.","decrease stalling angle of the wing.","do not change the stalling angle."],a:0,e:"NIL."},
+{q:"Krueger flaps are on.",o:["the leading edge.","either the leading or training edge.","the trailing edge."],a:0,e:"NIL."},
+{q:"Sweepback will.",o:["decrease lateral stability.","not affect lateral stability.","increase lateral stability."],a:2,e:"NIL."},
+{q:"A plain flap.",o:["does not increase the wing area on deployment.","is attached to the leading edge of the wing.","forms part of lower trailing edge."],a:2,e:"NIL."},
+{q:"A split flap, when deployed.",o:["is used only on high speed aircraft.","increases lift without a corresponding increase in drag.","increases drag with little lift coefficient increase, from intermediate to fully down."],a:2,e:"NIL."},
+{q:"A flying control mass balance weight.",o:["keeps the control surface C of G as close to the trailing edge as possible.","tends to move the control surface C of G close to the hinge line.","tends to move the control surface C of G forward of the hinge line."],a:1,e:"NIL."},
+{q:"An elevator controls the aircraft motion in.",o:["yaw.","roll.","pitch."],a:2,e:"NIL."},
+{q:"Air above Mach 0.7 is.",o:["compressible only when above the speed of sound.","incompressible.","compressible."],a:2,e:"Aircraft Flight Barnard and Philpott, Second Edition Page123. Mechanics of Flight AC Kermode 10th Edition Page 385."},
+{q:"Supersonic air passing through a divergent duct causes the.",o:["pressure to increase, velocity to increase.","pressure to increase, velocity to decrease.","pressure to decrease, velocity to increase."],a:2,e:"Mechanics of Flight AC Kermode 10th Edition Page 340."},
+{q:"An aircraft flying below the tropopause descends at a constant True Airspeed. Its Mach. No. will.",o:["not change.","decrease.","increase."],a:1,e:"Speed of sound INCREASES with DECREASING altitude, so mach number will decrease."},
+{q:"A nose down change of trim(tuck-under) occurs due to shock induced.",o:["tip stall on a delta wing aircraft.","root stall on a delta wing aircraft.","tip stall on a straight wing aircraft."],a:1,e:"Pallett Automatic Flight Control 2nd Edition Page 45."},
+{q:"A symmetrical aerofoil is accelerating through Mach 1 with an angle of attack of 0°. A shock wave will form.",o:["on the upper and lower surface and will move aft until the point of maximum camber.","on the upper and lower surface and will move aft.","on the upper surface only and move aft."],a:1,e:"Shockwaves form on upper and lower surfaces BEGINNING at point of max curvature, gradually moving back."},
+{q:"Shock stall.",o:["occurs at high speeds.","is a flap down stall and occurs at high speeds.","occurs at low speeds."],a:0,e:"Shock stall(or shock induced stall) is caused by the formation of shock waves in the transonic speed range."},
+{q:"As you approach supersonic speed.",o:["thrust is reduced.","total drag is increased.","lift is reduced."],a:1,e:"An additional drag- wave drag- is added to the total drag."},
+{q:"Mach trim in some aircraft assists.",o:["lateral stability.","vertical stability.","longitudinal stability."],a:2,e:"Mach trim is used to correct the longitudinal trim upset during the transonic speed range."},
+{q:"Before an aircraft reaches critical mach.",o:["the nose pitches up because the CP moves Forward.","the aircraft buffets because the CP moves to the shock wave.","the nose pitches down because the CP moves rear."],a:2,e:"Mechanics of Flight 10th edition Barnard and Philpott Pg 341."},
+{q:"On a standard day, at which altitude will the speed of sound be the greatest?.",o:["20,000 ft.","10,000 ft.","Sea level."],a:2,e:"NIL."},
+{q:"Which of the following will increase the Critical Mach Number of an aerofoil?.",o:["Using a thin airfoil and sweeping the wings back.","Decreasing the fineness ratio of the wings.","Increasing the aspect ratio of the wings."],a:0,e:"NIL."},
+{q:"As an aircraft accelerates through the transonic region, the centre of pressure tends to.",o:["turn into a shock wave.","move rearward.","move forward."],a:1,e:"NIL."},
+{q:"Supersonic air going through an incipient shock wave will decrease its speed and.",o:["decrease temperature and increase density.","increase temperature and decrease density.","increase temperature and increase density."],a:2,e:"Mechanics of Flight AC Kermode 10th Edition Page 326 fig 11.4."},
+{q:"An increase in mach number will cause the.",o:["CofP to move rearwards giving more downwash on the tail plane.","CofP to move forwards giving less downwash on the tail plane.","CofP to move rearwards giving less downwash on the tail plane."],a:2,e:"Automatic Flight Control, Pallett. Page 50."},
+{q:"At speeds above Mach 1, shockwaves will form above and below the wing.",o:["at the trailing edge.","at both the leading edge and the trailing edge.","at the leading edge."],a:1,e:"NIL."},
+{q:"Above the critical mach number, the drag coefficient.",o:["increases.","remains the same.","decreases."],a:0,e:"NIL."},
+{q:"Mach trim counters.",o:["longitudinal instability.","vertical instability.","lateral instability."],a:0,e:"Automatic Flight Control Pallett page 231 and 50."},
+{q:"At high Mach Numbers above Mach 2.2, some aircraft metals.",o:["such as aluminium, become brittle.","lose their strength due to the kinetic heating effect.","will shrink due to the extreme pressures involved."],a:1,e:"NIL."},
+{q:"Mach trim operates.",o:["along the longitudinal axis.","along the lateral axis.","to reduce Dutch roll."],a:0,e:"NIL."},
+{q:"To increase critical mach number.",o:["the wings are swept.","elevons are fitted.","tailerons are fitted."],a:0,e:"NIL."},
+{q:"When approaching the speed of sound the.",o:["pressure above the wing exceeds the pressure below the wing in places.","pressure above the wing can never exceed the pressure below the wing.","pressure above the wing equals the pressure below the wing."],a:0,e:"NIL."},
+{q:"Airspeeds above the speed of sound, but not exceeding 4 times the speed of sound are.",o:["supersonic.","hypersonic.","hyposonic."],a:0,e:"NIL."},
+{q:"An aircraft experiences a large loss of lift and a big increase in drag in straight and level flight, what would be the most probable cause?.",o:["Atmospheric conditions.","Aircraft reached its critical mach number.","Severe head winds."],a:1,e:"NIL."},
+{q:"A Mach Trimmer is a device which.",o:["prevents the aircraft from exceeding its critical Mach No.","automatically compensates for trim changes in the transonic region.","switches out trim control to prevent damage in the transonic speed range."],a:1,e:"NIL."},
+{q:"Mach trim usually operates between.",o:["0.9 mach and 0.99 mach.","0.7 and 0.8 mach.","0.6 mach 0.7 mach."],a:1,e:"NIL."},
+{q:"Mach trimming is initiated by an input signal from the.",o:["IRS.","vertical gyro.","CADC."],a:1,e:"NIL."},
+{q:"Mach trim prevents.",o:["the nose dropping in a low speed turn.","the nose dropping at high speed.","the nose lifting at high speed."],a:1,e:"NIL."},
+{q:"Critical Mach No. may be increased by.",o:["using a higher thickness/chord ratio wing.","sweeping back the wing.","using more powerful engines."],a:1,e:"NIL."},
+{q:"Airflow either side of a normal shock wave is.",o:["sonic upstream and downstream.","sonic upstream, subsonic downstream.","subsonic upstream, sonic downstream."],a:1,e:"NIL."},
+{q:"Mach Number is defined as.",o:["speed of sound at sea level divided by local speed of sound.","IAS divided by the local speed of sound.","TAS divided by local speed of sound."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 66."},
+{q:"The reason for sharp leading edged wings on high speed aircraft is to.",o:["enable the shockwave to be accurately positioned.","decrease wave drag.","decrease boundary layer."],a:0,e:"NIL."},
+{q:"Critical Mach Number is defined as.",o:["that number at which the airflow becomes supersonic.","that free-stream Mach Number at which some part of the airflow over the aircraft becomes sonic.","the minimum mach number at which the aircraft can go supersonic."],a:1,e:"NIL."},
+{q:"The transonic region is a region of.",o:["all subsonic.","all supersonic.","mixed airflow."],a:2,e:"NIL."},
+{q:"Immediately downstream of an oblique shockwave is always.",o:["supersonic.","the same as upstream.","subsonic."],a:0,e:"NIL."},
+{q:"Wave drag.",o:["increases in the supersonic region.","increases at the low speed stall.","increases in the transonic region."],a:2,e:"NIL."},
+{q:"For increased Mcrit.",o:["decrease thickness/chord ratio.","decrease sweepback.","decrease true airspeed."],a:0,e:"NIL."},
+{q:"Symptoms of shock stall are.",o:["decrease in speed, buffet and movement of the centre of pressure.","buffet, loss of control, and instability.","compressibility effects, buffet and loss of control."],a:1,e:"NIL."},
+{q:"Sweepback increases Mcrit by.",o:["decreasing the amount of airflow over the lowest point on the aerofoil section.","decreasing the amount of airflow over the highest point on the aerofoil section.","increasing the amount of airflow over the highest point on the aerofoil section."],a:1,e:"NIL."},
+{q:"Mach number is.",o:["the ratio of the aircrafts TAS to the speed of sound at the same atmospheric conditions.","the ratio of the aircrafts IAS to the speed of sound at the same atmospheric conditions.","the ratio of the aircrafts TAS to the speed of sound at sea level."],a:0,e:"Flight Instruments and Automatic Flight Control, David Harris Page 19."},
+{q:"The critical Mach number is.",o:["the Mach No. when a shock wave forms at the leading edge.","the Mach No. when the aircraft reaches the speed of sound.","the aircraft Mach. No. when the airflow reaches the speed of sound at some point on the aircraft."],a:2,e:"NIL."},
+{q:"Above the Critical Mach No. the drag coefficient will.",o:["remain the same.","start to increase.","start to decrease."],a:1,e:"NIL."},
+{q:"A wing of low thickness/chord ratio, the Critical Mach No. will be.",o:["lower than a wing of high thickness/chord ratio.","higher than a wing of high thickness/chord ratio.","the same as a wing of high thickness/chord ratio."],a:1,e:"NIL."},
+{q:"An aeroplane flying above the Critical Mach No. will usually experience.",o:["a nose up pitch.","an oscillation in pitch.","a nose down pitch."],a:2,e:"NIL."},
+{q:"Tuck-under can be counteracted by.",o:["mach trim.","aileron reversal.","trim tabs."],a:0,e:"NIL."},
+{q:"What causes tuckunder?.",o:["Flap back effect.","Shock stall.","Aileron reversal."],a:1,e:"NIL."},
+{q:"When does a shock stall occur?.",o:["When the aircraft forward speed is above Mach One.","At the critical Mach number of the aeroplane.","When the aircraft reaches speed of sound in a dive."],a:1,e:"NIL."},
+{q:"With an increase in altitude under I.S.A. conditions, the temperature in the troposphere.",o:["increases.","remains constant.","decreases."],a:2,e:"NIL."},
+{q:"Air either side of an oblique shock wave is generally.",o:["sonic.","supersonic.","subsonic."],a:1,e:"NIL."},
+{q:"Downstream of a normal shock wave.",o:["pressure decreases temperature increases.","pressure and temperature increase.","pressure and temperature decrease."],a:1,e:"NIL."},
+{q:"Speed of sound varies with.",o:["altitude.","temperature.","pressure."],a:1,e:"NIL."},
+{q:"Immediately downstream of a normal shockwave, air is always.",o:["subsonic.","supersonic.","the same as upstream."],a:0,e:"NIL."},
+{q:"Increased sweepback.",o:["improves tip stall characteristics.","raises Mcrit.","decreases stability."],a:1,e:"NIL."},
+{q:"Aerodynamic heating.",o:["increases as a function of airspeed.","increases with skin friction.","decreases with altitude."],a:0,e:"NIL."},
+{q:"To overcome ineffective control surface problems in the transonic region.",o:["an all moving tailplane may be used.","hydraulic powered elevators may be used.","Frise ailerons may be used."],a:0,e:"NIL."},
+{q:"An aircraft flying below the tropopause descends at a constant True Airspeed, its Mach. No. will.",o:["remain the same.","decrease.","increase."],a:1,e:"NIL."},
+{q:"To counter the effect of a shift of centre of pressure as an aircraft flies through the transonic region, fuel is pumped.",o:["forwards.","backwards.","sideways."],a:1,e:"NIL."},
+{q:"An aircraft flying above the tropopause descends at a constant True Airspeed, its Mach. No. will.",o:["remain the same.","decrease.","increase."],a:0,e:"NIL."},
+{q:"The velocity of sound with an increase in altitude will.",o:["remain constant.","increase.","decrease."],a:2,e:"Flight Instruments and Automatic Flight Control Systems, David Harris Page 19."},
+{q:"Mach number equals the ratio of.",o:["altitude to airspeed.","sonic speed to indicated airspeed.","true airspeed to local sonic speed."],a:2,e:"Flight Instruments and Automatic Flight Control Systems, David Harris Page 19."},
+{q:"Tuck-under is caused by.",o:["tip stall on a straight wing aircraft.","tip stall on a swept wing aircraft.","root stall on a swept wing aircraft."],a:2,e:"NIL."},
+{q:"The purpose of sweepback on an aerofoil is to.",o:["decrease drag.","decrease Mcrit.","increase Mcrit."],a:2,e:"NIL."},
+{q:"As the airspeed over a cambered wing is increased, a shock wave will appear initially.",o:["at the leading edge.","at the trailing edge.","near the point of maximum curvature."],a:2,e:"NIL."},
+{q:"In the transonic speed range.",o:["the position of the wing centre of pressure remains constant.","the centre of pressure movement may become oscillatory.","the centre of pressure initially moves forward, then back."],a:1,e:"NIL."},
+{q:"The angle of attack of a blade is the.",o:["angle between the spin axis and relative air flow.","angle between the chord line and plane of rotation.","angle between the chord line and relative airflow."],a:2,e:"NIL."},
+{q:"On a helicopter, what is blade dragging?.",o:["Movement of each blade vertically about their lateral hinges.","Contact of the blade tips on the ground.","Movement of each blade horizontally about their vertical hinge."],a:2,e:"A&P General Textbook Pg 2-58."},
+{q:"Lift generated by a blade is proportional to the.",o:["relative airflow and the pitch.","aircraft airspeed and angle of attack.","relative airflow and the angle of attack."],a:1,e:"NIL."},
+{q:"What effect does the ground have on a helicopter?.",o:["No effect.","Increases lift.","Increases thrust."],a:1,e:"A&P Airframe Technician Textbook Pg 1-58."},
+{q:"What damp s vibrations on a helicopter?.",o:["Swash plate.","Scissor levers.","Bifilar damper."],a:2,e:"NIL."},
+{q:"What design factors govern RPM of a helicopter rotor?.",o:["Weight of blade.","Fineness ratio.","Engine and gearbox."],a:0,e:"A&P Airframe Technician Textbook Pg 1-54."},
+{q:"Relative velocity of a helicopter rotor.",o:["increases at forward travelling blade.","is equal for all blades.","increases at retreating blade."],a:0,e:"A&P Airframe Technician Textbook Pg 1-59."},
+{q:"When OAT increases, what happens to an helicopter operating ceiling?.",o:["Decrease.","Increase.","No effect."],a:0,e:"As temperature increases, density decreases and aircraft performance decreases."},
+{q:"With the helicopter in forward flight, parasitic drag will cause the helicopter to.",o:["pitch nose down with an increase in forward airspeed.","pitch nose down with a decrease in forward airspeed.","pitch nose up with an increase in forward in airspeed."],a:0,e:"NIL."},
+{q:"When a blade moves about the flapping hinge.",o:["the pitch angle of the blade always reduces.","the drag forces on the blade change.","the drag forces on the blade change and the angle of attack(AOA) changes."],a:2,e:"NIL."},
+{q:"To maintain the position of the helicopter with a decrease in air density, the pilot must increase.",o:["main rotor RPM.","cyclic pitch.","collective pitch."],a:2,e:"NIL."},
+{q:"The forces which govern the coning angle are.",o:["lift and centrifugal force.","thrust and centrifugal force.","lift and thrust."],a:0,e:"NIL."},
+{q:"As a helicopter accelerates in level forward flight above approximately 15 knots, it will be necessary to:.",o:["reduce power because of the additional lift due to translational flight.","increase power because rotor RPM is increasing.","reduce power because rotor profile drag is reduced."],a:0,e:"NIL."},
+{q:"Assuming the phase lag of a rotor blade is 90o and the control advance angle is 15 degrees, then the pitch operating arm must be at the highest point of the swash plate:.",o:["90o ahead of the highest flapping position.","75o ahead of the highest flapping position.","105o ahead of the highest flapping position."],a:1,e:"NIL."},
+{q:"A helicopter is hovering and the pilot applies right pedal.Assuming the main rotor rotates anti clockwise viewed from above, the helicopter will.",o:["descend, unless the pilot inches the throttle open.","ascend, unless the pilot decreases rotor RPM.","descend, unless the pilot applies more collective pitch."],a:0,e:"NIL."},
+{q:"A helicopter has a main rotor which rotates anti-clockwise viewed from above, and is fitted with an anti-torque tail rotor. It will tend to drift sideways to.",o:["port, if the tail rotor is mounted on the left side of the aircraft.","starboard, whichever way the tail rotor is fitted.","port, if the tail rotor is mounted on the right side of the aircraft."],a:1,e:"NIL."},
+{q:"As the rotor head is tilted to travel forward, what happens to the rearward travelling blade's pitch angle?.",o:["Increases.","Decreases.","No change."],a:0,e:"A&P Technician Airframe Textbook Pg.1-59."},
+{q:"The tail rotor.",o:["produces a force opposing torque reaction.","produces a force in the same direction as torque reaction.","is not subject to dissymmetry of lift."],a:0,e:"NIL."},
+{q:"With the tail rotor pedals in neutral, the tail rotor blade pitch will be.",o:["positive.","negative.","neutral."],a:0,e:"NIL."},
+{q:"The main rotor drive shaft is tilted laterally on some helicopters to correct tail rotor.",o:["drift.","torque.","roll."],a:0,e:"NIL."},
+{q:"Certain helicopters tend to tilt laterally when landing. This problem can be overcome by placing the tail rotor thrust.",o:["below the line of the main rotor hub.","above the line of the main rotor hub.","in line with the main rotor hub."],a:2,e:"NIL."},
+{q:"Ground cushion effect is produced by.",o:["recirculating air giving additional lift.","increased pressure under the main rotor disc.","increase in density above the fuselage."],a:1,e:"NIL."},
+{q:"A helicopter hovering near a tall building will.",o:["drift away from it.","be unaffected by it.","drift towards it."],a:2,e:"NIL."},
+{q:"Drooping of helicopter blades is compensated by.",o:["flapping.","dragging.","centrifugal force."],a:2,e:"Centrifugal force counteracts the droop of helicopter blades at low RPM."},
+{q:"During decent with power-on, on a helicopter.",o:["lift, weight and thrust are acting on the helicopter.","lift, drag and thrust are acting on the helicopter.","lift, drag, thrust and weight are acting on the helicopter."],a:2,e:"All four forces act on the helicopter."},
+{q:"A helicopter hovering 2m above the ground subject to a strong cross wind will.",o:["lose lift due to the removal of the ground cushion effect.","increase lift due to ground cushion effect.","lose lift due to recirculation."],a:2,e:"NIL."},
+{q:"With a drop in ambient temperature, an aircraft service ceiling will.",o:["lower.","rise.","not be affected."],a:1,e:"As ambient temperature drops, density increases and aircraft performance increases."},
+{q:"During an autorotative descent, rotor RPM will be.",o:["higher than in powered flight.","lower than in powered flight.","substantially the same as in powered flight."],a:0,e:"NIL."},
+{q:"Helicopter blades are.",o:["symmetrical.","highly cambered.","reverse cambered."],a:0,e:"Helicopter blades are usually symmetrical section."},
+{q:"Autorotative force is the.",o:["component of the total reaction which acts forward in the plane of rotation in opposition to drag.","force required to turn in a hover.","force the pilot must apply to the collective lever to obtain a controlled descent."],a:0,e:"NIL."},
+{q:"Autorotation.",o:["leaves the aircraft with no directional control.","results in a loss of power.","is the production of lift from freely rotating rotor blades."],a:2,e:"NIL."},
+{q:"If the main rotor of a helicopter rotates in an anti-clockwise direction when viewed from above, and a hovering left turn is required, the following movements of the controls are selected:.",o:["Rudder pedal to the left, and decrease throttle.","Rudder pedal to the left, and increase throttle.","Rudder pedal to the right, and increase throttle."],a:0,e:"NIL."},
+{q:"Helicopter derives its lift from.",o:["air is pushed downward.","rotor acts as a airscrew.","the blade of the helicopter creates a low pressure above it."],a:2,e:"All three are correct, but an aerodynamicist would choose a 'creates a low pressure above it'."},
+{q:"A two bladed helicopter rotor on a central gimbal is called.",o:["semi rigid rotor.","fully articulated rotor.","rigid rotor."],a:0,e:"A&P Technician Airframe Textbook Pg.1-53."},
+{q:"If a helicopter rotor disc is rotating anticlockwise, viewed from above where, would a pitch input be fed into the disc to move the helicopter backwards,(90 degrees to what)?.",o:["In front of the lateral axis.","Left of the longitudinal axis.","Right of the longitudinal axis."],a:2,e:"Due to precession of the rotor disc, the input to tilt the disc backwards must be placed 90 degrees before, in direction of motion of the disc."},
+{q:"On a helicopter, what is vortex ring state?.",o:["Tip vortex build-up during hover.","Tip vortex interference at high forward speed.","Ground vortex interference when hovering close to the ground."],a:0,e:"During hover, the tip vortex of one blade adds to the tip vortices of the preceding blades, producing a large vortex ring and a very inefficient helicopter."},
+{q:"Climbs with forward speed require less power than vertical climbs, because of.",o:["translational lift.","increased inertia.","forward momentum."],a:0,e:"NIL."},
+{q:"Translational flight is.",o:["achieved by raising or lowering the collective lever.","when the helicopter changes from one steady flight condition to another.","achieved by tilting the rotor disc in the direction of flight."],a:2,e:"NIL."},
+{q:"The best design of a rotor blade is where the CofP.",o:["moves freely along the length of the blade.","does not move.","is insignificant."],a:1,e:"NIL."},
+{q:"When the cyclic stick is eased forward in the hover position.",o:["altitude is increased.","forward thrust is decreased.","vertical lift is reduced."],a:2,e:"NIL."},
+{q:"The rotor cone is formed by.",o:["blade alignment.","centrifugal force and lift.","centrifugal force only."],a:1,e:"NIL."},
+{q:"Tracking is carried out to_____________the main rotor blade tip path.",o:["restore.","align.","balance."],a:1,e:"NIL."},
+{q:"The advancing blade of a helicopter is the one moving.",o:["one moving forward into relative airflow.","highest blade.","one moving in direction of relative air flow."],a:0,e:"NIL."},
+{q:"Lift is generated by.",o:["down-wash below the blade.","high pressure above the blade.","low pressure above the blade."],a:2,e:"NIL."},
+{q:"Static stability of a helicopter is.",o:["the stability of the helicopter when hovering.","the tendency move back toward neutral after disturbance.","the tendency to oscillate until the neutral is achieved."],a:1,e:"NIL."},
+{q:"Forward velocity causes the advancing blade to.",o:["flap down to increase lift.","give increased lift due to blade flapping.","flap up to reduce lift."],a:2,e:"NIL."},
+{q:"When moving from the hover to forward flight it is necessary to.",o:["increase the engine power.","decrease the engine power.","maintain constant engine power."],a:0,e:"NIL."},
+{q:"After a change in collective pitch the Rotor RPM will rise and fall. This is called.",o:["static droop.","transient droop.","under swing."],a:1,e:"The Helicopter and How it Flies by John Fay Page 20/21. The initial total fall in rotor RPM is called transient droop. The change in stabilised RPM is referred to as static droop. The RPM difference between transient droop and static droop is called the underswing."},
+{q:"After a change in pitch of a rotor blade, the blade will be at maximum flap at.",o:["90°.","0°.","180°."],a:0,e:"NIL."},
+{q:"The rotor disc is.",o:["the ground cushion.","the distance between tip to tip.","the rotor head hub."],a:1,e:"Automatic Flight Control. Pallett. Page 59/60 fig 1.42."},
+{q:"The maximum forward speed of a helicopter is limited by.",o:["retreating blade stall and the forward speed of the advancing blade.","engine power.","the shape of the fuselage."],a:0,e:"NIL."},
+{q:"What principle does the delta 3 hinge use?.",o:["Triangular pitch change lever.","Flapping actuators.","Offset hinges."],a:2,e:"NIL."},
+{q:"As the angle of attack of a rotor blade increases, it affects the.",o:["flapping forces.","dragging and the flapping forces.","dragging forces."],a:1,e:"NIL."},
+{q:"With an increase in its angle of attack, the drag acting on a rotor blade.",o:["decreases.","increases.","remains constant."],a:1,e:"NIL."},
+{q:"Forces on a helicopter, in a power-on descent are.",o:["lift, drag, thrust, weight.","lift, drag, thrust.","weight, drag, lift."],a:0,e:"NIL."},
+{q:"The bell stability augmentation system is based on.",o:["flapping hinges.","offset hinges.","gyroscopic forces."],a:2,e:"NIL."},
+{q:"During forward flight the advancing blade will.",o:["flap down.","flap up.","lag."],a:1,e:"NIL."},
+{q:"What is the advancing blade on a helicopter doing?.",o:["Going to the highest point.","Increasing in lift.","Increasing in drag."],a:1,e:"NIL."},
+{q:"What is the swash plate on a helicopter used for?.",o:["Control of the pitch of the rotor blades.","Control of the speed of the rotor blades.","Control of the flap of the rotor blades."],a:0,e:"Automatic Flight Control Pallett Page 61."},
+{q:"Upwash on a helicopter would result in.",o:["decrease in lift.","increase in lift without an increase in power.","decrease in speed."],a:1,e:"Upwash increases angle of attack."},
+{q:"After a roll to the left of a statically unstable helicopter, the helicopter would.",o:["continue to roll further.","remain at the position that it had rolled to.","roll back to the horizontal."],a:0,e:"Automatic Flight Control Pallett Page 65."},
+{q:"The difference between transient droop and static droop is.",o:["overswing.","underswing.","a hole in one."],a:1,e:"The Helicopter history, piloting and how it flies John Fay ISBN81-70002-030-1 Page No 21."},
+{q:"What happens to a helicopter in autorotative flight?.",o:["The rotor goes in the normal direction of rotation.","The rotor goes the opposite direction to the normal direction of rotation.","The cabin goes in the direction of rotation."],a:0,e:"NIL."},
+{q:"The RPM of the rotor blades is constant, within small limits to.",o:["prevent blades over-speeding.","prevent blades folding up during flight.","reduce torque loading."],a:1,e:"NIL."},
+{q:"To maintain the position of the helicopter, when hovering with a decrease in air density, the pilot must.",o:["increase the collective pitch.","increase rotor RPM.","increase the cyclic pitch."],a:0,e:"NIL."},
+{q:"Relative airflow over a helicopter blade.",o:["increases at the tip.","is unaffected by blade position.","increases at the root."],a:0,e:"NIL."},
+{q:"An helicopter fin helps to give.",o:["longitudinal stability about the normal axis.","directional stability about the normal axis.","directional stability about the longitudinal axis."],a:1,e:"NIL."},
+{q:"After a roll to the left of a statically stable helicopter, the helicopter would.",o:["continue to roll.","come back to level flight.","increases roll."],a:1,e:"NIL."},
+{q:"Solidity of the rotor is the ratio of the.",o:["blade area to disc area.","all up weight to blade area.","all up weight to disc area."],a:0,e:"NIL."},
+{q:"Which direction is the air flowing through the main rotor during autorotation?.",o:["Upwards.","Parallel to the rotor chord line.","Downwards."],a:0,e:"NIL."},
+{q:"The purpose of an off-set vertical stabilizer is to.",o:["provide stability during vertical flight.","relieve some of the load on the tail rotor during forward flight.","provide lift during forward flight."],a:1,e:"NIL."},
+{q:"The purpose of the horizontal stabilizer is to.",o:["maintain the aircraft in as near a horizontal attitude as possible, during forward flight.","to reduce rotor head loads during translational flight.","to stabilize the aircraft in the hover."],a:0,e:"NIL."},
+{q:"During autorotation, the rudder pedals.",o:["would need to be backed off due to the loss of torque.","would have no effect on directional control.","would need to be advanced to counteract the increased torque."],a:0,e:"NIL."},
+{q:"In forward flight, the advancing blade would be expected to.",o:["lag.","increase pitch.","flap up."],a:2,e:"NIL."},
+{q:"When the helicopter moves from the hover to translational flight, the lift vector will.",o:["remain vertical.","move forward.","move aft."],a:1,e:"NIL."},
+{q:"If the blade angle of attack increases.",o:["lift increases only.","lift and drag increases.","drag increases only."],a:1,e:"NIL."},
+{q:"When a blade is flapping up.",o:["pitch will increase.","pitch will decrease.","lift and drag both increase."],a:1,e:"NIL."},
+{q:"Vortex ring start requires.",o:["retreating blade stall.","advancing blade stall.","power on descent."],a:2,e:"The helicopter and how it flies Page 117 by John Fay."},
+{q:"Rotor tip vortices are strongest when.",o:["hovering with high weight.","flying high speed in straight and level flight.","flying into a headwind."],a:0,e:"NIL."},
+{q:"Tail rotor effects the helicopter in.",o:["pitch and roll.","vertical axis.","horizontal axis."],a:1,e:"NIL."},
+{q:"A blade of a Helicopter Main Rotor is.",o:["highly cambered.","reverse cambered.","symmetrically cambered."],a:2,e:"NIL."},
+{q:"Helicopter rotor blades produce lift by.",o:["moving a small mass of air downwards slowly.","moving a large mass of air downwards quickly.","creating a lower pressure above the blade than below."],a:2,e:"NIL."},
+{q:"With an increase in forward velocity of a helicopter, the increase in parasitic drag will cause the fuselage attitude to.",o:["pitch down.","remain level.","pitch up."],a:0,e:"The amount of parasitic drag increases with increasing airspeed, so that the thrust/parasite drag(nose down) couple becomes stronger."},
+{q:"On a helicopter, rotor disc lift happens.",o:["180° later.","90° later.","immediately."],a:1,e:"NIL."},
+{q:"During an autorotative descent, rotor RPM will be.",o:["higher than in powered flight.","approximately the same as in powered flight.","lower than in powered flight."],a:0,e:"NIL."},
+{q:"Lift in a helicopter is a result of.",o:["pitch* square root of speed.","angle of attack* velocity squared.","angle of attack* velocity squared and forward speed."],a:1,e:"NIL."},
+{q:"After a change in pitch of a rotor blade the blade will be at maximum flap at.",o:["180°.","90°.","0°."],a:1,e:"NIL."},
+{q:"When the rotor blade increases its angle of attack, the centre of pressure.",o:["does not move.","moves rearwards.","moves forward."],a:0,e:"NIL."},
+{q:"Autorotative force attempts to pull the rotor blade.",o:["in the direction of normal rotation.","both in and against the direction of normal rotation.","against the direction of normal rotation."],a:0,e:"NIL."},
+{q:"The ground effect is effective up to a height equalling.",o:["twice the diameter of the rotor disc.","the length of the fuselage.","the diameter of the rotor disc."],a:2,e:"NIL."},
+{q:"Movement of the collective control will.",o:["increase the pitch of the main rotor blades.","increase the pitch of the tail rotor.","tilt the disc and increase engine power."],a:0,e:"NIL."},
+{q:"Rotor blade sailing is a problem at.",o:["low rotor RPM at engine shut down.","normal rotor RPM in gusty conditions.","high rotor RPM at engine start up."],a:0,e:"NIL."},
+{q:"The layer of air over the surface of an aerofoil which is slower moving, in relation to the rest of the airflow, is known as.",o:["camber layer.","boundary layer.","none of the above are correct."],a:1,e:"NIL."},
+{q:"During helicopter forward flight the retreating blade will tend to.",o:["flap down.","no change.","flap up."],a:0,e:"NIL."},
+{q:"When airflow velocity over an upper cambered surface of an aerofoil decreases, what takes place?.",o:["Pressure decreases, lift increases.","Pressure increases, lift decreases.","Pressure increases, lift increases."],a:1,e:"NIL."},
+{q:"What is a controlling factor of turbulence and skin friction?.",o:["Countersunk rivets used on skin exterior.","Fineness ratio.","Aspect ratio."],a:0,e:"NIL."},
+{q:"Changes in aircraft weight.",o:["will only affect total drag if the lift is kept constant.","will not affect total drag since it is dependant only upon speed.","cause corresponding changes in total drag due to the associated lift change."],a:2,e:"NIL."},
+{q:"When an aerofoil stalls.",o:["lift and drag increase.","lift decreases and drag increases.","lift increases and drag decreases."],a:1,e:"NIL."},
+{q:"Spoiler panels are positioned so that when deployed.",o:["roll will not occur.","pitch trim is not affected.","no yaw takes place."],a:1,e:"NIL."},
+{q:"The aircraft stalling speed will.",o:["only change if the MTWA were changed.","be unaffected by aircraft weight changes since it is dependant upon the angle of attack.","increase with an increase in weight."],a:2,e:"NIL."},
+{q:"In a bank and turn.",o:["extra lift is not required if thrust is increased.","extra lift is not required.","extra lift is required."],a:2,e:"NIL."},
+{q:"The method employed to mass balance control surfaces is to.",o:["fit bias strips to the trailing edge of the surfaces.","attach weights forward of the hinge line.","allow the leading edge of the surface to project into the airflow."],a:1,e:"NIL."},
+{q:"Control surface flutter may be caused by.",o:["excessive play in trim tab attachments.","high static friction in trim tab control tabs.","incorrect angular movement of trim tabs."],a:0,e:"NIL."},
+{q:"A differential aileron control system results in.",o:["aileron drag being reduced on the inner wing in a turn.","aileron drag being reduced on the outer wing in a turn.","aileron drag being compensated by small rudder movements."],a:1,e:"NIL."},
+{q:"The primary function of a flap is.",o:["to trim the aircraft longitudinally.","to alter the position of the centre of gravity.","to alter the lift of an aerofoil."],a:2,e:"Jeppesen A& P Technician Airframe Textbook page 1-30."},
+{q:"The angle of attack at which stall occurs.",o:["can be varied by using flaps and slats.","depends on the weight of the aircraft.","cannot be varied, it is always constant."],a:0,e:"NIL."},
+{q:"The stalling speed of an aircraft.",o:["is increased when it is heavier.","does not change.","is increased when it is lighter."],a:0,e:"NIL."},
+{q:"A wing flap which has dropped or partially extended on one wing in flight will lead to.",o:["a fixed banked attitude which would be corrected by use of the rudder.","a pitching moment which would be corrected by used of the elevators.","a steady rolling tendency which would be corrected by use of the ailerons."],a:2,e:"NIL."},
+{q:"With an increase in the amount of flap deployment, the stalling angle of a wing.",o:["remains the same.","increases.","decreases."],a:2,e:"NIL."},
+{q:"Aerodynamic balance of a control surface may be achieved.",o:["by a horn at the extremity of the surface forward of the hinge line.","by weights added to the control surface aft of the hinge line.","by a trimming strip at the trailing edge of the surface."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 24 Para 7."},
+{q:"A control surface is provided with aerodynamic balancing to.",o:["assist the pilot in moving the control.","increase stability.","decrease the drag when the control is deflected."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 24 Para 7."},
+{q:"Downward displacement of an aileron.",o:["increases the angle at which its wing stalls.","decreases the angle at which its wing will stall.","has no effect on its wing stalling angle, it only affects the stalling speed on that wing."],a:1,e:"NIL."},
+{q:"Due to the tailplane angle of attack change, the flap-induced downwash on the tailplane.",o:["will tend to cause an aircraft nose-up pitch.","may cause a nose-down or nose-up pitch depending upon the initial tailplane load.","will tend to cause an aircraft nose down pitch."],a:0,e:"NIL."},
+{q:"Due to the change in lift coefficient accompanying extension of the flaps, to maintain the lift constant it would be necessary to.",o:["raise the nose.","lower the nose.","keep the pitch attitude constant."],a:1,e:"NIL."},
+{q:"The extension to the rudder(shaded portion shown on the diagram), is provided to.",o:["make the pilot aware of the aerodynamic forces encountered when moving the control.","provide aerodynamic assistance for the pilot when moving the rudder.","prevent control surface flutter."],a:1,e:"Jeppesen A&P Technician Airframe Textbook Page 25 Para 7."},
+{q:"A differential aileron control is one which gives.",o:["the down-going aileron more travel than the up-going one.","equal aileron travel in each direction, but variable for stick movement.","a larger aileron up travel than down."],a:2,e:"NIL."},
+{q:"Which leading edge device improves the laminar flow over the wing?.",o:["Flap and slat.","Slat.","Flap."],a:1,e:"NIL."},
+{q:"The balance tab is an auxiliary surface fitted to a main control surface.",o:["operating automatically to assist the pilot in moving the controls.","operated independently at which point in the length of cable the tensiometer is applied.","operating automatically to provide feel to the controls."],a:0,e:"NIL."},
+{q:"Aerodynamic balancing of flight controls is achieved by.",o:["placing a weight ahead of the hinge point.","placing a weight in the leading edge of the control surface.","providing a portion of the control surface ahead of the hinge point."],a:2,e:"AL/3-24 para 4.2."},
+{q:"Aerodynamic balance is used to.",o:["reduce the control load to zero.","make the flying controls easier to move.","prevent flutter of the flying controls."],a:1,e:"NIL."},
+{q:"A horn balance is.",o:["a rod projecting forward from the control surface with a weight on the end.","a rod projecting upward from the main control surface to which the control cables are attached.","a projection of the outer edge of the control surface forward of the hinge line."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 16."},
+{q:"A control surface is mass balanced by.",o:["the attachment of weights acting on the hinge line.","fitting a balance tab.","the attachment of weights acting forward of the hinge line."],a:2,e:"NIL."},
+{q:"The purpose of anti-balance tabs is to.",o:["relieve stick loads.","trim the aircraft.","give more feel to the control column."],a:2,e:"NIL."},
+{q:"You have adjusted the elevator trim tab to correct for nose heavy. What was the direction of travel of the trim tab?.",o:["The elevator trim tab has moved down.","The elevator trim tab has moved up.","The port elevator tab has moved up and starboard moved down."],a:0,e:"NIL."},
+{q:"The tropopause exists at about.",o:["18,000 ft.","30,000 ft.","36,000 ft."],a:2,e:"NIL."},
+{q:"Induced drag curve characteristics of a slender delta wing are such that there is.",o:["an increasing gradient with wing speed.","no change in gradient with wing speed.","decrease in gradient with wing speed."],a:2,e:"NIL."},
+{q:"If an aircraft is yawing left, the trim tab on the rudder would be positioned.",o:["to the right, moving the rudder left.","to the centre.","to the left, moving the rudder right."],a:2,e:"NIL."},
+{q:"Instability giving roll and yaw.",o:["is dutch roll.","is longitudinal stability.","is lateral stability."],a:0,e:"NIL."},
+{q:"Vortex generators are fitted to.",o:["move transition point rearwards.","move transition point forwards.","advance the onset of flow separation."],a:1,e:"NIL."},
+{q:"Leading edge flaps.",o:["increase stalling angle of the wing.","decrease stalling angle of the wing.","do not change the stalling angle."],a:0,e:"NIL."},
+{q:"Krueger flaps are on.",o:["the leading edge.","either the leading or training edge.","the trailing edge."],a:0,e:"NIL."},
+{q:"Sweepback will.",o:["decrease lateral stability.","not affect lateral stability.","increase lateral stability."],a:2,e:"NIL."},
+{q:"A plain flap.",o:["does not increase the wing area on deployment.","is attached to the leading edge of the wing.","forms part of lower trailing edge."],a:2,e:"NIL."},
+{q:"A split flap, when deployed.",o:["is used only on high speed aircraft.","increases lift without a corresponding increase in drag.","increases drag with little lift coefficient increase, from intermediate to fully down."],a:2,e:"NIL."},
+{q:"A flying control mass balance weight.",o:["keeps the control surface C of G as close to the trailing edge as possible.","tends to move the control surface C of G close to the hinge line.","tends to move the control surface C of G forward of the hinge line."],a:1,e:"NIL."},
+{q:"An elevator controls the aircraft motion in.",o:["yaw.","roll.","pitch."],a:2,e:"NIL."},
+{q:"Air above Mach 0.7 is.",o:["compressible only when above the speed of sound.","incompressible.","compressible."],a:2,e:"Aircraft Flight Barnard and Philpott, Second Edition Page123. Mechanics of Flight AC Kermode 10th Edition Page 385."},
+{q:"Supersonic air passing through a divergent duct causes the.",o:["pressure to increase, velocity to increase.","pressure to increase, velocity to decrease.","pressure to decrease, velocity to increase."],a:2,e:"Mechanics of Flight AC Kermode 10th Edition Page 340."},
+{q:"An aircraft flying below the tropopause descends at a constant True Airspeed. Its Mach. No. will.",o:["not change.","decrease.","increase."],a:1,e:"Speed of sound INCREASES with DECREASING altitude, so mach number will decrease."},
+{q:"A nose down change of trim(tuck-under) occurs due to shock induced.",o:["tip stall on a delta wing aircraft.","root stall on a delta wing aircraft.","tip stall on a straight wing aircraft."],a:1,e:"Pallett Automatic Flight Control 2nd Edition Page 45."},
+{q:"A symmetrical aerofoil is accelerating through Mach 1 with an angle of attack of 0°. A shock wave will form.",o:["on the upper and lower surface and will move aft until the point of maximum camber.","on the upper and lower surface and will move aft.","on the upper surface only and move aft."],a:1,e:"Shockwaves form on upper and lower surfaces BEGINNING at point of max curvature, gradually moving back."},
+{q:"Shock stall.",o:["occurs at high speeds.","is a flap down stall and occurs at high speeds.","occurs at low speeds."],a:0,e:"Shock stall(or shock induced stall) is caused by the formation of shock waves in the transonic speed range."},
+{q:"As you approach supersonic speed.",o:["thrust is reduced.","total drag is increased.","lift is reduced."],a:1,e:"An additional drag- wave drag- is added to the total drag."},
+{q:"Mach trim in some aircraft assists.",o:["lateral stability.","vertical stability.","longitudinal stability."],a:2,e:"Mach trim is used to correct the longitudinal trim upset during the transonic speed range."},
+{q:"Before an aircraft reaches critical mach.",o:["the nose pitches up because the CP moves Forward.","the aircraft buffets because the CP moves to the shock wave.","the nose pitches down because the CP moves rear."],a:2,e:"Mechanics of Flight 10th edition Barnard and Philpott Pg 341."},
+{q:"On a standard day, at which altitude will the speed of sound be the greatest?.",o:["20,000 ft.","10,000 ft.","Sea level."],a:2,e:"NIL."},
+{q:"Which of the following will increase the Critical Mach Number of an aerofoil?.",o:["Using a thin airfoil and sweeping the wings back.","Decreasing the fineness ratio of the wings.","Increasing the aspect ratio of the wings."],a:0,e:"NIL."},
+{q:"As an aircraft accelerates through the transonic region, the centre of pressure tends to.",o:["turn into a shock wave.","move rearward.","move forward."],a:1,e:"NIL."},
+{q:"Supersonic air going through an incipient shock wave will decrease its speed and.",o:["decrease temperature and increase density.","increase temperature and decrease density.","increase temperature and increase density."],a:2,e:"Mechanics of Flight AC Kermode 10th Edition Page 326 fig 11.4."},
+{q:"An increase in mach number will cause the.",o:["CofP to move rearwards giving more downwash on the tail plane.","CofP to move forwards giving less downwash on the tail plane.","CofP to move rearwards giving less downwash on the tail plane."],a:2,e:"Automatic Flight Control, Pallett. Page 50."},
+{q:"At speeds above Mach 1, shockwaves will form above and below the wing.",o:["at the trailing edge.","at both the leading edge and the trailing edge.","at the leading edge."],a:1,e:"NIL."},
+{q:"Above the critical mach number, the drag coefficient.",o:["increases.","remains the same.","decreases."],a:0,e:"NIL."},
+{q:"Mach trim counters.",o:["longitudinal instability.","vertical instability.","lateral instability."],a:0,e:"Automatic Flight Control Pallett page 231 and 50."},
+{q:"At high Mach Numbers above Mach 2.2, some aircraft metals.",o:["such as aluminium, become brittle.","lose their strength due to the kinetic heating effect.","will shrink due to the extreme pressures involved."],a:1,e:"NIL."},
+{q:"Mach trim operates.",o:["along the longitudinal axis.","along the lateral axis.","to reduce Dutch roll."],a:0,e:"NIL."},
+{q:"To increase critical mach number.",o:["the wings are swept.","elevons are fitted.","tailerons are fitted."],a:0,e:"NIL."},
+{q:"When approaching the speed of sound the.",o:["pressure above the wing exceeds the pressure below the wing in places.","pressure above the wing can never exceed the pressure below the wing.","pressure above the wing equals the pressure below the wing."],a:0,e:"NIL."},
+{q:"Airspeeds above the speed of sound, but not exceeding 4 times the speed of sound are.",o:["supersonic.","hypersonic.","hyposonic."],a:0,e:"NIL."},
+{q:"An aircraft experiences a large loss of lift and a big increase in drag in straight and level flight, what would be the most probable cause?.",o:["Atmospheric conditions.","Aircraft reached its critical mach number.","Severe head winds."],a:1,e:"NIL."},
+{q:"A Mach Trimmer is a device which.",o:["prevents the aircraft from exceeding its critical Mach No.","automatically compensates for trim changes in the transonic region.","switches out trim control to prevent damage in the transonic speed range."],a:1,e:"NIL."},
+{q:"Mach trim usually operates between.",o:["0.9 mach and 0.99 mach.","0.7 and 0.8 mach.","0.6 mach 0.7 mach."],a:1,e:"NIL."},
+{q:"Mach trimming is initiated by an input signal from the.",o:["IRS.","vertical gyro.","CADC."],a:1,e:"NIL."},
+{q:"Mach trim prevents.",o:["the nose dropping in a low speed turn.","the nose dropping at high speed.","the nose lifting at high speed."],a:1,e:"NIL."},
+{q:"Critical Mach No. may be increased by.",o:["using a higher thickness/chord ratio wing.","sweeping back the wing.","using more powerful engines."],a:1,e:"NIL."},
+{q:"Airflow either side of a normal shock wave is.",o:["sonic upstream and downstream.","sonic upstream, subsonic downstream.","subsonic upstream, sonic downstream."],a:1,e:"NIL."},
+{q:"Mach Number is defined as.",o:["speed of sound at sea level divided by local speed of sound.","IAS divided by the local speed of sound.","TAS divided by local speed of sound."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 66."},
+{q:"The reason for sharp leading edged wings on high speed aircraft is to.",o:["enable the shockwave to be accurately positioned.","decrease wave drag.","decrease boundary layer."],a:0,e:"NIL."},
+{q:"Critical Mach Number is defined as.",o:["that number at which the airflow becomes supersonic.","that free-stream Mach Number at which some part of the airflow over the aircraft becomes sonic.","the minimum mach number at which the aircraft can go supersonic."],a:1,e:"NIL."},
+{q:"The transonic region is a region of.",o:["all subsonic.","all supersonic.","mixed airflow."],a:2,e:"NIL."},
+{q:"Immediately downstream of an oblique shockwave is always.",o:["supersonic.","the same as upstream.","subsonic."],a:0,e:"NIL."},
+{q:"Wave drag.",o:["increases in the supersonic region.","increases at the low speed stall.","increases in the transonic region."],a:2,e:"NIL."},
+{q:"For increased Mcrit.",o:["decrease thickness/chord ratio.","decrease sweepback.","decrease true airspeed."],a:0,e:"NIL."},
+{q:"Symptoms of shock stall are.",o:["decrease in speed, buffet and movement of the centre of pressure.","buffet, loss of control, and instability.","compressibility effects, buffet and loss of control."],a:1,e:"NIL."},
+{q:"Sweepback increases Mcrit by.",o:["decreasing the amount of airflow over the lowest point on the aerofoil section.","decreasing the amount of airflow over the highest point on the aerofoil section.","increasing the amount of airflow over the highest point on the aerofoil section."],a:1,e:"NIL."},
+{q:"Mach number is.",o:["the ratio of the aircrafts TAS to the speed of sound at the same atmospheric conditions.","the ratio of the aircrafts IAS to the speed of sound at the same atmospheric conditions.","the ratio of the aircrafts TAS to the speed of sound at sea level."],a:0,e:"Flight Instruments and Automatic Flight Control, David Harris Page 19."},
+{q:"The critical Mach number is.",o:["the Mach No. when a shock wave forms at the leading edge.","the Mach No. when the aircraft reaches the speed of sound.","the aircraft Mach. No. when the airflow reaches the speed of sound at some point on the aircraft."],a:2,e:"NIL."},
+{q:"Above the Critical Mach No. the drag coefficient will.",o:["remain the same.","start to increase.","start to decrease."],a:1,e:"NIL."},
+{q:"A wing of low thickness/chord ratio, the Critical Mach No. will be.",o:["lower than a wing of high thickness/chord ratio.","higher than a wing of high thickness/chord ratio.","the same as a wing of high thickness/chord ratio."],a:1,e:"NIL."},
+{q:"An aeroplane flying above the Critical Mach No. will usually experience.",o:["a nose up pitch.","an oscillation in pitch.","a nose down pitch."],a:2,e:"NIL."},
+{q:"Tuck-under can be counteracted by.",o:["mach trim.","aileron reversal.","trim tabs."],a:0,e:"NIL."},
+{q:"What causes tuckunder?.",o:["Flap back effect.","Shock stall.","Aileron reversal."],a:1,e:"NIL."},
+{q:"When does a shock stall occur?.",o:["When the aircraft forward speed is above Mach One.","At the critical Mach number of the aeroplane.","When the aircraft reaches speed of sound in a dive."],a:1,e:"NIL."},
+{q:"With an increase in altitude under I.S.A. conditions, the temperature in the troposphere.",o:["increases.","remains constant.","decreases."],a:2,e:"NIL."},
+{q:"Air either side of an oblique shock wave is generally.",o:["sonic.","supersonic.","subsonic."],a:1,e:"NIL."},
+{q:"Downstream of a normal shock wave.",o:["pressure decreases temperature increases.","pressure and temperature increase.","pressure and temperature decrease."],a:1,e:"NIL."},
+{q:"Speed of sound varies with.",o:["altitude.","temperature.","pressure."],a:1,e:"NIL."},
+{q:"Immediately downstream of a normal shockwave, air is always.",o:["subsonic.","supersonic.","the same as upstream."],a:0,e:"NIL."},
+{q:"Increased sweepback.",o:["improves tip stall characteristics.","raises Mcrit.","decreases stability."],a:1,e:"NIL."},
+{q:"Aerodynamic heating.",o:["increases as a function of airspeed.","increases with skin friction.","decreases with altitude."],a:0,e:"NIL."},
+{q:"To overcome ineffective control surface problems in the transonic region.",o:["an all moving tailplane may be used.","hydraulic powered elevators may be used.","Frise ailerons may be used."],a:0,e:"NIL."},
+{q:"An aircraft flying below the tropopause descends at a constant True Airspeed, its Mach. No. will.",o:["remain the same.","decrease.","increase."],a:1,e:"NIL."},
+{q:"To counter the effect of a shift of centre of pressure as an aircraft flies through the transonic region, fuel is pumped.",o:["forwards.","backwards.","sideways."],a:1,e:"NIL."},
+{q:"An aircraft flying above the tropopause descends at a constant True Airspeed, its Mach. No. will.",o:["remain the same.","decrease.","increase."],a:0,e:"NIL."},
+{q:"The velocity of sound with an increase in altitude will.",o:["remain constant.","increase.","decrease."],a:2,e:"Flight Instruments and Automatic Flight Control Systems, David Harris Page 19."},
+{q:"Mach number equals the ratio of.",o:["altitude to airspeed.","sonic speed to indicated airspeed.","true airspeed to local sonic speed."],a:2,e:"Flight Instruments and Automatic Flight Control Systems, David Harris Page 19."},
+{q:"Tuck-under is caused by.",o:["tip stall on a straight wing aircraft.","tip stall on a swept wing aircraft.","root stall on a swept wing aircraft."],a:2,e:"NIL."},
+{q:"The purpose of sweepback on an aerofoil is to.",o:["decrease drag.","decrease Mcrit.","increase Mcrit."],a:2,e:"NIL."},
+{q:"As the airspeed over a cambered wing is increased, a shock wave will appear initially.",o:["at the leading edge.","at the trailing edge.","near the point of maximum curvature."],a:2,e:"NIL."},
+{q:"In the transonic speed range.",o:["the position of the wing centre of pressure remains constant.","the centre of pressure movement may become oscillatory.","the centre of pressure initially moves forward, then back."],a:1,e:"NIL."},
+{q:"The angle of attack of a blade is the.",o:["angle between the spin axis and relative air flow.","angle between the chord line and plane of rotation.","angle between the chord line and relative airflow."],a:2,e:"NIL."},
+{q:"On a helicopter, what is blade dragging?.",o:["Movement of each blade vertically about their lateral hinges.","Contact of the blade tips on the ground.","Movement of each blade horizontally about their vertical hinge."],a:2,e:"A&P General Textbook Pg 2-58."},
+{q:"Lift generated by a blade is proportional to the.",o:["relative airflow and the pitch.","aircraft airspeed and angle of attack.","relative airflow and the angle of attack."],a:1,e:"NIL."},
+{q:"What effect does the ground have on a helicopter?.",o:["No effect.","Increases lift.","Increases thrust."],a:1,e:"A&P Airframe Technician Textbook Pg 1-58."},
+{q:"What damp s vibrations on a helicopter?.",o:["Swash plate.","Scissor levers.","Bifilar damper."],a:2,e:"NIL."},
+{q:"What design factors govern RPM of a helicopter rotor?.",o:["Weight of blade.","Fineness ratio.","Engine and gearbox."],a:0,e:"A&P Airframe Technician Textbook Pg 1-54."},
+{q:"Relative velocity of a helicopter rotor.",o:["increases at forward travelling blade.","is equal for all blades.","increases at retreating blade."],a:0,e:"A&P Airframe Technician Textbook Pg 1-59."},
+{q:"When OAT increases, what happens to an helicopter operating ceiling?.",o:["Decrease.","Increase.","No effect."],a:0,e:"As temperature increases, density decreases and aircraft performance decreases."},
+{q:"With the helicopter in forward flight, parasitic drag will cause the helicopter to.",o:["pitch nose down with an increase in forward airspeed.","pitch nose down with a decrease in forward airspeed.","pitch nose up with an increase in forward in airspeed."],a:0,e:"NIL."},
+{q:"When a blade moves about the flapping hinge.",o:["the pitch angle of the blade always reduces.","the drag forces on the blade change.","the drag forces on the blade change and the angle of attack(AOA) changes."],a:2,e:"NIL."},
+{q:"To maintain the position of the helicopter with a decrease in air density, the pilot must increase.",o:["main rotor RPM.","cyclic pitch.","collective pitch."],a:2,e:"NIL."},
+{q:"The forces which govern the coning angle are.",o:["lift and centrifugal force.","thrust and centrifugal force.","lift and thrust."],a:0,e:"NIL."},
+{q:"As a helicopter accelerates in level forward flight above approximately 15 knots, it will be necessary to:.",o:["reduce power because of the additional lift due to translational flight.","increase power because rotor RPM is increasing.","reduce power because rotor profile drag is reduced."],a:0,e:"NIL."},
+{q:"Assuming the phase lag of a rotor blade is 90o and the control advance angle is 15 degrees, then the pitch operating arm must be at the highest point of the swash plate:.",o:["90o ahead of the highest flapping position.","75o ahead of the highest flapping position.","105o ahead of the highest flapping position."],a:1,e:"NIL."},
+{q:"A helicopter is hovering and the pilot applies right pedal.Assuming the main rotor rotates anti clockwise viewed from above, the helicopter will.",o:["descend, unless the pilot inches the throttle open.","ascend, unless the pilot decreases rotor RPM.","descend, unless the pilot applies more collective pitch."],a:0,e:"NIL."},
+{q:"A helicopter has a main rotor which rotates anti-clockwise viewed from above, and is fitted with an anti-torque tail rotor. It will tend to drift sideways to.",o:["port, if the tail rotor is mounted on the left side of the aircraft.","starboard, whichever way the tail rotor is fitted.","port, if the tail rotor is mounted on the right side of the aircraft."],a:1,e:"NIL."},
+{q:"As the rotor head is tilted to travel forward, what happens to the rearward travelling blade's pitch angle?.",o:["Increases.","Decreases.","No change."],a:0,e:"A&P Technician Airframe Textbook Pg.1-59."},
+{q:"The tail rotor.",o:["produces a force opposing torque reaction.","produces a force in the same direction as torque reaction.","is not subject to dissymmetry of lift."],a:0,e:"NIL."},
+{q:"With the tail rotor pedals in neutral, the tail rotor blade pitch will be.",o:["positive.","negative.","neutral."],a:0,e:"NIL."},
+{q:"The main rotor drive shaft is tilted laterally on some helicopters to correct tail rotor.",o:["drift.","torque.","roll."],a:0,e:"NIL."},
+{q:"Certain helicopters tend to tilt laterally when landing. This problem can be overcome by placing the tail rotor thrust.",o:["below the line of the main rotor hub.","above the line of the main rotor hub.","in line with the main rotor hub."],a:2,e:"NIL."},
+{q:"Ground cushion effect is produced by.",o:["recirculating air giving additional lift.","increased pressure under the main rotor disc.","increase in density above the fuselage."],a:1,e:"NIL."},
+{q:"A helicopter hovering near a tall building will.",o:["drift away from it.","be unaffected by it.","drift towards it."],a:2,e:"NIL."},
+{q:"Drooping of helicopter blades is compensated by.",o:["flapping.","dragging.","centrifugal force."],a:2,e:"Centrifugal force counteracts the droop of helicopter blades at low RPM."},
+{q:"During decent with power-on, on a helicopter.",o:["lift, weight and thrust are acting on the helicopter.","lift, drag and thrust are acting on the helicopter.","lift, drag, thrust and weight are acting on the helicopter."],a:2,e:"All four forces act on the helicopter."},
+{q:"A helicopter hovering 2m above the ground subject to a strong cross wind will.",o:["lose lift due to the removal of the ground cushion effect.","increase lift due to ground cushion effect.","lose lift due to recirculation."],a:2,e:"NIL."},
+{q:"With a drop in ambient temperature, an aircraft service ceiling will.",o:["lower.","rise.","not be affected."],a:1,e:"As ambient temperature drops, density increases and aircraft performance increases."},
+{q:"During an autorotative descent, rotor RPM will be.",o:["higher than in powered flight.","lower than in powered flight.","substantially the same as in powered flight."],a:0,e:"NIL."},
+{q:"Helicopter blades are.",o:["symmetrical.","highly cambered.","reverse cambered."],a:0,e:"Helicopter blades are usually symmetrical section."},
+{q:"Autorotative force is the.",o:["component of the total reaction which acts forward in the plane of rotation in opposition to drag.","force required to turn in a hover.","force the pilot must apply to the collective lever to obtain a controlled descent."],a:0,e:"NIL."},
+{q:"Autorotation.",o:["leaves the aircraft with no directional control.","results in a loss of power.","is the production of lift from freely rotating rotor blades."],a:2,e:"NIL."},
+{q:"If the main rotor of a helicopter rotates in an anti-clockwise direction when viewed from above, and a hovering left turn is required, the following movements of the controls are selected:.",o:["Rudder pedal to the left, and decrease throttle.","Rudder pedal to the left, and increase throttle.","Rudder pedal to the right, and increase throttle."],a:0,e:"NIL."},
+{q:"Helicopter derives its lift from.",o:["air is pushed downward.","rotor acts as a airscrew.","the blade of the helicopter creates a low pressure above it."],a:2,e:"All three are correct, but an aerodynamicist would choose a 'creates a low pressure above it'."},
+{q:"A two bladed helicopter rotor on a central gimbal is called.",o:["semi rigid rotor.","fully articulated rotor.","rigid rotor."],a:0,e:"A&P Technician Airframe Textbook Pg.1-53."},
+{q:"If a helicopter rotor disc is rotating anticlockwise, viewed from above where, would a pitch input be fed into the disc to move the helicopter backwards,(90 degrees to what)?.",o:["In front of the lateral axis.","Left of the longitudinal axis.","Right of the longitudinal axis."],a:2,e:"Due to precession of the rotor disc, the input to tilt the disc backwards must be placed 90 degrees before, in direction of motion of the disc."},
+{q:"On a helicopter, what is vortex ring state?.",o:["Tip vortex build-up during hover.","Tip vortex interference at high forward speed.","Ground vortex interference when hovering close to the ground."],a:0,e:"During hover, the tip vortex of one blade adds to the tip vortices of the preceding blades, producing a large vortex ring and a very inefficient helicopter."},
+{q:"Climbs with forward speed require less power than vertical climbs, because of.",o:["translational lift.","increased inertia.","forward momentum."],a:0,e:"NIL."},
+{q:"Translational flight is.",o:["achieved by raising or lowering the collective lever.","when the helicopter changes from one steady flight condition to another.","achieved by tilting the rotor disc in the direction of flight."],a:2,e:"NIL."},
+{q:"The best design of a rotor blade is where the CofP.",o:["moves freely along the length of the blade.","does not move.","is insignificant."],a:1,e:"NIL."},
+{q:"When the cyclic stick is eased forward in the hover position.",o:["altitude is increased.","forward thrust is decreased.","vertical lift is reduced."],a:2,e:"NIL."},
+{q:"The rotor cone is formed by.",o:["blade alignment.","centrifugal force and lift.","centrifugal force only."],a:1,e:"NIL."},
+{q:"Tracking is carried out to_____________the main rotor blade tip path.",o:["restore.","align.","balance."],a:1,e:"NIL."},
+{q:"The advancing blade of a helicopter is the one moving.",o:["one moving forward into relative airflow.","highest blade.","one moving in direction of relative air flow."],a:0,e:"NIL."},
+{q:"Lift is generated by.",o:["down-wash below the blade.","high pressure above the blade.","low pressure above the blade."],a:2,e:"NIL."},
+{q:"Static stability of a helicopter is.",o:["the stability of the helicopter when hovering.","the tendency move back toward neutral after disturbance.","the tendency to oscillate until the neutral is achieved."],a:1,e:"NIL."},
+{q:"Forward velocity causes the advancing blade to.",o:["flap down to increase lift.","give increased lift due to blade flapping.","flap up to reduce lift."],a:2,e:"NIL."},
+{q:"When moving from the hover to forward flight it is necessary to.",o:["increase the engine power.","decrease the engine power.","maintain constant engine power."],a:0,e:"NIL."},
+{q:"After a change in collective pitch the Rotor RPM will rise and fall. This is called.",o:["static droop.","transient droop.","under swing."],a:1,e:"The Helicopter and How it Flies by John Fay Page 20/21. The initial total fall in rotor RPM is called transient droop. The change in stabilised RPM is referred to as static droop. The RPM difference between transient droop and static droop is called the underswing."},
+{q:"After a change in pitch of a rotor blade, the blade will be at maximum flap at.",o:["90°.","0°.","180°."],a:0,e:"NIL."},
+{q:"The rotor disc is.",o:["the ground cushion.","the distance between tip to tip.","the rotor head hub."],a:1,e:"Automatic Flight Control. Pallett. Page 59/60 fig 1.42."},
+{q:"The maximum forward speed of a helicopter is limited by.",o:["retreating blade stall and the forward speed of the advancing blade.","engine power.","the shape of the fuselage."],a:0,e:"NIL."},
+{q:"What principle does the delta 3 hinge use?.",o:["Triangular pitch change lever.","Flapping actuators.","Offset hinges."],a:2,e:"NIL."},
+{q:"As the angle of attack of a rotor blade increases, it affects the.",o:["flapping forces.","dragging and the flapping forces.","dragging forces."],a:1,e:"NIL."},
+{q:"With an increase in its angle of attack, the drag acting on a rotor blade.",o:["decreases.","increases.","remains constant."],a:1,e:"NIL."},
+{q:"Forces on a helicopter, in a power-on descent are.",o:["lift, drag, thrust, weight.","lift, drag, thrust.","weight, drag, lift."],a:0,e:"NIL."},
+{q:"The bell stability augmentation system is based on.",o:["flapping hinges.","offset hinges.","gyroscopic forces."],a:2,e:"NIL."},
+{q:"During forward flight the advancing blade will.",o:["flap down.","flap up.","lag."],a:1,e:"NIL."},
+{q:"What is the advancing blade on a helicopter doing?.",o:["Going to the highest point.","Increasing in lift.","Increasing in drag."],a:1,e:"NIL."},
+{q:"What is the swash plate on a helicopter used for?.",o:["Control of the pitch of the rotor blades.","Control of the speed of the rotor blades.","Control of the flap of the rotor blades."],a:0,e:"Automatic Flight Control Pallett Page 61."},
+{q:"Upwash on a helicopter would result in.",o:["decrease in lift.","increase in lift without an increase in power.","decrease in speed."],a:1,e:"Upwash increases angle of attack."},
+{q:"After a roll to the left of a statically unstable helicopter, the helicopter would.",o:["continue to roll further.","remain at the position that it had rolled to.","roll back to the horizontal."],a:0,e:"Automatic Flight Control Pallett Page 65."},
+{q:"The difference between transient droop and static droop is.",o:["overswing.","underswing.","a hole in one."],a:1,e:"The Helicopter history, piloting and how it flies John Fay ISBN81-70002-030-1 Page No 21."},
+{q:"What happens to a helicopter in autorotative flight?.",o:["The rotor goes in the normal direction of rotation.","The rotor goes the opposite direction to the normal direction of rotation.","The cabin goes in the direction of rotation."],a:0,e:"NIL."},
+{q:"The RPM of the rotor blades is constant, within small limits to.",o:["prevent blades over-speeding.","prevent blades folding up during flight.","reduce torque loading."],a:1,e:"NIL."},
+{q:"To maintain the position of the helicopter, when hovering with a decrease in air density, the pilot must.",o:["increase the collective pitch.","increase rotor RPM.","increase the cyclic pitch."],a:0,e:"NIL."},
+{q:"Relative airflow over a helicopter blade.",o:["increases at the tip.","is unaffected by blade position.","increases at the root."],a:0,e:"NIL."},
+{q:"An helicopter fin helps to give.",o:["longitudinal stability about the normal axis.","directional stability about the normal axis.","directional stability about the longitudinal axis."],a:1,e:"NIL."},
+{q:"After a roll to the left of a statically stable helicopter, the helicopter would.",o:["continue to roll.","come back to level flight.","increases roll."],a:1,e:"NIL."},
+{q:"Solidity of the rotor is the ratio of the.",o:["blade area to disc area.","all up weight to blade area.","all up weight to disc area."],a:0,e:"NIL."},
+{q:"Which direction is the air flowing through the main rotor during autorotation?.",o:["Upwards.","Parallel to the rotor chord line.","Downwards."],a:0,e:"NIL."},
+{q:"The purpose of an off-set vertical stabilizer is to.",o:["provide stability during vertical flight.","relieve some of the load on the tail rotor during forward flight.","provide lift during forward flight."],a:1,e:"NIL."},
+{q:"The purpose of the horizontal stabilizer is to.",o:["maintain the aircraft in as near a horizontal attitude as possible, during forward flight.","to reduce rotor head loads during translational flight.","to stabilize the aircraft in the hover."],a:0,e:"NIL."},
+{q:"During autorotation, the rudder pedals.",o:["would need to be backed off due to the loss of torque.","would have no effect on directional control.","would need to be advanced to counteract the increased torque."],a:0,e:"NIL."},
+{q:"In forward flight, the advancing blade would be expected to.",o:["lag.","increase pitch.","flap up."],a:2,e:"NIL."},
+{q:"When the helicopter moves from the hover to translational flight, the lift vector will.",o:["remain vertical.","move forward.","move aft."],a:1,e:"NIL."},
+{q:"If the blade angle of attack increases.",o:["lift increases only.","lift and drag increases.","drag increases only."],a:1,e:"NIL."},
+{q:"When a blade is flapping up.",o:["pitch will increase.","pitch will decrease.","lift and drag both increase."],a:1,e:"NIL."},
+{q:"Vortex ring start requires.",o:["retreating blade stall.","advancing blade stall.","power on descent."],a:2,e:"The helicopter and how it flies Page 117 by John Fay."},
+{q:"Rotor tip vortices are strongest when.",o:["hovering with high weight.","flying high speed in straight and level flight.","flying into a headwind."],a:0,e:"NIL."},
+{q:"Tail rotor effects the helicopter in.",o:["pitch and roll.","vertical axis.","horizontal axis."],a:1,e:"NIL."},
+{q:"A blade of a Helicopter Main Rotor is.",o:["highly cambered.","reverse cambered.","symmetrically cambered."],a:2,e:"NIL."},
+{q:"Helicopter rotor blades produce lift by.",o:["moving a small mass of air downwards slowly.","moving a large mass of air downwards quickly.","creating a lower pressure above the blade than below."],a:2,e:"NIL."},
+{q:"With an increase in forward velocity of a helicopter, the increase in parasitic drag will cause the fuselage attitude to.",o:["pitch down.","remain level.","pitch up."],a:0,e:"The amount of parasitic drag increases with increasing airspeed, so that the thrust/parasite drag(nose down) couple becomes stronger."},
+{q:"On a helicopter, rotor disc lift happens.",o:["180° later.","90° later.","immediately."],a:1,e:"NIL."},
+{q:"During an autorotative descent, rotor RPM will be.",o:["higher than in powered flight.","approximately the same as in powered flight.","lower than in powered flight."],a:0,e:"NIL."},
+{q:"Lift in a helicopter is a result of.",o:["pitch* square root of speed.","angle of attack* velocity squared.","angle of attack* velocity squared and forward speed."],a:1,e:"NIL."},
+{q:"After a change in pitch of a rotor blade the blade will be at maximum flap at.",o:["180°.","90°.","0°."],a:1,e:"NIL."},
+{q:"When the rotor blade increases its angle of attack, the centre of pressure.",o:["does not move.","moves rearwards.","moves forward."],a:0,e:"NIL."},
+{q:"Autorotative force attempts to pull the rotor blade.",o:["in the direction of normal rotation.","both in and against the direction of normal rotation.","against the direction of normal rotation."],a:0,e:"NIL."},
+{q:"The ground effect is effective up to a height equalling.",o:["twice the diameter of the rotor disc.","the length of the fuselage.","the diameter of the rotor disc."],a:2,e:"NIL."},
+{q:"Movement of the collective control will.",o:["increase the pitch of the main rotor blades.","increase the pitch of the tail rotor.","tilt the disc and increase engine power."],a:0,e:"NIL."},
+{q:"Rotor blade sailing is a problem at.",o:["low rotor RPM at engine shut down.","normal rotor RPM in gusty conditions.","high rotor RPM at engine start up."],a:0,e:"NIL."},
+{q:"The layer of air over the surface of an aerofoil which is slower moving, in relation to the rest of the airflow, is known as.",o:["camber layer.","boundary layer.","none of the above are correct."],a:1,e:"NIL."},
+{q:"During helicopter forward flight the retreating blade will tend to.",o:["flap down.","no change.","flap up."],a:0,e:"NIL."},
+{q:"When airflow velocity over an upper cambered surface of an aerofoil decreases, what takes place?.",o:["Pressure decreases, lift increases.","Pressure increases, lift decreases.","Pressure increases, lift increases."],a:1,e:"NIL."},
+{q:"What is a controlling factor of turbulence and skin friction?.",o:["Countersunk rivets used on skin exterior.","Fineness ratio.","Aspect ratio."],a:0,e:"NIL."},
+{q:"Changes in aircraft weight.",o:["will only affect total drag if the lift is kept constant.","will not affect total drag since it is dependant only upon speed.","cause corresponding changes in total drag due to the associated lift change."],a:2,e:"NIL."},
+{q:"When an aerofoil stalls.",o:["lift and drag increase.","lift decreases and drag increases.","lift increases and drag decreases."],a:1,e:"NIL."},
+{q:"Spoiler panels are positioned so that when deployed.",o:["roll will not occur.","pitch trim is not affected.","no yaw takes place."],a:1,e:"NIL."},
+{q:"The aircraft stalling speed will.",o:["only change if the MTWA were changed.","be unaffected by aircraft weight changes since it is dependant upon the angle of attack.","increase with an increase in weight."],a:2,e:"NIL."},
+{q:"In a bank and turn.",o:["extra lift is not required if thrust is increased.","extra lift is not required.","extra lift is required."],a:2,e:"NIL."},
+{q:"The method employed to mass balance control surfaces is to.",o:["fit bias strips to the trailing edge of the surfaces.","attach weights forward of the hinge line.","allow the leading edge of the surface to project into the airflow."],a:1,e:"NIL."},
+{q:"Control surface flutter may be caused by.",o:["excessive play in trim tab attachments.","high static friction in trim tab control tabs.","incorrect angular movement of trim tabs."],a:0,e:"NIL."},
+{q:"A differential aileron control system results in.",o:["aileron drag being reduced on the inner wing in a turn.","aileron drag being reduced on the outer wing in a turn.","aileron drag being compensated by small rudder movements."],a:1,e:"NIL."},
+{q:"The primary function of a flap is.",o:["to trim the aircraft longitudinally.","to alter the position of the centre of gravity.","to alter the lift of an aerofoil."],a:2,e:"Jeppesen A& P Technician Airframe Textbook page 1-30."},
+{q:"The angle of attack at which stall occurs.",o:["can be varied by using flaps and slats.","depends on the weight of the aircraft.","cannot be varied, it is always constant."],a:0,e:"NIL."},
+{q:"The stalling speed of an aircraft.",o:["is increased when it is heavier.","does not change.","is increased when it is lighter."],a:0,e:"NIL."},
+{q:"A wing flap which has dropped or partially extended on one wing in flight will lead to.",o:["a fixed banked attitude which would be corrected by use of the rudder.","a pitching moment which would be corrected by used of the elevators.","a steady rolling tendency which would be corrected by use of the ailerons."],a:2,e:"NIL."},
+{q:"With an increase in the amount of flap deployment, the stalling angle of a wing.",o:["remains the same.","increases.","decreases."],a:2,e:"NIL."},
+{q:"Aerodynamic balance of a control surface may be achieved.",o:["by a horn at the extremity of the surface forward of the hinge line.","by weights added to the control surface aft of the hinge line.","by a trimming strip at the trailing edge of the surface."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 24 Para 7."},
+{q:"A control surface is provided with aerodynamic balancing to.",o:["assist the pilot in moving the control.","increase stability.","decrease the drag when the control is deflected."],a:0,e:"Jeppesen A&P Technician Airframe Textbook Page 24 Para 7."},
+{q:"Downward displacement of an aileron.",o:["increases the angle at which its wing stalls.","decreases the angle at which its wing will stall.","has no effect on its wing stalling angle, it only affects the stalling speed on that wing."],a:1,e:"NIL."},
+{q:"Due to the tailplane angle of attack change, the flap-induced downwash on the tailplane.",o:["will tend to cause an aircraft nose-up pitch.","may cause a nose-down or nose-up pitch depending upon the initial tailplane load.","will tend to cause an aircraft nose down pitch."],a:0,e:"NIL."},
+{q:"Due to the change in lift coefficient accompanying extension of the flaps, to maintain the lift constant it would be necessary to.",o:["raise the nose.","lower the nose.","keep the pitch attitude constant."],a:1,e:"NIL."},
+{q:"The extension to the rudder(shaded portion shown on the diagram), is provided to.",o:["make the pilot aware of the aerodynamic forces encountered when moving the control.","provide aerodynamic assistance for the pilot when moving the rudder.","prevent control surface flutter."],a:1,e:"Jeppesen A&P Technician Airframe Textbook Page 25 Para 7."},
+{q:"A differential aileron control is one which gives.",o:["the down-going aileron more travel than the up-going one.","equal aileron travel in each direction, but variable for stick movement.","a larger aileron up travel than down."],a:2,e:"NIL."},
+{q:"Which leading edge device improves the laminar flow over the wing?.",o:["Flap and slat.","Slat.","Flap."],a:1,e:"NIL."},
+{q:"The balance tab is an auxiliary surface fitted to a main control surface.",o:["operating automatically to assist the pilot in moving the controls.","operated independently at which point in the length of cable the tensiometer is applied.","operating automatically to provide feel to the controls."],a:0,e:"NIL."},
+{q:"Aerodynamic balancing of flight controls is achieved by.",o:["placing a weight ahead of the hinge point.","placing a weight in the leading edge of the control surface.","providing a portion of the control surface ahead of the hinge point."],a:2,e:"AL/3-24 para 4.2."},
+{q:"Aerodynamic balance is used to.",o:["reduce the control load to zero.","make the flying controls easier to move.","prevent flutter of the flying controls."],a:1,e:"NIL."},
+{q:"A horn balance is.",o:["a rod projecting forward from the control surface with a weight on the end.","a rod projecting upward from the main control surface to which the control cables are attached.","a projection of the outer edge of the control surface forward of the hinge line."],a:2,e:"Jeppesen A&P Technician Airframe Textbook Page 16."},
+{q:"A control surface is mass balanced by.",o:["the attachment of weights acting on the hinge line.","fitting a balance tab.","the attachment of weights acting forward of the hinge line."],a:2,e:"NIL."},
+{q:"The purpose of anti-balance tabs is to.",o:["relieve stick loads.","trim the aircraft.","give more feel to the control column."],a:2,e:"NIL."},
+{q:"You have adjusted the elevator trim tab to correct for nose heavy. What was the direction of travel of the trim tab?.",o:["The elevator trim tab has moved down.","The elevator trim tab has moved up.","The port elevator tab has moved up and starboard moved down."],a:0,e:"NIL."}
+]
+};
+
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+  pool = shuffle(pool);
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `<label><input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</label>`;
+    });
+    div.innerHTML = `<div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div><div class="q-category">📂 ${escapeHtml(q.category)}</div><div class="options">${optionsHtml}</div><div class="explanation hidden" id="exp-${idx}"></div>`;
+    area.appendChild(div);
+  });
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `<button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button><button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>`;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `<div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div><div style="font-size: 32px; font-weight: bold;">${percent}%</div>`;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
