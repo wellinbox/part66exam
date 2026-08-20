@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 09 - Human Factors Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 20px; line-height: 1.5; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls { background: #f5f5f5; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px; }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button { padding: 8px 14px; font-size: 14px; border: 1px solid #000; background: #fff; cursor: pointer; margin: 4px; }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats { display: flex; justify-content: space-between; flex-wrap: wrap; margin: 15px 0; padding: 10px; border: 1px solid #ccc; background: #fafafa; }
+  .stats div { margin: 4px 10px; }
+  .question { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 6px; background: #fff; }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border-radius: 4px; }
+  .options label:hover { background: #f0f0f0; }
+  .explanation { margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #f9a825; font-size: 14px; }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box { text-align: center; padding: 20px; margin: 20px 0; border: 2px solid #000; border-radius: 8px; display: none; }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar { width: 100%; height: 30px; background: #eee; border: 1px solid #000; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script>  
+</head>
+<body>
+<div class="container">
+  <h1>🧠 Module 09 - Human Factors Quiz</h1>
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+  <div id="quizArea"></div>
+</div>
+
+<script>
+const quizData = {
+"09.1. General": [
+{q:"Accidents and engineering faults are.",o:["insignificant and decreasing","significant and increasing","insignificant and increasing"],a:1,e:"CAP 715 Ch.1 Para.2.5 CAP 716 App.G pg.2 Para 1.3.1."},
+{q:"Murphy's law is perpetuated mainly by.",o:["violations","poor aircraft design","complacency"],a:2,e:"CAP 715 Ch.1 Para.3.1."},
+{q:"Murphy's law can be regarded as the notion.",o:["'If something can go wrong it will'","'It can never happen to me'","'If something goes wrong I am certain to get the blame'"],a:0,e:"CAP 715 Ch.1 Para.3.1."},
+{q:"A company's safety policy should be defined in.",o:["in CAP 716","the Maintenance Schedule","the Maintenance Organization Exposition"],a:2,e:"CAP 715 Ch.2 Para.2.1."},
+{q:"Which of the following is least associated with the study of human factors?",o:["Ergonomics","Health and Safety","Human error"],a:1,e:"CAP 715 Ch.9(1st Para.)."},
+{q:"The incident where a 737 lost oil from both engines is a direct result of.",o:["poor design","human error","engine vibration"],a:1,e:"CAP 716 Ch.4 Para.5.4.2 and App.F Para.1.7."},
+{q:"If a 737 had both engines serviced and lost oil from both engines in flight this.",o:["can be expected to happen statistically due to the number of aircraft in service","would be a direct result of human error","can be considered an acceptable probability"],a:1,e:"CAP 716 App.F Para 1.7."},
+{q:"What do you do when someone is hypothermic?",o:["Warm them up","Feed them sweet things because of their diabetes","Give them a drink because of dehydration"],a:0,e:"Hypothermia is dangerously low body temperature."},
+{q:"The percentage of accidents attributable to aircraft maintenance and inspection causes is.",o:["now less significant due to the introduction of more sophisticated aircraft","significant and rising","now less significant due to more advanced maintenance practices"],a:1,e:"CAP 718 Ch.1 Para.1 and 4. CAP 716 App.G Para.1.3.1."},
+{q:"What happened to contribute towards the incident in 1995 where a Boeing 737 lost oil pressure and had to divert?",o:["Both warning indications were faulty, due to crossed connections","The HP rotor drive covers of both engines had not been refitted after a borescope inspection","The borescope inspection had been inadequate"],a:1,e:"CAP 715 Ch.6 App.F Para.1.7 or CAP715. Ch.1 Para. 2.6.1."},
+{q:"What is the most common cause of in-flight engine shutdown?",o:["Incomplete installation","Improper fault isolation, inspection or test","Foreign object damage"],a:0,e:"In a Boeing study of 276 inflight shutdowns, 94% of were due to incomplete, improper installation, damage on installation, equipment not installed - FOD was a contributing factor."},
+{q:"Most engineering related incidents are due to.",o:["installing dirty connectors","installing components incorrectly","installing worn or old components"],a:1,e:"CAP 715 Ch.1 Para.2."}
+],
+"09.2. Human Performance and Limitations": [
+{q:"70-80% of the total focusing ability of the eye is carried out by the.",o:["iris","cornea","lens"],a:1,e:"Pallett- Aircraft Instruments Page 284."},
+{q:"At what distance should a person without hearing difficulties be able to hear an average conversational voice in a quiet room.",o:["2 metres (6 feet)","3 metres (9 feet)","1 metre (3 feet)"],a:0,e:"AWN 47 Para.3.5 and CAP 715 Ch.2 Para.3.10.1."},
+{q:"A perforated ear drum could occur if.",o:["you were subjected to intermittent noise above 25 kHz","you blew your nose excessively","you were subjected to continuous noise below 8 kHz"],a:2,e:"Normal audible range is 20-20,000 Hz (CAP 715 Ch.5 Para.1.1). 8 kHz is high frequency. Anything below that can cause damage if sound level is too high."},
+{q:"How long is the short term memory good for remembering 7 items?",o:["30 to 60 seconds","Up to 30 seconds","Above 60 seconds"],a:1,e:"CAP 715 Ch.2 Para.4.5.5."},
+{q:"What is white finger?",o:["A disorder of the finger which may occur through continuous use of pneumatic tools because of reduced blood flow","A reaction when the white blood cells die and contaminate the fingers","A skin disorder caused by extensive contact with oils and solvents"],a:0,e:"CAP 715 Ch.5 Para.5.2."},
+{q:"When someone is working in an enclosed space (such a fuel tank), another person should be outside the space in constant communication to.",o:["provide instructions to the tradesman","ensure compliance with the maintenance manual","for safety reasons"],a:2,e:"CAP715 Ch.5 Para. 6 This is the normal procedure for the safety of the tradesman."},
+{q:"The scientific study of measurements of the human body is known as.",o:["ergonomics","physiology","anthropometrics"],a:2,e:"CAP 715 Ch.1 Para.1.4.4 From the Greek 'Anthropos' meaning 'a man' and 'Metron' meaning 'measurement'."},
+{q:"How long can the aural reflex protect the ear from loud noise?",o:["5 seconds","15 seconds","15 minutes"],a:1,e:"CAP 715 Ch.2 Para.3.3."},
+{q:"What part of the eye controls the amount of light that is allowed to enter the eye?",o:["The pupil","The iris","The cornea"],a:1,e:"CAP 715 Ch.2 Para.2.3."},
+{q:"Learning of a routine by repeated practice is known as.",o:["cognitive learning","motor programming","episodic memory"],a:1,e:"CAP 715 Ch.2 Para.4.6."},
+{q:"The ear is used to detect.",o:["speed","neither acceleration or speed","acceleration"],a:2,e:"CAP 715 Ch.2 Para.3.1.1."},
+{q:"Light enters the eye through the.",o:["cornea","visual cortex","retina"],a:0,e:"CAP 715 Ch.2 Para.2.1."},
+{q:"To focus on a near object, the lens of the eye must.",o:["be widened","be flattened","be thickened"],a:2,e:"CAP 715 Ch.2 Para.2.4."},
+{q:"Which type of memory is most susceptible to interference from external influences?",o:["Long term","Ultra short term","Short term"],a:2,e:"CAP 715 Ch.2 Para.4.8.8."},
+{q:"What part of the eye is colour sensitive?",o:["The rods","The cones","The iris"],a:1,e:"CAP 715 Ch.2 Para.2.5.1."},
+{q:"What type of lens is used to overcome short sightedness?",o:["Concave","Bi-focal","Convex"],a:0,e:"CAP 715 Ch.2 Para.2.7.2."},
+{q:"An LCD display uses what type of power supply?",o:["DC voltage","variable current DC voltage","AC voltage"],a:2,e:"NIL."},
+{q:"The release of a photon by another photon is the principle of.",o:["a photo diode","a zener diode","an LED"],a:2,e:"NIL."},
+{q:"If a magnetic field is parallel to the X plates in a CRT, which way will the beam move?",o:["Vertically","Horizontally","Diagonally"],a:1,e:"NIL."},
+{q:"An LED display is.",o:["monochrome only","red and green","high definition"],a:0,e:"NIL."},
+{q:"A CRT display has the advantage over an LCD display of a.",o:["brighter clearer output","more energy efficient","large viewing angle"],a:2,e:"NIL."},
+{q:"To display a circle on a CRT you use.",o:["2 square wave 90 degrees out of phase","2 sine waves 180 degrees out of phase","2 sine waves 90 degrees out of phase"],a:2,e:"NIL."},
+{q:"To deflect the beam of a CRT horizontally, coils are placed on the neck of the tube.",o:["each side","top and bottom","one on the side, one at the bottom"],a:1,e:"NIL."},
+{q:"If the magnetic deflection plates produce a magnetic field which is parallel to the horizontal then the trace is deflected in.",o:["circular motion","horizontal axis","vertical axis"],a:2,e:"NIL."},
+{q:"The most common CRT control for an EFIS system screen is.",o:["a combined system","an electrostatic system","an electromagnetic system"],a:0,e:"Boeing 757 MM 34-22-00 page 8 paragraph G (EADI)... 'It (the CRT) utilizes magnetic deflection and electrostatic focus control.'"},
+{q:"L.E.D.s can give.",o:["high definition displays","monochrome displays only","red and green displays only"],a:1,e:"NIL."},
+{q:"At low ambient temperatures, an LCD screen.",o:["is slower to update as data changes","viewing angle becomes larger","loses contrast"],a:0,e:"NIL."},
+{q:"Colour CRT shadow mask screen resolution is.",o:["400 lines per square inch","84 triads","600 lines per scan"],a:1,e:"See http://www.lgeservice.com/monterms.html for definition of resolution (pixels per inch) and triads. The actual figure of 84 is irrelevant (as there are many different CRT resolutions). The question is asking whether you know the definition of resolution."},
+{q:"An LCD display.",o:["has three colours only","is monochrome","has infinite colours"],a:0,e:"An LCD display uses only red, green and blue filters. By mixing them, it can get different colours, but not an infinite amount."},
+{q:"A segmented configuration for the display of alphanumeric data requires.",o:["the starburst display for numbers and lower case letters only","16 segments to display the full range of capital letters and numerals","at least 13 segments for all upper and lower case letters"],a:1,e:"NIL."},
+{q:"Electronic CRT beam display is used typically in.",o:["weather radar indicators","IRU control display units","distance measuring indicators; digital counters"],a:0,e:"NIL."},
+{q:"In a colour cathode ray tube, how is the phosphor arranged in the tube.",o:["A single phosphor layer containing red, green and blue","A red layer on the front with two green layers behind it","Layers of red, blue and green"],a:0,e:"Success in Electronics By Tom Duncan p285."},
+{q:"A colour LCD which is back lit has.",o:["three colours","monochrome","an infinite amount of colours"],a:0,e:"LCDs have 3 colours (RGB) which can be blended to make other colours (of limited number)."},
+{q:"A dot matrix/LED construction is.",o:["4*7 or a 9*5 rolling end display","5*9 or a 4*7 rolling end display","4*7 or a 5*7 rolling end display"],a:0,e:"Aircraft Instruments and Integrated Systems Pallett Pages 13-15 (Although, in the real world, others are available too)."},
+{q:"What are the advantages of an LCD display over an LED?",o:["It is brighter","It uses less current","There are no advantages"],a:1,e:"NIL."},
+{q:"A seven segment display is used to.",o:["display alpha-numeric characters","display octal and decimal numbers only","display octal and binary numbers only"],a:1,e:"NIL."},
+{q:"How are Alphanumeric Displays produced on a CRT?",o:["By Stroke pulse","Raster scanning","by the use of X& Y EM Coils"],a:0,e:"NIL."},
+{q:"The Shorter lead near the Flat portion of an LED is the.",o:["Cathode","Anode","Gate"],a:0,e:"NIL."},
+{q:"'Submarining' is.",o:["caused by the inability of some LCD screens to respond to fast moving images on screen","a CRT screen defect which can usually be remedied by degaussing the screen","the process used to form liquid crystals into a flat screen"],a:0,e:"NIL."}
+],
+"09.3. Social Psychology": [
+{q:"What is peer group pressure?",o:["The influence the House of Lords have over the House of Commons","Our behaviour influenced by our friends and colleagues","The influence an individual has over a group of people"],a:1,e:"CAP 715 Ch.3 Para.4.1."},
+{q:"A regular behaviour of an individual is known as.",o:["the norm","habit","culture"],a:1,e:"CAP 715 Ch.8 Par.2.5.2."},
+{q:"In a discussion, the person who is most likely to be agreed with is.",o:["the person who repeats the point most times","the most argumentative person","the person with the highest status"],a:2,e:"No reference found in CAP 715 or 716, but this is one of the problems found with pilots 'steep cockpit status gradient'."},
+{q:"An engineer who has developed his own way of performing a task.",o:["is in regular violation","is improving maintenance efficiency","should be commended for his resourcefulness"],a:0,e:"CAP 715 Ch.8 Para.1.4.5."},
+{q:"What precautions are required when removing ESDS equipment?",o:["Wear a wrist strap connected to an approved ground point","No special precautions are required","Keep one hand on the airframe"],a:0,e:"NIL."},
+{q:"A flight deck CRT LRU is being replaced. What does the ESDS label indicate?",o:["Wrist straps should be worn","Do not touch plug pins or leave them exposed","Remove power before connecting"],a:1,e:"See Pallet's Micro Electronics In Aircraft Systems or CAAIPs 9-4 para.7.1.3."},
+{q:"During an EFIS screen fit.",o:["dont touch terminals","no tooling is required","use bonding strap"],a:0,e:"NIL."},
+{q:"With a relative humidity of 10% to 20%, if you walked over a carpet what electrostatic voltage value would you expect to see?",o:["35,000 volts","6,000 volts","12,000 volts"],a:0,e:"NIL."},
+{q:"Before fitting a Printed Circuit Board you should check the.",o:["resistance between skin and strap end plug is less than 10 megohms","resistance between skin and strap end plug is more than 1 megohms","resistance between strap and strap end plug is less than 1 megohms"],a:2,e:"CAAIP Leaflet 9-4 5.3.1."},
+{q:"The resistance of the wrist strap used as part of anti static precautions should be.",o:["0-200 ohm","20 megohm-200 megohm","250 kilohm-1.5 megohm"],a:2,e:"CAAIPs Leaflet 9-4 5.3.1."},
+{q:"When handling PCB's labelled ESDS, what precaution are taken?",o:["Do not touch its pins as copper contamination can occur","Isolate electrical power before installing on Aircraft","First earth with aircraft then to it"],a:1,e:"Microelectronics in Aircraft Systems. Pallett. Page 219."},
+{q:"After attaching a wrist strap to your wrist (which is connected to aircraft ground), prior to removal of ESDS equipment, the resistance measured.",o:["between your skin and the pin ground must be >1 megohms","between the strap and the pin ground must be <1 megohms","between the strap and the pin ground must be >1 Megohms"],a:2,e:"Answer found in Boeing SWPM. 20-41-01 3(2)(e) Hold the red lead of the (test) meter between the fore finger and the thumb. The acceptable range is less than 10,000,000 ohms. Lower limit of range however seems to vary. This reference says >0.9 MΩ, but if anyone has a more definite reference, please send it in."},
+{q:"Which of the following ESDS devices can withstand higher static electricity voltage?",o:["MOSFET","SCR","ECL"],a:1,e:"NIL."},
+{q:"A wrist band must be worn when working with ESDS devices.",o:["to dissipate and prevent static build-up on the operator","to prevent the operator from getting an electric shock","to dissipate static charge on the device"],a:0,e:"NIL."},
+{q:"A humid atmosphere.",o:["reduces static charge","eliminates static charge","has no effect on the level of charge"],a:0,e:"NIL."},
+{q:"Electrostatic discharge occurs when.",o:["the ground lead on a wrist strap touches the skin","materials are rubbed together or pulled apart","materials of different potential are brought in close proximity to each other"],a:2,e:"NIL."},
+{q:"Before removing an assembly from an aircraft, with regards to HIRF, you must first ensure that there is minimum current flow between.",o:["the assembly and the aircraft","you and the assembly","you and the aircraft"],a:1,e:"NIL."},
+{q:"When removing a PC card from an ESDS assembly ensure a low current path between.",o:["aircraft and ground","you and the assembly","you and the aircraft"],a:2,e:"NIL."}
+],
+"09.4. Factors Affecting Performance": [
+{q:"An aircraft system that, should it fail due to a software error, would cause a significant reduction in safety margins may also cause.",o:["no injuries to occupants","injuries to some occupants","the loss of the aircraft"],a:1,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced)."},
+{q:"An aircraft system allocated a software level of C that, should it fail due to a software error, may cause.",o:["injuries to some occupants","injuries to a large proportion of occupants","no injuries to occupants"],a:0,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced). Download a copy from the Tutorial Support forums."},
+{q:"An aircraft system allocated a Criticality Category of Hazardous has a Software Level of.",o:["A","B","C"],a:1,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced). Download a copy from the Tutorial Support forums."},
+{q:"An aircraft system that, should it fail due to a software error, would cause a slight increase in crew workload, has a software level of.",o:["D","B","C"],a:0,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced). Download a copy from the Tutorial Support forums."},
+{q:"An aircraft system with a software level of D, should it fail due to a software error, may cause the aircraft safety margin to be.",o:["slightly decreased","slightly increased","significantly decreased"],a:0,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced). Download a copy from the Tutorial Support forums."},
+{q:"If due to a software error in an aircraft system that would cause injuries to some of the occupants, the system has a software criticality category of.",o:["major effect","hazardous effect","minor effect"],a:0,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced). Download a copy from the Tutorial Support forums."},
+{q:"An aircraft system that, should it fail due to a software error, would cause no injuries to occupants, has a criticality category of.",o:["major effect","minor effect","hazardous effect"],a:1,e:"DO-178/ED-12 or the old AWN 45 (no removed/replaced). Download a copy from the Tutorial Support forums."},
+{q:"Requirements for software control can be found in.",o:["JAR AWO","AWN 43","JAR OPS"],a:1,e:"Old AWN 43 (Field Loadable Software) has been deleted at issue 133. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Software can be modified by.",o:["the manufacturer","using the same rules as apply as to modifications to hardware","licensed avionics engineers"],a:1,e:"NIL."},
+{q:"Who is responsible for producing the operational program of the FMS?",o:["The manufacturer","The pilot","The engineer"],a:0,e:"NIL."},
+{q:"Software documentation procedures are laid down in.",o:["MOE","JAA Ops","AWN(45)"],a:2,e:"AWN 45 has been deleted at issue 133. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Control of software is carried out by.",o:["the aircraft manufacturers","a licensed engineer","the National Aviation Authority"],a:2,e:"Old AWN 45."},
+{q:"What is the definition of level one software?",o:["Non-essential","Essential","Critical"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Who can sign for a software update?",o:["Design organization or the aircraft manufacturer","Engineer","Chief pilot"],a:1,e:"Old AWN 43. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"What is the effect of a level 1 software failure?",o:["Significant reduction in safety margins","Large reduction in safety margins","Loss of aircraft and/or fatalities"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Software changes come under the responsibility of.",o:["the engineer","the national aviation authority","the aircraft constructor"],a:2,e:"AWN 45. Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Who can design new software?",o:["BCAR section A8 approved company","BCAR section A1 approved company","The CAA"],a:0,e:"AWN45 a para 3.1.3 (BCAR section A subsection A8). Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"As far as a software product is concerned.",o:["the 'Software Release' phase is the same as the 'Finished Product' phase","the 'Validation' phase is done to the software rather than to the component","the 'Verification' phase includes performance testing a programmed EPROM"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"AWN 43 requires that.",o:["the aircraft operator be responsible for software assessment","the CAA be responsible for software assessment","the aircraft constructors be responsible for software assessment"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Level 1 software failure.",o:["is defined as essential and will reduce safety margins","is defined as essential and may have a minor effect","is defined as critical and can lead to loss of aircraft"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Requirements for configuration management of software can be found in.",o:["AWN 43","JAR Ops(M)","ATA Chapter 46, Information Systems"],a:0,e:"Now see RTCA/EUROCAE document Do-178/ED-12."},
+{q:"Where would you find the rules regarding upgrade of software?",o:["JAR OPS","The aircraft manufacturer","AWN 43"],a:2,e:"Now see RTCA/EUROCAE document Do-178/ED-12."}
+],
+"09.5. Physical Environment": [
+{q:"In order to maintain HIRF protection, bonding checks between airframe and electrical components carrying voltages greater than 50 volts RMS or DC or main earth return should not exceed.",o:["0.05 ohm","1 ohm","1 megohm"],a:1,e:"CAAIPs Leaflet 9-1 Table 1."},
+{q:"Ribbon cables effected by mutual impedance and current loop leakage should be protected by.",o:["earthing each alternative conductor to separate point","connecting all conductors to a common earth","shielding each individual conductor"],a:0,e:"NIL."},
+{q:"To shield a fibre optic from EMI you must.",o:["earth both transducer and couplings","shield it with a braided shield","use an opto-isolator"],a:2,e:"NIL."},
+{q:"Manufacturers of aircraft can ensure HIRF protection by.",o:["advising operators of all points susceptible to deterioration due to corrosion, moisture ingress, flexing etc","designing specific avionic areas that are shielded against HIRF","ensuring all single wires are shielded with metal conduit"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"Which of the following could be a primary cause of HIRF protection failure?",o:["Broken or missing static wicks","Corrosion on bonding leads","Unserviceable radio filters"],a:2,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"Manufacturers of aircraft can ensure HIRF protection.",o:["by designing specific avionic areas that are shielded against HIRF","by ensuring all single wires are shielded with metal conduit","by advising the operator of parts of the aircraft susceptible to degradation due to corrosion, moisture ingress, flexing etc"],a:0,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"HIRF protection of LRUs is provided by.",o:["internally shielded cables","built in filters and overvoltage circuits","built in filters only"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"To stop earth loops forming, you would.",o:["earth both ends of the cable screen","leave both ends of the cable screen open circuit","earth only one end of the cable screen"],a:2,e:"NIL."},
+{q:"An aircraft may have been HIRF affected.",o:["A bonding load check is required","A static wick check is required","Test all radio frequencies for interference"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"Testing of HIRF on aircraft systems is done.",o:["by periodically listening for interference on all systems","at and during production and testing (initial certification)","only after a report of radio interference"],a:1,e:"Understanding HIRF By Gerald L. Fuller."},
+{q:"When carrying out a bonding check on a surface protected by anodic film.",o:["the film is conductive so no preparations are required","the anodic film should be removed locally to ensure a good contact","add a bonding factor to the result of the test to account for the resistance of the anodic film"],a:1,e:"NIL."},
+{q:"When clamping cable looms containing co-axial cables.",o:["avoid distortion to the co-axial cable to maintain the dielectric constant","the clamps must be no more than 1 metre apart","distortion of the outer sheath is allowed providing the inner cable is not affected"],a:0,e:"NIL."},
+{q:"When incorporating an aerial cable it must be.",o:["in the centre of the other wires","outside the other wires for easy access","positioned separately from the loom"],a:2,e:"NIL."},
+{q:"When carrying out airframe bonding checks as part of a program of HIRF prevention the airframe bonding resistance should be less than.",o:["100 milliohms","1 ohm","50 milliohms"],a:2,e:"CAAIP Leaflet 9-1."},
+{q:"Electromagnetic compatibility is achieved by.",o:["shielding, screening, earthing, bonding and interference filters","coating in a conductive paint","enclosing the system with same frequency and strength of which screening is done"],a:0,e:"NIL."},
+{q:"To reduce HIRF on radio equipment.",o:["ensure all static wicks are in place","periodically check bonding leads for condition","transmit on all radio frequencies to determine which frequencies are causing the interference"],a:0,e:"NIL."},
+{q:"For braided cables, the amount of braiding.",o:["must conform to the requirement for the shielding to cover at least 50% of the surface of the cable","keeps radiated power inside the emitting assembly or away from the susceptible circuit","is a trade-off design feature"],a:1,e:"NIL."},
+{q:"HIRF is acronym for.",o:["Heavily Ionised Radio Frequencies","High Intensity Radiated Field","High Intensity Radio Frequencies"],a:1,e:"NIL."},
+{q:"HF aerials are protected against lightning strike by.",o:["current mode coupler","bus terminal","spark gap"],a:2,e:"NIL."}
+],
+"09.6. Inspection and Maintenance": [
+{q:"An FMS system, besides controlling navigation, thrust and auto-nav, also provides.",o:["GPWS warnings","dedicated status and warnings","take-off and landing warnings"],a:1,e:"The FMS is not used for Take Off or Landing The GPWS warnings come from the GPWS Computer."},
+{q:"The minimum standards for aircraft instrumentation is set by.",o:["CAA","ICAO","JAA"],a:2,e:"NIL."},
+{q:"EADI sky and ground display is provided by.",o:["raster scan","stroke pulse","synthetic TV signals"],a:0,e:"Pallett- Aircraft Instruments Page 302 Fig. 12.5."},
+{q:"HSI heading is valid if the heading flag is.",o:["in view","green","out of view"],a:2,e:"Warning flags 'in view' indicate failure. Normally the only coloured flag used is RED, indicating failure."},
+{q:"MFD is the abbreviation for.",o:["Multi function display","Mandatory flight display","Master flight display"],a:0,e:"NIL."},
+{q:"TCAS uses the radar mile definition in its calculations, which is.",o:["12.36 microsecond","6.18 microsecond","24.72 microsecond"],a:0,e:"NIL."},
+{q:"GPS navigation uses a constellation of satellites that is made up of.",o:["21 active and 3 spare","28 active and 7 spare","23 active and 5 spare"],a:0,e:"NIL."},
+{q:"An IRS is only certifed for alingment up to.",o:["+88.45 and -88.45 degrees","+78.25 and -78.25 degrees","+60 and -60 degrees"],a:1,e:"NIL."},
+{q:"The command bars on an ADI relate to.",o:["roll indications","path being followed","path required"],a:2,e:"Pallett- Aircraft Instruments Page 212."},
+{q:"ECAM has at its heart.",o:["a multi function symbol generator","a central maintenance computer","ACARS"],a:0,e:"NIL."},
+{q:"The recording medium in an FDR is.",o:["copper foil coated with ferrite","a high density floppy disc","magnetic tape coated with ferrite"],a:2,e:"NIL."},
+{q:"An FMS databank memory is updated.",o:["every 365 days","every 28 days","every 32 days"],a:1,e:"NIL."},
+{q:"What does the CADC feed?",o:["cabin pressure controller sensor/machmeter/altimeter","Altimeter/FMS/secondary radar","standby altimeter/machmeter"],a:0,e:"Pallett- Aircraft Instruments Page 179 Fig. 7.12."},
+{q:"In a Flight Management System (FMS), data is input manually to the computing system through the.",o:["Data Acquisition Unit","Electronic Centralised Aircraft Monitoring control panel","Control and Display Unit"],a:2,e:"NIL."},
+{q:"In a Global Positioning System (GPS), the number of satellites required to achieve a 3 dimensional fix is.",o:["2","3","4"],a:2,e:"NIL."},
+{q:"In a Global Positioning System (GPS), each satellite transmission identifies the satellite using a.",o:["different channel frequency","pseudo random code","whisper shout method"],a:1,e:"NIL."},
+{q:"In a Global Positioning System (GPS) satellites below the Mask Angle are ignored as these may cause.",o:["range errors","clock errors","ephemeris errors"],a:0,e:"NIL."},
+{q:"Information required by a Flight Management System (FMS) to function correctly is indicated on the display by.",o:["dashes","a flashing cursor","boxes"],a:2,e:"NIL."},
+{q:"A flight data recorder can obtain information from aircraft instruments.",o:["provided there is adequate damping","provided there is adequate isolation","by direct connection to the instruments"],a:1,e:"NIL."},
+{q:"The inputs and outputs of a CADC are.",o:["pitot and static in; altitude, attitude, CAS and VS out","pitot and static in; altitude, CAS, mach and VS out","pitot in; static, altitude, mach, CAS and VS out"],a:1,e:"NIL."},
+{q:"EICAS provides the following:",o:["Engine parameters and engine warnings only","Engine parameters and system warnings only","Engine parameters only"],a:1,e:"Pallett- Aircraft Instruments Page 179 Fig. 7.12."},
+{q:"A central maintenance computer provides.",o:["ground and flight monitoring and testing on an on-board computer","ground and BITE testing using a portable control panel","display of system warnings and cautions"],a:0,e:"NIL."},
+{q:"The rising runway is positioned from information derived from.",o:["barometric height","radio altimeter","vertical speed"],a:1,e:"Boeing Maintenance Training notes for B757."},
+{q:"Where are the Digital Flight Data Recorder outputs supplied to?",o:["The recording unit","There are no outputs","Flight instruments"],a:1,e:"Information recorded in the DFDR is only accessible in the shop."},
+{q:"FMS failure and warnings are.",o:["EFIS warnings only","displayed on EICAS","engine warnings only"],a:1,e:"FMS warnings are displayed on EICAS and EFIS, but the answers given are 'EICAS' or 'EFIS only' so for the purposes of this question the correct answer is EICAS."},
+{q:"Flight director command bars are moved to the correct position by.",o:["calibration","position feedback","amplifier gain"],a:1,e:"NIL."},
+{q:"What information is required before completion of the alignment of an Inertial Navigation System?",o:["Aircraft present position","Heading and attitude","Aircraft present position and heading"],a:0,e:"NIL."},
+{q:"IRS accelerometers are mounted.",o:["90° to each other","45° to each other","60° to each other"],a:0,e:"NIL."},
+{q:"An FMS navigation database is updated.",o:["once a month","every 28 days","at the operators request"],a:1,e:"NIL."},
+{q:"A single failure of a fly-by-wire system.",o:["will reduce operational heights and speeds","will limit the flight profile","has no effect on aircraft operation"],a:2,e:"Redundant FBW systems will continue to fly the aircraft."},
+{q:"Fly-by-wire load alleviation function in turbulent conditions will result in.",o:["spoilers moving symmetrically upwards","ailerons moving symmetrically upwards","ailerons and spoilers moving symmetrically upwards"],a:2,e:"NIL."},
+{q:"Fly-by-wire roll control is achieved by.",o:["spoilers and ailerons","ailerons","spoilers"],a:0,e:"Automatic Flight Control, Pallett and Coyle Page 296."},
+{q:"The movement of fly-by-wire control surfaces are.",o:["hydraulically controlled and electrically actuated","both electrically controlled and electrically actuated","electrically controlled and hydraulically actuated"],a:2,e:"NIL."},
+{q:"If an EFIS has 3 symbol generators. What is the purpose of the 3rd symbol generator?",o:["Comparison with No.1 symbol generator","Parity function","Standby"],a:2,e:"NIL."},
+{q:"FMS operational program is updated every.",o:["90 days","28 days","7 days"],a:1,e:"NIL."},
+{q:"An FDR fitted to a helicopter begins recording.",o:["when power is applied to the aircraft","on take-off","on engine start-up"],a:2,e:"See ANO Art 53 para.1."},
+{q:"The FMS databases consist of.",o:["one navigation and one performance database","one performance and two navigation databases","two performance and one navigation database"],a:1,e:"Normally we consider the FMS as having 2 databases (1 navigational and 1 performance). (Jeppesen Avionics Fundamentals Page 385). However, the Navigational database is split in two. 1 is for Jeppesen data, uploaded on the ground, the other is for pilot input data (additional waypoints etc.)."},
+{q:"The FMS can update the IRS position outputs by using information from either.",o:["VOR and DME only","GPS, DME, LOC and VOR","DME and GPS only"],a:1,e:"NIL."},
+{q:"The accepted error from INS/IRS is.",o:["3 miles/hour + 3 miles","2 miles per hour + 3 miles","1 mile/hour + 3 miles"],a:0,e:"NIL."},
+{q:"Before an IRS can complete the alignment sequence.",o:["the current present position must be entered","either the last or current position must be entered","the shutdown present position must be entered"],a:0,e:"NIL."},
+{q:"What warnings can an FMS provide?",o:["Discrete warnings","Spurious faults","Ground faults only"],a:0,e:"This means it can warn of inoperative equipment, but not when equipment is providing incorrect data."},
+{q:"Electronic Centralised Aircraft Monitoring System.",o:["performs in-flight and ground tests of aircraft systems by carrying out a BITE interrogation","performs in-flight BITE interrogation only","give red warnings and amber cautions to display system status"],a:0,e:"NIL."},
+{q:"The control of the speed or rate that the flight director command bars move can be controlled by.",o:["position feedback","rate or velocity feedback","amplifier gain"],a:1,e:"NIL."},
+{q:"The Centralised Aircraft Monitoring System uses the maintenance mode of operation.",o:["on the ground only","in the air only","either in the air or on the ground"],a:0,e:"Aircraft Electricity and Electronics, Eismin, 5th Edition Page 359."},
+{q:"Each of the symbol generator outputs in an EFIS system can be.",o:["displayed on each individual display","only no.2 can be displayed on the no.1","can not be interchanged"],a:0,e:"NIL."},
+{q:"BITE tests are inhibited for ground use during.",o:["forward motion","gear retraction","take-off"],a:2,e:"NIL."},
+{q:"Modern aircraft with electronic displays would display information on airframe and engine on which system?",o:["Electronic centralised aircraft monitoring system (ECAM)","Flight management system","EADI"],a:0,e:"NIL."},
+{q:"The Flight data recorder starts recording.",o:["after take off","on aircraft roll out from stand","after the first engine has started"],a:2,e:"JAR OPS Subpart K 1.715 e."},
+{q:"Data to flight data recorder can be taken from a communal data bus if.",o:["the power is within flight data recorder limits","it goes direct to it","source isolation has been considered"],a:2,e:"NIL."},
+{q:"A central fault display system should be available through.",o:["a bite test","a central bite test box with clear LED indications","a easily accessible multifunction control display unit"],a:2,e:"NIL."},
+{q:"A flight data recorder should be capable of recording.",o:["the last 25 hours","the last 25 hours of aircraft flight","the last 25 hours with engines running"],a:2,e:"NIL."},
+{q:"BITE for ground use only is switched off.",o:["on take-off","when brakes are released","when undercarriage up"],a:0,e:"NIL."},
+{q:"During normal functioning of an ECAM system the engine data shown on the Engine/Warning display comes from the.",o:["EFIS channel of DMC3","ECAM channel of DMC1","ECAM channel of DMC3"],a:2,e:"A330-200 31-50-00 pg4."},
+{q:"Using I.N.S. an aircraft flies.",o:["rhumb line","course directed by ground station","great circle route"],a:2,e:"Jeppesen Avionics Fundamentals Page 132."},
+{q:"Aircraft heading (HDG) is.",o:["the angle between True North and the longitudinal axis of the aircraft","the angle between True North and the actual track","the angle between True North and the desired track"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 254."},
+{q:"For an IRS System to pass the Alignment System Performance Test the the latitude entered must be within given limits of the.",o:["latitude computed by IRU","entered present latitude and longitude must agree with the latitude and longitude at last power down","the No 1 and No 2 must both have the same latitude and longitude present position entered"],a:0,e:"Aircraft Instruments and Integrated Systems, Pallett pages 279-280."},
+{q:"Control Display Unit (CDU) selection of TKE (Track Angle Error), displays.",o:["difference in degrees that the aircraft is to the right or left of the desired track","distance perpendicular from the selected track","difference in degrees from True North in a clockwise direction from the desired track"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 256."},
+{q:"In the EICAS system, when is the maintenance mode available?",o:["Lower screen only - only available on the ground","In flight","On the upper and lower screens - only available on the ground"],a:0,e:"B747 Maintenance Manual. Aircraft Instruments and Integrated Systems. Pallett Page 380."},
+{q:"On a modern aircraft when are BITE checks carried out?",o:["Continuously when system is in use","After engine shut down","Only when BITE selected"],a:0,e:"Aircraft Electricity and Electronics, 5th edition, Eismin, Pages 152 and 268."},
+{q:"In an IN system, the purpose of the stable platform is to.",o:["provide attitude reference","prevent unwanted acceleration affecting the accelerometers","stop the gyros from toppling"],a:1,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 260."},
+{q:"An IN system requires data from the.",o:["Doppler system","airdata computer","satellites"],a:1,e:"Jeppesen Avionics Fundamentals Page 138."},
+{q:"TK (cross track) is the.",o:["actual track across the earths surface","angle in degrees that the aircraft track is left or right of desired track","perpendicular distance from the desired track"],a:2,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 256."},
+{q:"The output of an INS can be fed to the.",o:["attitude indicators","altimeters","vertical speed indicators"],a:0,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 247 fig 10.1. Jeppesen Avionics Fundamentals Page 137 & 138."},
+{q:"The three accelerometers on a strapdown system are mounted.",o:["90° to each other","parallel to each other","120° apart"],a:0,e:"Jeppesen Avionics Fundamentals Page 135."},
+{q:"Gyro-compassing is the term used for.",o:["self-alignment in the vertical","use of the gyro-magnetic compass system to align the platform","self-alignment in azimuth"],a:2,e:"Aircraft Instruments and Integrated Systems EHJ Pallett Page 280."},
+{q:"Electronic Centralized Aircraft Monitoring System operates to.",o:["give red warnings and amber cautions to display system status","perform in-flight BITE only","perform in-flight and ground tests of aircraft systems by carrying out a BITE"],a:0,e:"NIL."},
+{q:"The Centralized Aircraft Monitoring System uses the maintenance mode of operation.",o:["on the ground only","in the air only","either ground or air"],a:0,e:"NIL."},
+{q:"If part of a display is lost on a CRT, this could be due to.",o:["an inoperative symbol generator or control panel","an inoperative symbol generator or input sensor","loss of power to the CRT"],a:1,e:"NIL."},
+{q:"A cyclic test (watch dog) should be performed for ECAM.",o:["via MCDU","during power up","during flight"],a:2,e:"Aircraft Electricity and Electronics, Eismin, 5th Edition. Pg 154."},
+{q:"How does the symbol generator detect a program error?",o:["By looking at the even parity without error","By looking at the odd parity without error","By check sum bites for error detect"],a:1,e:"NIL."},
+{q:"Relationship of CMCs to BITE systems is best described as.",o:["CMCs replaced but is not related to the older BITE system","CMCs monitors the individual BITE systems and presents data","CMCs modifies and upgrades BITE systems"],a:1,e:"NIL."},
+{q:"An IRU interface test is carried out.",o:["in the air","only on the ground","on the ground or in the air"],a:1,e:"NIL."},
+{q:"FMS system gives warning indications for.",o:["take off and landings only","any flight phase","cruise"],a:2,e:"NIL."},
+{q:"FMS CDU warnings are.",o:["fail and MSG","OFST and Fail","MSG, fail and OFST"],a:2,e:"NIL."},
+{q:"CMC (central maintenance computer) works to.",o:["perform in-flight bite and ground tests of aircraft systems, i.e. BITE","give red warnings and amber cautions to display in accordance with system status","perform in-flight bite only"],a:0,e:"NIL."},
+{q:"BITE test carried out on input sensors and actuators performs.",o:["validation of the information of the LRU","a performance test of the system","a test of the LRU"],a:1,e:"NIL."},
+{q:"A BITE check for automatic performance and fault monitoring is carried out when?",o:["Power-up self test","For in-flight monitoring","To check the performance of the LRU"],a:0,e:"NIL."},
+{q:"In which of the following does TCAS II advise the pilot to make a maneouvre?",o:["RA","TA","either RA or TA"],a:0,e:"NIL."},
+{q:"What are the shapes of traffic shown on a TCAS display?",o:["White circles, red diamonds and amber squares","White diamonds, red squares and amber circles","White squares, red diamonds and amber circles"],a:1,e:"NIL."},
+{q:"If a display shows a red cross only, it is due to.",o:["Symbol Generator failure","CRT failure","Altimeter failure"],a:0,e:"NIL."},
+{q:"ACARS is an acronym for.",o:["ARINC Communicating Addressing and Reporting System","Airborne Communicating Addressing and Reporting System","Aircraft Communicating Addressing and Reporting System"],a:2,e:"NIL."},
+{q:"When does the flight data recorder start recording?",o:["Undercarriage up","Parking brake released","When the first engine starts"],a:2,e:"NIL."},
+{q:"Brake temperature displayed on a flight deck CRT has.",o:["a master warning light","same colour throughout","different colour for different temperatures"],a:2,e:"NIL."},
+{q:"ECAM system was adopted for.",o:["Airbus A310","both Boeing and Airbus aircraft","Boeing 757 and 767 aircraft"],a:0,e:"NIL."},
+{q:"A modern electromagnetic Flight Data Recorder, for recording data, could use:",o:["a floppy disk","a plastic tape coated in ferrite","a copper oxide string"],a:1,e:"NIL."},
+{q:"What is the minimum requirement for a CVR to start recording?",o:["BEFORE take-off","BEFORE engine start","at any time the manufacturer decides"],a:0,e:"Minimum requirement is AT first engine start (according to JAR OPS) which is BEFORE take-of."},
+{q:"As a minimum requirement when must a cockpit voice recorder start recording?",o:["Once airborne after take off","Before engine start","Once aircraft is ready to move under its own power"],a:2,e:"JAR Ops 1.700 para c."}
+],
+"09.7. Maintenance Error": [
+{q:"101012 + 110012 =.",o:["462","468","4610"],a:2,e:"101012 + 110012 = 1011102 = 4610."}
+]
+};
+
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+  pool = shuffle(pool);
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `<label><input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</label>`;
+    });
+    div.innerHTML = `<div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div><div class="q-category">📂 ${escapeHtml(q.category)}</div><div class="options">${optionsHtml}</div><div class="explanation hidden" id="exp-${idx}"></div>`;
+    area.appendChild(div);
+  });
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `<button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button><button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>`;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `<div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div><div style="font-size: 32px; font-weight: bold;">${percent}%</div>`;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
