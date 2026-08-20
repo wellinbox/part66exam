@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 07 - Maintenance Practice Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 20px; line-height: 1.5; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls { background: #f5f5f5; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px; }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button { padding: 8px 14px; font-size: 14px; border: 1px solid #000; background: #fff; cursor: pointer; margin: 4px; }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats { display: flex; justify-content: space-between; flex-wrap: wrap; margin: 15px 0; padding: 10px; border: 1px solid #ccc; background: #fafafa; }
+  .stats div { margin: 4px 10px; }
+  .question { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 6px; background: #fff; }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border-radius: 4px; }
+  .options label:hover { background: #f0f0f0; }
+  .explanation { margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #f9a825; font-size: 14px; }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box { text-align: center; padding: 20px; margin: 20px 0; border: 2px solid #000; border-radius: 8px; display: none; }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar { width: 100%; height: 30px; background: #eee; border: 1px solid #000; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script>
+</head>
+<body>
+<div class="container">
+  <h1>🔧 Module 07 - Maintenance Practice Quiz</h1>
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+  <div id="quizArea"></div>
+</div>
+
+<script>
+const quizData = {
+"01. Safety Precautions": [
+{q:"A dry powder extinguisher is coloured",o:["green","red","blue"],a:2,e:"BS EN3"},
+{q:"Acetylene gas forms an explosive compound with",o:["tin and silver","tin and copper","copper and silver"],a:1,e:"NIL"},
+{q:"When mixing acid and water",o:["the acid should always be added to the water","it does not matter which way the two are mixed","the water should always be added to the acid"],a:0,e:"NIL"},
+{q:"You are involved with a fire caused by titanium swarf. What type of extinguishant should you use to deal with the fire?",o:["Dry asbestos wool and chalk powder","CO2","Chemical foam"],a:0,e:"BL/6-18 12.5"},
+{q:"An aircraft should not be refueled when",o:["the APU is running","navigation and landing light in operation","within 10 metres (30 feet) of radar operating"],a:2,e:"AL/3-8 2.1.6, GOL/1-1 7.3.2"},
+{q:"The minimum 'no smoking' zone around an aircraft when refuelling is",o:["15m","10m","6m"],a:2,e:"Leaflet 5-1 2.2.2"},
+{q:"A CO2 extinguisher is used on",o:["solid, liquid, hot metal and electrical fires","solid, liquid and electrical fires","solid and liquid fires"],a:1,e:"Hot metal and liquid fires would be extinguished with foam"},
+{q:"In an oxygen system, if the pressure drops to 500 PSI, it",o:["causes anoxia","begins to overheat","blocks the oxygen system regulator"],a:2,e:"At low pressure, air can mix with the oxygen. The moisture in the air freezes as the gas expands on exit of the system and blocks the regulator"},
+{q:"After working with epoxy resins, how is natural oil returned to the skin?",o:["Epoxy removing cream","Refatting cream","Acetone/lanolin mixture"],a:2,e:"Acetone is used to remove epoxy resin, but it dries the skin, so it is mixed with lanolin"},
+{q:"Neither oil nor grease should be used as a lubricant on couplings or pipelines carrying",o:["Oxygen","Kerosene","Nitrogen"],a:0,e:"AL/3-25 5.4(vi)"},
+{q:"Which type of extinguisher can be used for an electric fire?",o:["Foam","Water","CO2"],a:2,e:"AL/3-10 3.3"},
+{q:"The colour of CO2 type fire extinguisher is",o:["red","black","green"],a:1,e:"NIL"},
+{q:"Which type of extinguisher can be used for engine fire?",o:["CO2","BCF","Water"],a:0,e:"Leaflet 5-1 4.2.4(a)"},
+{q:"Fire on landing gear brake should be extinguished with",o:["dry powder extinguisher","carbon dioxide extinguisher","water extinguisher"],a:0,e:"AL/3-19 10.4"},
+{q:"Which type of fire extinguishers can be used in the cabin?",o:["C.T.C","water or B.C.F","M.B"],a:1,e:"Methyl Bromide and CTC extinguishers are toxic"},
+{q:"Risk assessments should only be carried out on",o:["all tasks and processes that are performed","tasks using hazardous chemicals","tasks carried out above the height of 6 foot"],a:0,e:"NIL"},
+{q:"The most appropriate fire extinguisher for an aircraft wheel and brake fire would be",o:["carbon dioxide","dry powder","water"],a:1,e:"AL/3-19 10.4"},
+{q:"Once a person has been disconnected from the source of an electrical shock the next step should be",o:["seek assistance immediately","check for breathing start AR if necessary","check for pulse start cardiac massage if necessary"],a:1,e:"NIL"},
+{q:"What can cause dermatitis?",o:["Washing hands in solvents","Not wearing eye protection when using solvents","Inhalation of paint fumes"],a:0,e:"NIL"},
+{q:"If an oxygen cylinder pressure falls below 500 PSI",o:["the diluter stick will stick","the oxygen will degrade and cause anoxia","condensation will cause corrosion"],a:2,e:"NIL"}
+],
+"02. Workshop Practices": [
+{q:"On a hollow tube where would a small indentation normally be unacceptable?",o:["Nowhere on the tube is an indentation acceptable","In the mid 1/3 section","In either of the outer 1/3 portion of the tube"],a:1,e:"CAAIPs Leaflet 6-4 Para 7.2"},
+{q:"What type of grinding wheel would you sharpen an HSS drill bit on?",o:["A green wheel","A course wheel","A fine wheel"],a:2,e:"A Green Grit wheel is used for Tungsten Carbide bit tools. For HSS you need a fine Grey Aluminium Oxide wheel"},
+{q:"When using a reamer",o:["use no lubricant","use the same lubricant as was used on the drill bit","use lard oil"],a:1,e:"NIL"},
+{q:"How many teeth per inch are used on a hacksaw blade for cutting hard metal?",o:["54","36","26"],a:2,e:"Blades are available 18-32 TPI. Greatest TPI is for hard metals"},
+{q:"How many strokes per minute are used on a hacksaw when cutting thick metal?",o:["30","65","55"],a:2,e:"NIL"},
+{q:"When lifting a bulky component with a wire rope sling, the component can be protected from damage by the sling by",o:["fabricating alternative lifting points","using a suitably shaped sling","using spreader bars and packing"],a:2,e:"NIL"},
+{q:"Gas bottles for CO2 air and acetylene are coloured",o:["grey, maroon, green","black, grey, maroon","green, grey, maroon"],a:1,e:"NIL"},
+{q:"To drill a 1/4 inch hole in titanium, the correct starting procedure would be",o:["to centre drill","to centre punch","to drill 1/4 inch hole direct"],a:0,e:"CAIPs EL/3-3 Para. 3.2"},
+{q:"In a torque wrench of handle length, L= 12 in. and an extension E= 3 in, the desired torque value is 300 lbs.in. the dial should read",o:["240 lb.ins","375 lb.ins","280 lb.ins"],a:0,e:"CAAIPs Leaflet 2-11 4.4"},
+{q:"When a torque loading is specified for a castellated or slotted nut on an undrilled new bolt",o:["the bolt should be pre-drilled, the torque applied and the nut eased back, if necessary, to allow the split pin to be fitted","the bolt should be pre-drilled and the torque increased if necessary to allow the split pin to be fitted","the torque should be applied and the bolt suitably drilled for the split pin"],a:2,e:"NIL"},
+{q:"A reamer with spiral flutes is removed",o:["clockwise","straight","anticlockwise"],a:0,e:"Jeppesen A&P General Technician Textbook Page 9-19"},
+{q:"The difference between high and low limits of a size for a dimension is known as the",o:["deviation","tolerance","fit"],a:1,e:"NIL"},
+{q:"Rubber components should be stored",o:["in warm and humid conditions","in a well lit room","in a cool dark area"],a:2,e:"CAAIPs Leaflet 1-8 3.3"},
+{q:"When comparing the machining techniques for stainless steel sheet material to those for aluminium alloy sheet, it is normally considered good practice to drill the stainless steel at a",o:["higher speed with less pressure applied to the drill","lower speed with more pressure applied to the drill","lower speed with less pressure applied to the drill"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 2-27"},
+{q:"When drilling stainless steel, the drill used should have an included angle of",o:["140° and turn at a low speed","90° and turn at a low speed","118° and turn at a high speed"],a:0,e:"Jeppesen A&P Airframe Technician Textbook Page 2-27"},
+{q:"When stop drilling a crack, what is the typical drill size used?",o:["0.025 inch","0.250 inch","0.125 inch"],a:2,e:"Jeppesen A&P Airframe Technician Textbook Page 2-6"},
+{q:"When degreasing aluminium alloys, and no trichloroethylene is available, a suitable alternative is",o:["dilute sulphuric acid","M.E.K","white spirit and naphtha"],a:2,e:"NIL"},
+{q:"A grinding wheel is normally refaced by",o:["dressing with a special tool","grinding through using another grinding wheel","holding a hard wood scraper against the rotating wheel"],a:0,e:"NIL"},
+{q:"When checking a torque wrench 15 inches long, the load required to give torque of 120 lbs.in. is",o:["6 lbs","8 lbs","10 lbs"],a:1,e:"NIL"},
+{q:"How would you check the setting of an adjustable reamer?",o:["Ring gauge","Dial test indicator and 'V' blocks","External calipers"],a:0,e:"NIL"},
+{q:"What is the specified lubricant for drilling brass?",o:["None","Paraffin","Lard oil"],a:0,e:"NIL"},
+{q:"In the Limit System, the term 'allowance' is the",o:["difference between shaft and hole diameters","hole diameter variation","shaft diameter variation"],a:0,e:"NIL"},
+{q:"Which is correct concerning the use of a file?",o:["The terms 'double-cut' and 'second-cut' have the same meaning in reference to files","Apply pressure on the forward stroke, only, except when filing very soft metals such as lead or aluminium","A smoother finish can be obtained by using a double-cut file than by using a single-cut file"],a:1,e:"Jeppesen A&P General Technician Textbook Page 9-11"},
+{q:"Which procedure is correct when using a reamer to finish a drilled hole to the correct size?",o:["Turn the reamer only in the cutting direction","Turn the reamer in the cutting direction when enlarging the hole and in the opposite direction to remove from the hole","Apply considerable pressure on the reamer when starting the cut and reduce the pressure when finishing the cut"],a:0,e:"Jeppesen A&P General Technician Textbook Page 9-19"},
+{q:"Of what tolerance is the following an example? 1 in. + 0.002-0.001",o:["Bilateral","Multilateral","Unilateral"],a:0,e:"NIL"},
+{q:"How should a scraper be finally sharpened?",o:["By draw filing","On a grindstone","On an oil-stone"],a:2,e:"NIL"},
+{q:"How is a D.T.I. initially set up?",o:["The gauge plunger should be fully extended and the needle zeroed","The gauge plunger should be partly depressed and the needle zeroed","The needle zeroed, then the plunger fully extended"],a:1,e:"NIL"},
+{q:"Nickel alloy chisels should be sharpened",o:["by filing","on a grindstone","on an oilstone"],a:2,e:"NIL"},
+{q:"What type of lubricant should be used when drilling aluminium?",o:["Vegetable oil","Paraffin","None"],a:1,e:"Paraffin is the lubricant for aluminium"},
+{q:"How are spring dividers sharpened?",o:["By filing the outside of the points","By stoning the outside of the points","By grinding the inside of the points"],a:1,e:"NIL"},
+{q:"What would be the result of an insufficient clearance angle on a twist drill?",o:["It would cut slowly, if at all","It would produce an oversize hole","It would tend to pull through the hole"],a:0,e:"NIL"},
+{q:"A tolerance given on a dimension is indicated",o:["by a plus and minus sign preceding the permitted tolerance","by the prefix TOL with the permitted tolerance","by enclosing the permitted tolerance within a triangle"],a:0,e:"NIL"},
+{q:"How much material should be allowed for reaming?",o:["0.001 in","0.003 in","0.010 in"],a:1,e:"Jeppesen A&P General Technician Textbook Page 9-19"},
+{q:"After cutting a 3/8 inch BSF internal thread and stud, it is found that the stud is too large. How is a fit achieved?",o:["Remove the male thread crests with a fine emery cloth","Grind a taper on the end of the bolt","Re-adjust the die and re-cut the male thread"],a:2,e:"NIL"},
+{q:"You have reamed out a hole in a piece of titanium. How should you remove the reamer safely to prevent unnecessary damage?",o:["Allow the reamer to pass right through the hole","Remove it, but in the same rotation as if cutting","Anti-clockwise"],a:1,e:"Jeppesen A&P General Technician Textbook Page 9-19"},
+{q:"Why are some components torque loaded?",o:["To ensure that their elastic limit is not exceeded","To ensure they do not vibrate loose","To ensure that they are tightened to their yield point"],a:0,e:"NIL"},
+{q:"When using a reamer, in which direction should it be turned?",o:["Anti-clockwise when cutting and removing","Clockwise when cutting and anti-clockwise when removing","Clockwise when cutting and removing"],a:2,e:"Jeppesen A&P General Technician Textbook Page 9-19"},
+{q:"Draw filing produces",o:["a course finish","a fine finish","a mottled finish"],a:1,e:"NIL"},
+{q:"A safe edge of a file is used",o:["against a finished surface","to give a fine polished finish to a smooth surface","against a rough unfinished surface"],a:0,e:"NIL"},
+{q:"What is the minimum number of hacksaw blade teeth that should be in contact with the material being cut?",o:["2","4","3"],a:2,e:"NIL"},
+{q:"When reading a blueprint, a dimension is given as 4.387 inches+ 0.005-0.002. Which statement is true?",o:["The maximum acceptable size is 4.385 inches","The minimum acceptable size is 4.385 inches","The maximum acceptable size is 4.389 inches"],a:1,e:"NIL"},
+{q:"Chalk when used with a fine file produces",o:["a finer finish","a milled type surface","a ground type surface"],a:0,e:"NIL"},
+{q:"When using a hand file correctly, the downward pressure should be used only",o:["on a return stroke","on the forward stroke","on the forward and return stroke"],a:1,e:"NIL"},
+{q:"The size of the nibs of vernier calipers can be ascertained by",o:["using the standard of 0.693 inches","measuring the steel rule","noting the dimension engraved on the instrument"],a:2,e:"BL/3-4 3.5"},
+{q:"A shaft dimension given as 1.225 inches+/- 0.003 inches followed by 'MMC' should be manufactured to what size?",o:["1.228 Inches","1.222 Inches","1.225 Inches"],a:0,e:"Leaflet 2-15.11.3"},
+{q:"2 microns is",o:["0.002 mm","0.002 inch","0.000 002 inch"],a:0,e:"1 micron= 0.001 mm"},
+{q:"The edge or surface of a part from which dimensions are measured from is called the",o:["water line","reference plane","datum"],a:2,e:"Leaflet 2-15.5.1"},
+{q:"Water Lines are",o:["front to rear measurements on the fuselage","vertical measurements on the fuselage","left and right measurements on the fuselage"],a:1,e:"AL/7-2 fig 15"},
+{q:"When clamping cable looms containing co-axial cables",o:["distortion of the outer sheath is allowed providing the inner cable is not affected","the clamps must be no more than 1 metre apart","avoid distortion to the co-axial cable to maintain the dielectric constant"],a:2,e:"NIL"},
+{q:"If a test or inspection instrument has no calibration data supplied by the manufacturer, you would use the calibration data provided by",o:["the British Standards Quality Assurance documentation referring to calibration of instrumentation and test equipment","CAAIPs","the Maintenance Manual"],a:0,e:"Leaflet 2-14 2.2"},
+{q:"Why are test or inspection instruments regularly calibrated and certified?",o:["To ensure they will perform within the required limits of operation","To ensure they can handle the range of measurements required of them","To ensure they are being used regularly"],a:0,e:"Leaflet 2-14 1.2"},
+{q:"Who is responsible for ensuring that weight and balance instrumentation is serviceable before use?",o:["An engineer holding a license in the instrument category","The manufacturer of the equipment","The person responsible for carrying out the weight and balance procedure"],a:2,e:"NIL"},
+{q:"At which frequency is the calibration of frequently used crimping tools carried out?",o:["Bi-annually","Annually","Every 1000 crimps"],a:2,e:"Or every 3 months, whichever comes first"},
+{q:"When using the trepanning tool, the hole to be drilled should be",o:["1/32 inch larger than the guide pin","same diameter as the guide pin","1/32 inch smaller than the guide pin"],a:1,e:"NIL"},
+{q:"When using a strip-board, the tracks on a PCB are etched",o:["before component fitment","after fitment but before soldering the components","after fitment and soldering of components"],a:0,e:"MMC/1-1 7"},
+{q:"A 'light drive' fit for a 3/8 inch diameter bolt has a maximum allowance of",o:["0.005 inch","0.0025 inch","0.0006 inch"],a:2,e:"AC43.13-1B Page 7-5 Para.7-39"},
+{q:"The intervals for calibration of test equipment",o:["are every year","are different from one appliance to another","are as specified in EASA Part-145"],a:1,e:"EASA Part-145 is not specific"},
+{q:"What drill angle is used to drill titanium?",o:["130-140 degrees","105-120 degrees","90-100 degrees"],a:1,e:"BL/6-18 Para. 6"},
+{q:"When tightening a nut on a bolt the torque loading applied is",o:["inversely proportional to the force applied to the spanner","the tangential application of the force times the perpendicular distance from the point of application to the centre of the bolt","independent of whether the threads are wet or dry"],a:1,e:"Torque= force * distance of force from centre of bolt"},
+{q:"The UK standard of limits and fits is",o:["BS4500","BS8888","BS308"],a:0,e:"BS 4500 is Limits and Fits"},
+{q:"When using a Pacific tensiometer the correct tension is found by",o:["reading dial, provided the correct riser is used for the cable diameter","comparing reading to chart provided","adding reading to riser number"],a:1,e:"The Pacific Tensiometer is NOT a direct reading type"},
+{q:"What temperature should the heat gun be set for shrinking heat shrink sleeve?",o:["At the rated temperature","100° C below rated temperature","100° C above rated temperature"],a:2,e:"Rated temperature is the normal working temperature of the heat-shrink material. The shrink at approximately 100°C above that"},
+{q:"Calibration of aircraft hydrostatic weighing equipment is",o:["done once a year","carried out every time before an aircraft is weighed and adjusted by operator","not required"],a:0,e:"Hydrostatic weighing equipment should be calibrated every year"},
+{q:"When drilling light alloy",o:["lard oil should be used","use the specified lubricant","no lubricant is required"],a:1,e:"Since the question is not specific as to which light alloy is to be drilled, the 'specified' lubricant is used"},
+{q:"The picture shows a torque wrench with an extension. To apply a torque of 350 lb.in. the reading on the dial should be",o:["350 lb.in","280 lb.in","245 lb.in"],a:1,e:"BL/6-30 4.4.1"},
+{q:"Reaming light alloy tube is done with",o:["no lubricant","the same oil and lubrication as used for cutting","hard base lubricant"],a:1,e:"Reaming is lubricated with the same fluid as cutting (drilling)"},
+{q:"Tolerance is the",o:["the difference between a hole and shaft size","allowable error due to faulty workmanship and tools","difference between worn and new tools"],a:1,e:"Tolerance is allowable error due to faulty workmanship and tools"},
+{q:"What should be done if a tool is found not to be working to its calibrated requirements?",o:["It should be removed from service, marked as unserviceable and sent away for overhaul","It should be placed back into stores and kept in service until the next calibration is due","A mechanic should adjust it to restore it to the correct operation"],a:0,e:"Tool should be removed from service, marked as unserviceable and sent away for overhaul"},
+{q:"When carrying out soldering to an end termination and a wire, you should tin",o:["only the end of the wire","neither the wire or the termination as tinning is not required","both the end of the wire and the termination"],a:2,e:"BL/6-1 13.2"},
+{q:"Run-out of a rod is measured using",o:["DTI, surface plate and V-blocks","micrometer and V-blocks","vernier and V-blocks"],a:0,e:"EL/3-3 Page 2 fig 1"},
+{q:"How would you mark a defect on an exhaust system?",o:["Pencil","Chalk","Special zinc/copper tipped marking tool"],a:1,e:"AC 43 Para. 8-49"},
+{q:"Which of the following is the most appropriate filing technique?",o:["Pressure backwards, relieve pressure forwards","Even pressure forward and backwards","Pressure forwards, relieve pressure backwards"],a:2,e:"Jeppesen A&P Mechanics Handbook Page 537"},
+{q:"Stubborn pins in file teeth should be removed by",o:["tapping file gently on workbench","using file card","pricking out with sharp point"],a:2,e:"Jeppesen A&P Mechanics Handbook Page 538"},
+{q:"When using low tungsten hacksaw blades it is recommended to use",o:["60 strokes per minute","50 stroke per minute","40 strokes per minute"],a:1,e:"Jeppesen A&P Mechanics Handbook Page 535"},
+{q:"Units of torque are",o:["lbs/ft2 and lbs/in2","Lbs and Kg","lbs.ft and lbs.in"],a:2,e:"NIL"},
+{q:"The calibration of a piece of test equipment is suspect. Your actions would be",o:["calibrate/rectify immediately","note and rectify later","remove from service and annotate accordingly"],a:2,e:"NIL"},
+{q:"What should you check before using a set of V blocks?",o:["That both blocks have the same identification stamps","It doesn't matter","The calibration date"],a:0,e:"NIL"},
+{q:"When turning the handle on a megger with the probes kept apart",o:["the needle stays at infinity","the needle deflects to infinity","the needle moves to zero"],a:0,e:"The needle of a Megger rests on infinity and is deflected to Zero"}
+],
+"03. Tools": [
+{q:"How many strokes per minute should generally be used with a hacksaw?",o:["60","30","55"],a:2,e:"NIL"},
+{q:"What type of drill would you use on carbon fibre?",o:["Diamond tipped","Carborundum","Tungsten carbide"],a:2,e:"Airbus A340-600 SRM"},
+{q:"A micro-shaver is used to",o:["cut rivets to length prior to forming","mill the rivet head after forming","trim the shank diameter prior to forming"],a:1,e:"A&P Technician Airframe Textbook 2-37 and 2-68"},
+{q:"How many teeth per inch are there on a fine hacksaw blade?",o:["64","16","32"],a:2,e:"Jeppesen A&P Technician General Textbook Page 13"},
+{q:"What is the normal cutting angle of a drill?",o:["59°","130°","12°"],a:0,e:"Jeppesen A&P Technician General Textbook Page 15"},
+{q:"When using a moving coil as an ammeter the greatest amount of current flows through the",o:["bushes","coil","shunt"],a:2,e:"Jeppesen A&P Technician General Textbook Page 3-89"},
+{q:"When using the old style vernier caliper for taking internal measurements",o:["add the nib measurements","subtract the nib measurements","the nib size has no relevance and can be ignored"],a:0,e:"Jeppesen A&P General Textbook 9-39"},
+{q:"To carry out an insulation test on a wire rated at 115 volts you would use",o:["a 250 volt megger","a 115 volt megger","a 500 volt megger"],a:0,e:"CAAIPs Leaflet 9-1, 4.4.2 As a rule of thumb, the megger should be twice the voltage of the system under test"},
+{q:"The normal drill angles are",o:["cutting angle 59°, web angle 130° and clearance angle 12°","cutting angle 130°, web angle 59° and clearance angle 12°","cutting angle 12°, web angle 130° and clearance angle 130°"],a:0,e:"NIL"},
+{q:"The abbreviation 'A/F' means",o:["American Fine","Across Flats","Associated Fine"],a:1,e:"CAAIPs Leaflet 9-3 Pg.7"},
+{q:"A rivet shaver is used to",o:["mill the head flush","mill the tail after cutting","mill the tail after setting"],a:0,e:"Jeppesen A&P Airframe Textbook 2-68"},
+{q:"A drill and wire gauge has holes numbered",o:["10 to 60","1 to 80","1 to 50"],a:1,e:"Jeppesen A&P Airframe Textbook Fig.2-47"},
+{q:"A 250 volt megger should not be used",o:["on electronic equipment","in fuel tanks","on radio aerials"],a:0,e:"Leaflet 9-1 4.4.4"},
+{q:"If the leads of a megger are held apart",o:["the spring will return the needle to infinity","the spring will return the needle to the zero stop","if the handle was turned the meter would read infinity"],a:2,e:"A megger has no spring"},
+{q:"One megohm is equal to",o:["1,000 ohms","1,000,000 ohms","100,000 ohms"],a:1,e:"NIL"},
+{q:"Reamers are used to",o:["drill accurate holes","to make holes oversize","enlarge holes to accurate dimensions"],a:2,e:"Jeppesen A&P General Textbook 9-19"},
+{q:"The pitch of a hacksaw blade is",o:["its length","the number of teeth on the blade","the number of teeth per inch"],a:2,e:"NIL"},
+{q:"The web angle of a normal twist drill is",o:["59°","12°","130°"],a:2,e:"Jeppesen A&P Airframe Textbook 2-27"},
+{q:"The leads of a bonding tester",o:["are interchangeable, one 60 foot long having two prongs and a 6 foot one with a single prong","have critical lengths and the resistance of the leads is accounted for","are supplied in 60 foot and 6 foot lengths but can be varied due to wear"],a:1,e:"CAIPs EEL/1-6 Para 3-11-2 & CAAIPs Leaflet 9.1 3.10.2(b)"},
+{q:"Expanding reamers are used to",o:["ream holes of different diameters by adjusting the position of the blades","ream tapered holes","ream holes in metal that has been heated"],a:0,e:"Jeppesen A&P Technician General Textbook Page 9-19"},
+{q:"The main scale on a 24/25 vernier caliper is divided into",o:["inches, tenths and twentieths","inches, tenths and fortieths","inches, tenths and thousandths"],a:1,e:"CAAIPs BL/3-4 2"},
+{q:"The vernier height gauge uses the same principle as the",o:["vernier caliper","bevel protractor","micrometer"],a:0,e:"CAAIPs BL/3-4 4"},
+{q:"One revolution of the thimble of the English micrometer produces a linear movement of the spindle of",o:["0.001 inch","0.025 inch","0.040 inch"],a:1,e:"CAAIPs BL/3-5"},
+{q:"The pitch of a metric micrometer screw thread is",o:["0.02 mm","1.0 mm","0.5 mm"],a:2,e:"NIL"},
+{q:"When torque loading, a wrench should be selected where the required value falls",o:["at the top end of the range","in the middle of the range","at the bottom end of the range"],a:0,e:"CAAIPs BL/6-30 4.5.1"},
+{q:"The test equipment normally used to carry out a continuity test on an electrical cable is",o:["a high tension circuit tester","an ammeter","a low reading ohmmeter"],a:2,e:"CAIP EEL/1-6 4.2.1 & CAAIPs Leaflet 9-1 4.2.1"},
+{q:"If all three prongs on a bonding tester were shorted together, the metre would read",o:["FSD","zero","off-scale high"],a:1,e:"CAIP EEL/1-6 3.10.2 b"},
+{q:"The pitch of the screw thread on an English micrometer is",o:["0.0001 inches","0.050 inches","0.025 inches"],a:2,e:"Jeppesen A&P General Textbook 9-36"},
+{q:"The vernier scale on an English caliper is divided into",o:["50 equal divisions","40 equal divisions","25 equal divisions"],a:2,e:"Jeppesen A&P General Textbook 9-36"},
+{q:"The thimble of a metric micrometer is divided into",o:["50 equal divisions","40 equal divisions","25 equal divisions"],a:0,e:"NIL"},
+{q:"The measuring capacity of a Vernier Caliper is",o:["the length of the graduated scale less the length of the vernier scale","the length of the graduated scale","the length of the graduated scale plus the width of the nibs"],a:0,e:"NIL"},
+{q:"Vee-blocks are manufactured",o:["as single items and may be paired with any other vee-block","in sets of two and identified for use as a set","in sets of three and identified for use as a set"],a:1,e:"NIL"},
+{q:"The metric micrometer reading shown is",o:["13.87 mm","13.37 mm","10.337 mm"],a:1,e:"NIL"},
+{q:"A ketts saw is used because",o:["it can cut thicker metal than is required by most repair schemes","it is available both pneumatic and electric","its low torque allows single handed use"],a:0,e:"Jeppesen A&P Airframe Textbook. It describes it as electrical, with the advantage of being able to cut sheet to 3/16 inch thick"},
+{q:"The gears used in a pistol windy are",o:["gears in a gearbox","gyrator type gears","spur gears"],a:2,e:"Sun and planet gear reduction, using spur gears"},
+{q:"Cross cut files",o:["cut on the backward stroke only","cut in both directions","cut on the forward stroke only"],a:2,e:"NIL"},
+{q:"The correct size spanner for use on a unified 5/16 in. threaded hexagon headed bolt is",o:["5/16 in A/F","1/2 in A/F","1/4 in A/F"],a:1,e:"NIL"},
+{q:"The length of the Vernier Scale in a 24/25 Vernier Caliper is",o:["0.6 in","1.2 in","2.45 in"],a:0,e:"NIL"},
+{q:"What is used to measure the depth of a blend after a corrosion repair?",o:["Dial Test Indicator","Straight edge and slip gauges","Vernier caliper"],a:0,e:"AL/7-14 Page 12. BL/4-20 Page 9"},
+{q:"Vacu-blast beads re-used on a steel component, after being used on an aluminium component will",o:["cause clogging of the vacu-blast machine","be ineffective in abrasion","cause corrosion to the steel component"],a:2,e:"NIL"},
+{q:"The main scale on a 49/50 Vernier caliper is divided into",o:["inches, tenths and thousandths","inches, tenths and twentieths","inches, tenths and fortieths"],a:1,e:"NIL"},
+{q:"Centre punches are made of",o:["high carbon steel with the tip hardened and tempered","case hardened mild steel","high carbon steel hardened and tempered"],a:2,e:"The whole centre punch is hardened and tempered"},
+{q:"What type of flutes should be used in a reamer for cutting titanium?",o:["Spiral flutes","Straight flutes","Tapered flutes"],a:0,e:"BL/6-18 7.1"},
+{q:"The depth micrometer reading shown is",o:["0.261 ins","0.361 ins","0.336 ins"],a:0,e:"NIL"},
+{q:"What should be the included angle of a twist drill for soft metals?",o:["118 degrees","65 degrees","90 degrees"],a:2,e:"Jeppesen A&P Airframe Technician Textbook Page 2-27"},
+{q:"What should the point angle of a drill be if it is to be used for drilling titanium(drill size below 1/4 inch diameter)?",o:["90° to 105°","105 to 120°","90°"],a:1,e:"BL/6-18 6"},
+{q:"How are pin punches classified?",o:["By length and diameter of the small end","By overall length and type","By type and diameter of the small end"],a:2,e:"NIL"},
+{q:"The purpose of a taper tap is to",o:["produce a fine thread","start a thread","form a tapered thread"],a:1,e:"NIL"},
+{q:"Why is the Vee cut in the base of a scribing block?",o:["to reduce the contact area with the marking off table and reduce friction","to allow the scribing block to be used on the edge of the marking off table","to trap any dirt that may be adhering to the surface of the marking off table"],a:2,e:"NIL"},
+{q:"An inside micrometers normal measurement range is",o:["½ in. to 10in","2in. to 10in","2in. to 12in"],a:2,e:"BL/3-5 para 3.2 under Note"},
+{q:"What is the purpose of Target Points on a Vernier caliper?",o:["To enable spring dividers to be accurately set","To zero the caliper","For scribing lines inside tubes"],a:0,e:"BL/3-4 3.6"},
+{q:"Die Nuts are used to",o:["form internal threads","form external threads","clean up damaged threads"],a:2,e:"NIL"},
+{q:"A Dial Test Indicator may be used for",o:["checking a round bar for bow","checking dimensions to within 0.125 ''","checking any known depth"],a:0,e:"EL/3-3 fig 1"},
+{q:"Which cut of a file should be used on mild steel?",o:["Single cut","Double cut","Second cut"],a:1,e:"NIL"},
+{q:"Which of the following statements is correct?",o:["To cut thin mild steel plate use a coarse blade","To cut an aluminium block use a fine hacksaw blade","To cut thin sheet metal use a fine blade"],a:2,e:"AC65-9A Chap 12-Metal Cutting Tools"},
+{q:"A power meter indicates that a circuit has a power of 4 kW. Separate readings of the voltage and current are 400 V and 20 A respectively. The Power factor is",o:["2","½","20"],a:1,e:"PF= TP/AP TP= 4,000 AP= 20*400= 8000 4000/8000= 1/2"},
+{q:"What is a key-seat rule used for?",o:["Marking lines which are parallel to a true edge","Marking lines parallel to an axis of a round bar","Providing a positive driving force"],a:1,e:"NIL"},
+{q:"When measuring current in a circuit, the ammeter is placed",o:["in series with the circuit","in series with the shunt","in parallel with the circuit"],a:0,e:"NIL"},
+{q:"A 3 ½ bit multimeter will indicate readings up-to",o:["9999","999 ½","1999"],a:2,e:"A&P General Textbook CH3-109 PG 167 Para 2A"},
+{q:"The resolution a bevel protractor can be read to is",o:["50 ' minutes","5 ' minutes","1 º"],a:1,e:"BL/3-4 5.2"},
+{q:"If an English micrometer is showing 4 main divisions, 3 sub-divisions and the 25th thimble division was in line, what would the reading be?",o:["0.475 in","0.175 in","0.555 in"],a:0,e:"BL/3-5 Para 2.3, 4.1.2"},
+{q:"An open circuit on an ohmmeter would be indicated by a reading of",o:["infinite resistance","zero resistance","a negative resistance"],a:0,e:"Eismin Aircraft Electricity and Electronics P165/166"},
+{q:"The leads of an ohmmeter should be replaced if their resistance is greater than",o:["0.5 ohms","1 ohm","0.05 ohms"],a:1,e:"NIL"},
+{q:"Torque loading is determined by multiplying the tangential force applied at the free end of the spanner",o:["by the dia. of the bolt and the distance of its point of application","by the distance moved by the point of application","by its distance of application from the axis of the bolt"],a:2,e:"Leaflet 2-11 pg 3 para 4.2"},
+{q:"Which electrical measuring device needs a power source?",o:["A voltmeter","An ohmmeter","An ammeter"],a:1,e:"Aircraft Electricity and Electronics. Eismin 5th Edition page 165"},
+{q:"When measuring voltage or current with a digital multimeter, the indication is",o:["Average values","peak values","RMS values"],a:2,e:"A&P General Textbook Page 3-94. DMMs are 'Average-Responding' meaning they read RMS if AC"},
+{q:"On a multimeter, what colour lead is connected to the Common socket?",o:["Green","Red","Black"],a:2,e:"Jeppesen A&P General Technician Textbook Page 3-94 fig 3-201"},
+{q:"The Vernier scale of a Bevel Protractor is shown below. What is the reading?",o:["38º 45'minutes","86º 15'minutes","63º 15' minutes"],a:2,e:"NIL"},
+{q:"Three point micrometers are for measuring",o:["internal dimensions","external dimensions","linear dimensions"],a:0,e:"BL/3-5 3.4"},
+{q:"When is a coarse hacksaw blade used?",o:["When cutting material of thick cross section","When cutting ferrous metals only","When cutting material of thin cross section"],a:0,e:"Jeppesen A&P General Technician Textbook Page 9-13"},
+{q:"A voltage drop across a component is measured by placing the meter in",o:["parallel with the component","series with he component","series with the power source"],a:0,e:"Aircraft Electricity and Electronics. Eismin 5th Edition page 164"},
+{q:"Which of the following reamers would you use in a hole having a keyway?",o:["Expanding reamer","Spiral fluted reamer","Parallel reamer"],a:1,e:"NIL"},
+{q:"What is the purpose of a Morse taper on large sizes of twist drills?",o:["To allow the drills to be fitted to a drilling machine","To ensure that the drill is fitted correctly","To give a positive drive when fitted into a tapered chuck"],a:2,e:"NIL"},
+{q:"What should be the included angle of a twist drill for hard metal?",o:["90 degrees","100 degrees","118 degrees"],a:2,e:"Jeppesen A&P Airframe Technician Textbook Page 2-27"},
+{q:"The threads per inch on the spindle of an English micrometer are",o:["40 t.p.i","50 t.p.i","25 t.p.i"],a:0,e:"BL/3-5 4.1"},
+{q:"The spring loaded ratchet attached to the spindle of a standard external micrometer produces",o:["a pre-set feel during use","a means for controlling thread binding","a smooth free run during use"],a:0,e:"BL/3-5 2.2"},
+{q:"The purpose of the land on a twist drill is to",o:["to allow clearance for swarf","reduce friction","present the cutting edge at the required angle"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 2-27"},
+{q:"The name given to the moving scale on the Vernier caliper is",o:["the main scale","the vernier scale","the cursor"],a:1,e:"BL/3-4 fig 2"},
+{q:"What is the reading of the Vernier caliper scale in inches shown below?",o:["0.1816","1.816","1.8016"],a:1,e:"BL/3-4 2.5 and fig 1"},
+{q:"What does the cut of a file refer to?",o:["Arrangement of the teeth","Number of teeth per inch","Grade"],a:0,e:"A&P Technician Airframe Textbook Page 220"},
+{q:"Why are teeth of hacksaw blades off-set?",o:["To allow a quick cutting positive action","To provide greater strength","To provide clearance for non-cutting part of the blade"],a:2,e:"NIL"},
+{q:"How are files classified?",o:["By length, grade and material","By length, grade, cut and section","By length, grade, cut, section and material"],a:1,e:"NIL"},
+{q:"Hammers are classified by",o:["shape of head and length of shaft","weight and length of shaft","weight and type of head"],a:2,e:"NIL"},
+{q:"What does the term 'second cut' indicate as applied to hand files?",o:["The grade of the file","The section of the file","A reconditioned file"],a:0,e:"NIL"},
+{q:"What comprises a full set of BA taps?",o:["A taper, second and plug tap","A taper and second tap","A taper and plug tap"],a:2,e:"Most tap sets are sets of 3. Except BA tap sets which do not have a second tap"},
+{q:"The teeth on a hacksaw blade",o:["does not matter which way they point","should point away from the handle","should point towards the handle"],a:1,e:"NIL"},
+{q:"What is the clearance angle on a normal twist drill?",o:["130 degrees","59 degrees","12 degrees"],a:2,e:"NIL"},
+{q:"When tapping blind holes",o:["a set of three taps is used","a set of two taps is used","a single tap is used"],a:0,e:"NIL"},
+{q:"On a torque wrench the torque loading is",o:["the tangential application of the force divided by the perpendicular distance to the centre of the bolt","the tangential application of the force times the perpendicular distance to the centre of the bolt","the tangential application of the force plus the perpendicular distance to the centre of the bolt"],a:1,e:"Leaflet 2-11 pg 3 para 4.2"},
+{q:"Surface Plates are used",o:["for marking out work and testing flat surfaces","for filing flat surfaces","only on surface tables"],a:0,e:"NIL"},
+{q:"The main scale of a Metric Vernier Caliper is calibrated in",o:["millimetres","micro-meters","millimetres and half millimetres"],a:2,e:"BL/3-4 2.5.1"},
+{q:"For a drill to cut properly it is essential that the point angle be the same on each side, for general use the angle is",o:["12°","130°","59°"],a:2,e:"Jeppesen A& P Technician Airframe page 2-27"},
+{q:"The pitch of a hacksaw blade is",o:["the number of teeth per inch","its length","the number of teeth on the blade"],a:0,e:"NIL"},
+{q:"When using a bench grinding machine the wheel rotates",o:["from the top down towards the work piece","either direction as selected on starting the machine","from the bottom upwards past the work piece"],a:0,e:"NIL"},
+{q:"The thimble of an English micrometer is divided into",o:["50 equal divisions","40 equal divisions","25 equal divisions"],a:2,e:"BL/3-5 fig 1"},
+{q:"The reading on the inch micrometer scale shown is",o:["0.483 ins","0.488 ins","4.758 ins"],a:0,e:"BL/3-5"},
+{q:"The vernier height gauge uses the same principle as",o:["the vernier caliper","the micrometer","the bevel protractor"],a:0,e:"BL/3-4 4"},
+{q:"The pitch of the screw thread on an English micrometer is",o:["0.050 in","0.001 in","0.025 in"],a:2,e:"BL/3-5 4.1"},
+{q:"An avometer can measure alternating current because it has a",o:["moving coil","bridge rectifier circuit","moving iron"],a:1,e:"Aircraft Electricity and Electronics. Eismin 5th Edition page 113 and 167 read together"},
+{q:"Taper reamers are classified by",o:["a type number(1 to 10)","the diameter of the small end","the diameter of the large end"],a:0,e:"Taper reamers are classified by a type number 1-10"},
+{q:"A crimped electrical connection is suspected to be high resistance. How would you verify this without disconnecting the circuit?",o:["Measure the millivolt drop across the connection with a millivolt meter","Measure the resistance with an ohmmeter","Measure the resistance with a 250 volt megger"],a:0,e:"NIL"}
+],
+"04. Avionic General Test Equipment": [
+{q:"A fuel quantity test set has an externally adjustable",o:["capacitor","inductor","resistor"],a:2,e:"AL/10-3 8.2.6"},
+{q:"How would you test a mach switch in-situ?",o:["Use built in test equipment","Use an external test kit","It is not possible to test a mach switch in situ"],a:0,e:"NIL"},
+{q:"The maximum value of bonding of a secondary structure is",o:["1 meg ohm","1 ohm","1 kilo hm"],a:1,e:"CAIPs EEL/1-6 Para 3-8"},
+{q:"Circuit tests on aircraft should be carried out in the following order:",o:["bonding, continuity, insulation, functional","continuity, bonding, functional, insulation","functional, bonding, continuity, insulation"],a:0,e:"Code to remember, B C I F"},
+{q:"Before using a dead weight tester you would",o:["calibrate the tester using a standard weight","pressurize the tester to the required pressure","replace the oil"],a:1,e:"The dead weight tester is first pumped up to the required pressure then gauge under test is connected"},
+{q:"How should a dead weight tester be used?",o:["The pressure increasing handle should be screwed in before the addition of fluid and screwed out when fluid is added","The outlet should not be connected to the instrument until the required weights are raised by the platform","The platform should be removed and fluid poured into the hole"],a:1,e:"Handle is wound in until the weights are floating, then the outlet pressure is slowly released to the gauge under test"},
+{q:"When testing thermocouples using a test set the ambient temperature",o:["never needs to be considered","is considered every time","is only considered when temperatures of 20°C or above"],a:1,e:"AL/10-3 11.11.1"},
+{q:"Electronic test equipment for fuel tank contents systems usually incorporate variable",o:["resistors","inductors","capacitors"],a:2,e:"NIL"},
+{q:"Before using a bonding tester, the 6 foot lead has the two prongs shorted together with a piece of metal. What would the indicator read?",o:["Full scale left","Full scale right","Zero at the centre"],a:1,e:"Leaflet 9-1 3.10.2 a Infinity is full scale to the right"},
+{q:"When using a megger to test insulation resistance, capacitive filters should be disconnected for what reason?",o:["Remove the risk of damage to the megger","Remove the spurious readings caused by the capacitors charging and discharging","Prevent damage to the filters"],a:2,e:"Leaflet 9-1 4.4.4 e"},
+{q:"When carrying out a serviceability check on a bonding tester- short together the three prongs of both probes and ensure which of the following?",o:["The meter reads 0.1 ohm","A zero reading","A full scale reading is obtained"],a:1,e:"Leaflet 9-1 3.10.2(b)"},
+{q:"If an insulation resistance tester is operated and the leads are suspended in free air, what will the meter read?",o:["Zero","Mid scale- it is a ratiometer movement and there is no current flowing in the external circuit","Infinity"],a:2,e:"NIL"},
+{q:"When using a digital meter to test a diode, a correct operation of the diode is indicated by a volt drop of",o:["0.3V to 0.7V","2.5V to 2.8V","1.5V to 2V"],a:0,e:"Forward voltage drop of a diode is 0.2V(germanium) or 0.6V(silicon)"},
+{q:"To check that the ident pulse is being generated from an ATC transponder,",o:["select an ATC channel and check the morse code","select ident and check the indication on the instrument panel","press the ident and monitor the indication on the ramp test set"],a:2,e:"NIL"},
+{q:"A pressure gauge is fitted to a Dead Weight Tester. The piston area is 0.25 sq.in. and the total mass of the mass carrier and masses is 5lb. If the pressure gauge is accurate what pressure in pounds per square inch(PSI) will it read?",o:["1.25 psi","20 psi","200 psi"],a:1,e:"Pressure= Force/ Area= 5/0.25= 20 PSI"},
+{q:"When testing a fuel metering unit, how is it checked?",o:["With the meter in series with the unit","With the unit disconnected","With the meter in parallel with the unit"],a:0,e:"A fuel metering unit is checked with the fuel meter in series with the meter under test"},
+{q:"When using a bonding tester",o:["ensure prongs penetrate anodised layer","ensure prongs do not penetrate anodising layer","an anodised component cannot be tested"],a:0,e:"Leaflet 9-1 Para.3.10.6"},
+{q:"On a static leak tester, pressure is released by",o:["an internal balance valve in the tester","slowly opening the release knob for 3 minutes","a bleed valve in the tester"],a:1,e:"The pressure in the pitot/static leak tester must be released slowly"},
+{q:"A fuel calibration test set when used to check an aircraft with half a fuel load is connected",o:["to gauge with fuel level in parallel","to gauge with fuel level capacitance","to gauge with fuel level in series"],a:2,e:"The test set is connected in series with the fuel level conditioner"},
+{q:"A capacitive fuel contents system should be tested with",o:["a ratiometer","a Wheatstone bridge","a decade box"],a:1,e:"By elimination"},
+{q:"Continuity of a fibreoptic cable is tested with a",o:["light source and optometer","multimeter","calibrated light generator and opto-power meter"],a:2,e:"NIL"},
+{q:"When using transistorized test equipment, what should the output be?",o:["Not affected by impedance","High impedance","Low impedance"],a:2,e:"Transistorised equipment generally has a high input impedance and a low output impedance"},
+{q:"To read the transponder coding from an aircraft's transponder you",o:["use the code signal and a chart to determine the signal","use a ATC 600 test set","use the output on the flight deck"],a:1,e:"Jeppesen Aircraft Radio Systems- Powell Page 136/7"},
+{q:"Bonding lead testers are attached with",o:["a 60 feet lead is connected to the main earth and a 6 foot test lead is connected to check the resistance between selected points","a 6 feet test lead is connected to the main earth and a 60 feet lead is connected to check the resistance between selected points","either of the leads can be connected anywhere"],a:0,e:"Leaflet 9-1 3.10.3"},
+{q:"On a Bonding Tester the number of probes on the 60 ft and 6ft leads respectively are",o:["1 and 2","2 and 2","2 and 1"],a:2,e:"Leaflet 9-1 3.10"},
+{q:"The damping force in a meter",o:["prevents oscillation of the pointer","returns the pointer to zero","assists the pointer to move over the scale"],a:0,e:"NIL"},
+{q:"On a VOR/ILS test set the 'Tone Delete' function",o:["functionally checks that the glideslope pointer moves down-scale","functionally checks that the glideslope failure flag operates","functionally checks that the glideslope pointer moves up-scale"],a:1,e:"The Tone Delete tests the flag"}
+],
+"05. Engineering Drawings": [
+{q:"What is third angle projection?",o:["each view represents the side of the object furthest from the adjacent view","each view represents the side of the object nearest to it in the adjacent view","each view is at an angle of 30 degrees to the plane of projection"],a:1,e:"CAAIPs leaflet 2.1 page 7 para 5.3.1"},
+{q:"This drawing indicates",o:["a countersunk hole","a blind tapped hole","a counterbored hole"],a:1,e:"CAAIPs Leaflet 2-1 Table 3"},
+{q:"The width of a visible outline on a drawing is",o:["0.3 mm","0.7 mm","0.5 mm"],a:1,e:"CAAIPs Leaflet 2-1 5.2"},
+{q:"What does GA stand for on a drawing?",o:["General assembly","General arrangement","Gradient Axis"],a:1,e:"NIL"},
+{q:"Design drawings of aircraft components are produced by organizations approved by",o:["SBAC","British Standards Institute","CAA in accordance with the BCARs"],a:2,e:"NIL"},
+{q:"Which pictorial projection shows one face in true elevation and line of depth normally drawn at 30° or 45° to the horizontal?",o:["Oblique","Perspective","Isometric"],a:0,e:"NIL"},
+{q:"If a design amendment is made on a drawing",o:["a new issue number and date must be allocated to the drawing","the old issue number is retained, with the amendment date added","no change in issue number or date is necessary"],a:0,e:"Leaflet 2-1 4.2"},
+{q:"The British Standard for Engineering Drawings is",o:["BS 308","BS 306","BS 307"],a:0,e:"Leaflet 2-1 1.3"},
+{q:"P.C.D. is an abbreviation for",o:["Pitch Circle Diameter","Pitch Cord Diameter","Precision Circle Dimension"],a:0,e:"Leaflet 2-1 table 3"},
+{q:"Drawing numbers are",o:["the same as serial numbers","changed after each drawing amended after May 28, 1999","unique to each drawing"],a:2,e:"Leaflet 2-1 4.1"},
+{q:"Hatching lines are usually drawn at:",o:["60°","30°","45°"],a:2,e:"Jeppesen A&P General Textbook fig 5-20 and Leaflet 2-1 5.4.1a"},
+{q:"The scale of an engineering drawing is shown as 1: 4. This indicates it is",o:["drawn to a quarter","drawn to scale","drawn four times larger"],a:0,e:"Leaflet 2-1 5.1"},
+{q:"An orthographic projection usually shows",o:["one, three-dimensional view of an object","a pictorial view of the object","three, two-dimensional views of an object"],a:2,e:"Leaflet 2-1 5.3"},
+{q:"When dimensioning a drawing, the dimension lines should be",o:["the minimum number of dimensions necessary to enable the component to be manufactured","as many dimensions as possible","only size dimensions"],a:0,e:"Leaflet 2-1 5.5"},
+{q:"PFD' on an engineering drawing would indicate",o:["dye penetrant check","ultra-sonic test","repair and recondition"],a:0,e:"CAAIPs Leaflet 2-1 Table 4"},
+{q:"S.W.G. is an abbreviation for",o:["Standard Wire Gauge","Screw Width Gauge","Standard Water Gauge"],a:0,e:"CAAIPs Leaflet 2-1 Table 3"},
+{q:"If you are unable to identify a structure 'classification' as either primary or secondary, what action should you adopt?",o:["Grade it as 'secondary'","Upgrade it to 'primary'","Paint it red and stamp it as 'tertiary'"],a:1,e:"NIL"},
+{q:"What colour is used to indicate a tertiary structure on a diagram or drawing?",o:["Red","Green","Yellow"],a:1,e:"NIL"},
+{q:"Which parts of the aircraft are classified secondary structures?",o:["Highly stressed parts but if damaged will not cause failure of the aircraft","Highly stressed parts and if damaged may cause failure of the aircraft and loss of life","Lightly stressed parts such as fairings, wheel shields and minor component brackets etc"],a:0,e:"NIL"},
+{q:"The abbreviation B.A. means",o:["British Assembly","British Association","British Arrangement"],a:1,e:"Leaflet 3-3"},
+{q:"Where are correct layout, dimensioning, numbering and reference procedures for engineering drawing are to be found?",o:["BS 31","BS 1916","BS 308"],a:2,e:"Leaflet 2-1 1.1"},
+{q:"10: 1 on an engineering drawing indicates",o:["the drawing is full size","the drawing is one tenth full size","the drawing is ten times full size"],a:2,e:"Aircraft Instruments and Integrated Systems, Pallett Page 1 5.1"},
+{q:"Lines known as short dashes(thin) are used on drawings to indicate",o:["hidden detail","visible outlines","cutting revolved"],a:0,e:"Leaflet 2-1 table 1"},
+{q:"Any change to a drawing",o:["must be notified to the S.B.A.C","must be accompanied by the new issue number and date","requires a new drawing number"],a:1,e:"Leaflet 2-1 4.2"},
+{q:"Break lines are used",o:["to show where components are expected to break","in sectional drawing","where it would be inconvenient(because of limited space) to draw long lengths of the same section"],a:2,e:"Leaflet 2-1 5.45"},
+{q:"An oblique projection",o:["is the same as an isometric projection","has one view looking directly at one face with the lines representing depth drawn at 90°","has one view looking directly at one face with the lines representing depth drawn at a constant angle"],a:2,e:"NIL"},
+{q:"A drawing in which the subassemblies or parts are shown as brought together on the aircraft is called",o:["an installation drawing","a detail drawing","a sectional drawing"],a:0,e:"NIL"},
+{q:"A thread on a drawing is labeled ½-20 UNF – 1B. The thread is",o:["either external or internal, depending on the application","external","internal"],a:2,e:"NIL"},
+{q:"NTS on a drawing stands for",o:["Not True Scale","No Tolerance System","Not To Scale"],a:2,e:"Leaflet 2-1 table 3"},
+{q:"A hydraulic system schematic drawing would indicate the",o:["type and quantity of the hydraulic fluid","specific location of the individual components within the aircraft","direction of fluid flow through the system"],a:2,e:"NIL"},
+{q:"Which statement is true regarding an orthographic projection?",o:["There are always at least two views","It could have as many as eight views","One-view, two-view, and three-view drawings are the most common"],a:2,e:"NIL"},
+{q:"A line used to show an edge which is not visible is a",o:["break line","phantom line","hidden line"],a:2,e:"Leaflet 2-1 5.2 table 1"},
+{q:"One purpose for schematic diagrams is to show the",o:["size and shape of components within a system","functional location of components within a system","physical location of components within a system"],a:1,e:"NIL"},
+{q:"What type of line is normally used in a mechanical drawing or blueprint to represent an edge or object not visible to the viewer?",o:["Alternate short and long light dashes","Medium-weight dashed line","Light solid line"],a:1,e:"Leaflet 2-1 5.2 table 1"},
+{q:"A specific measured distance from the datum or some other point identified by the manufacturer, to a point in or on the aircraft is called a",o:["zone number","station number","specification number"],a:1,e:"AL/7-2 6"},
+{q:"In a first angle orthographic projection the plan view is placed",o:["above the front elevation","below the side elevation","below the front elevation"],a:2,e:"Leaflet 2-1 Figure 3"},
+{q:"When a cutting plane on a drawing cuts a web longitudinally, the web is",o:["sectioned the same as the rest of the view","not sectioned","sectioned with different direction of hatch"],a:1,e:"BS 308"},
+{q:"When a cutting plane goes through a bush and bolt assembly, on the sectioned view",o:["both the bush and the bolt will be hatched","the bush will be hatched but the bolt will not","neither the bush nor the bolt will be hatched"],a:1,e:"Leaflet 2-1 fig 5 5.4.1(b)"},
+{q:"The letter A.F.D. in a circle stamped on a material indicates that it has",o:["been anodic flaw detected","been annealed fired and doped","an across flats diameter bolt"],a:0,e:"Leaflet 2-1 Table 4"},
+{q:"Where would Zone 324 be found in ATA 100?",o:["Between rear spar of wing and trailing edge of wing","Tip of horizontal stabilizer","Fwd of the wing rear spar"],a:1,e:"Zone 3xx is empennage"},
+{q:"The latest drawing is identified by the",o:["issue number","amendment number","date"],a:0,e:"CAAIP's leaflet 2-1 pg 4 para 4.2"}
+],
+"06. Fits and Clearances": [
+{q:"Tolerances are classified in two ways, these are",o:["Dimensional and isometric","Upper and lower","Dimensional and geometric"],a:2,e:"CAAIPs leaflet 2-1 p16 para 5.11"},
+{q:"The maximum permissible bow in a steel tube is",o:["1: 400","1: 200","1: 600"],a:2,e:"CAAIPs Leaflet 6-4"},
+{q:"The equipment required to carry out a run-out check on a shaft would be",o:["a DTI and 'V' blocks","a ball bearing and a micrometer","a surface plate and a three leg trammel"],a:0,e:"AC43.13-1B Page 4-20"},
+{q:"What is the maximum bow allowed in a strut?",o:["1 in 200","1 in 500","1 in 600"],a:2,e:"CAAIPs Leaflet 2-10"},
+{q:"Which of the following shafts would you use to obtain a clearance fit in a bush 0.750 inch diameter?",o:["0.752 inch","0.748 inch","750 inch"],a:1,e:"NIL"},
+{q:"Which of the following is checked when using a 'GO/NO-GO' gauge?",o:["Clearance","Tolerance","Allowance"],a:1,e:"NIL"},
+{q:"Which of the following is a 'Bilateral Tolerance'?",o:["2 inches-0.002","2 inches+0.002","2 inches ±0.002"],a:2,e:"NIL"},
+{q:"A tolerance is",o:["a permitted difference between new and worn dimensions","a permitted variation on a dimension to allow for inaccuracy of equipment","a required difference in dimension between mating parts to obtain a certain class of fit"],a:1,e:"NIL"},
+{q:"A transition fit is one in which the shaft is",o:["larger than the hole","smaller than the hole","the same size as the hole"],a:2,e:"BS 4500 Datasheet 4500A"},
+{q:"The length of a blended repair of corrosion should be no less than",o:["10 times its depth","20 times its depth","5 times its depth"],a:1,e:"NIL"},
+{q:"If there is a positive allowance between the smallest possible hole and the largest possible shaft, the fit is known as",o:["a transition fit","a clearance fit","an interference fit"],a:1,e:"NIL"},
+{q:"After mechanical removal of corrosion on an aluminium alloy casting, the length of the blended recess should be",o:["no less than ten times the depth","no less than twenty times the depth","no more than twenty times the depth"],a:1,e:"AC43 6.118 6-23"},
+{q:"A press fit requires",o:["some sort of driving force","the shaft to be shrunk by cooling","the hole to be expanded by heat"],a:0,e:"A press fit is a small interference only"},
+{q:"What is the typical acceptable limit of a dent on a frame member?",o:["One and a half times the skin thickness","Twice the skin gauge and 0.75 inch diameter","One gauge depth and 0.75 inch diameter"],a:2,e:"NIL"},
+{q:"A light drive clearance between 3/4 inch diameter bolt and hole, on a drawing would be shown as",o:["0.005 Inches","0.0015 Inches","0.0025 Inches"],a:1,e:"AC43 says 0.0006 for a 3/8 in. bolt, so 0.0015 is the closest"}
+],
+"07. Electrical Cables and Connectors": [
+{q:"In a front release connector the pin will be",o:["released from rear and extracted from the front","released from the front and extracted from the front","released from the front and extracted from the rear"],a:2,e:"CAAIPs Leaflet 9-3 8.3.2"},
+{q:"A wire clamped vertically at one end and horizontally at the other end should have a bend radius of no less than",o:["3 times the diameter of the wire","5 times the diameter of the wire","10 times the diameter of the wire"],a:0,e:"CAIPs AL/3-2 6.4"},
+{q:"Glycol deicer fluid in contact with a silver cable can cause",o:["a fire","disintegration of the cable insulation","corrosion"],a:0,e:"CAAIPs Leaflet 11-5 Para.8.8"},
+{q:"With a rear release connector, the pin will be",o:["released from the front and extracted from the rear","released from the rear and extracted from the front","released from the rear and extracted from the rear"],a:2,e:"CAAIPs Leaflet 9-3, 8.3.2(b)(i)"},
+{q:"The maximum operating temperature for a nickel plated copper or aluminium connector is",o:["260°C","135°C","200°C"],a:0,e:"CAAIPs leaflet 11-5 para 7.2.1"},
+{q:"What gauge of pin would a yellow plastic insert/extract tool be used on?",o:["16-14","12-10","22-18"],a:1,e:"NIL"},
+{q:"Can the insulation grip be adjusted on a PIDG crimp tool?",o:["No","Yes by turning a knob","Yes by adjusting the pins"],a:2,e:"NIL"},
+{q:"What gauge of pin would a red plastic insert/extract tool be used on?",o:["12-10","22-18","16-14"],a:1,e:"NIL"},
+{q:"What cable would you use where temperatures are going to exceed 200°C?",o:["Tinned copper or aluminium","Silver plated copper or aluminium","Nickel plated copper or aluminium"],a:2,e:"CAAIPs Leaflet 11-5, 7.2.1"},
+{q:"How long should a fireproof cable last in a fire?",o:["5 minutes","50 minutes","15 minutes"],a:2,e:"NIL"},
+{q:"What gauge of pin would a blue plastic insert/extract tool be used on?",o:["12-10","16-14","22-18"],a:1,e:"NIL"},
+{q:"The insulation resistance for wiring in undercarriage wheel-wells should normally be not less than",o:["10 megohms","5 megohms","2 megohms"],a:2,e:"CAIPs EEL/1-6 Para 4-5-4(a)"},
+{q:"What causes knuckling on older type electrical cables?",o:["Over-temperature soldering","Applying cable ties too tightly","Excessive pull through forces"],a:2,e:"Leaflet 1l-5 8.6"},
+{q:"To find a high resistance or open circuit, carry out",o:["a milli-volt drop test","a continuity check","a bonding check"],a:1,e:"CAAIPs Leaflet 9-1, 4.2.1"},
+{q:"The maximum bonding resistance on an aircraft primary structure should be",o:["0.01 ohms","0.001 ohms","0.05 ohms"],a:2,e:"CAAIPs Leaflet 9-1, 3.8"},
+{q:"Before effecting a crimp, the bare ends of a cable should be",o:["tightly twisted","twisted lightly in the direction of the lay","straightened out"],a:1,e:"CAAIPs Leaflet 9-3, 7.5.3"},
+{q:"The number of the dots impressed on the insulation of the pre-insulated connectors during crimping indicates that",o:["the correct connector has been used","the correct tool was used to effect the connection","the crimp is properly formed"],a:1,e:"NIL"},
+{q:"The pressure of the insulation crimp jaws on the PIDG crimping tool can be changed by",o:["varying the torque applied to the handles","using different coloured crimping pliers and terminations","changing the position of the pins"],a:2,e:"CAAIPs Leaflet 9-3 fig 2"},
+{q:"When referring to fuses, HRC means",o:["high rupture capacity","hot running capacity","high running current"],a:0,e:"High Rupturing Capacity"},
+{q:"When wiring an electrical component to a plug, the live wire is coloured",o:["blue","green and yellow","brown"],a:2,e:"NIL"},
+{q:"A hole is placed in the lowest point of electrical cable conduit",o:["to allow for pull-through of the cables","to secure the conduit to a piece of aircraft structure","to allow for drainage of moisture"],a:2,e:"Aircraft Electricity and Electronics. Eismin 5th Edition page 65"},
+{q:"The minimum distance between electrical cable splices is",o:["3 feet","12 inches","500 mm"],a:2,e:"NIL"},
+{q:"A fire resistant cable is proof tested by exposure to a standard fire for",o:["30 minutes","5 minutes","15 minutes"],a:1,e:"CAAIPs Leaflet 11-5 4.5 and EASA CS-1 Pg.6"},
+{q:"When fitting coaxial cable connectors it is important to",o:["fit the correct lock nuts","make sure the outer cup is fitted the correct way round","not damage any seals fitted"],a:2,e:"NIL"},
+{q:"When inserting pins into a front release connector the inserting tool should be used with the gap facing which direction?",o:["The centre of the connector","Either direction","The outside of the connector"],a:2,e:"Leaflet 9-3 Para.8.3.2"},
+{q:"When using a hydraulic crimping tool, after completing the crimping operation, the crimp is formed when when",o:["the bypass valve opens and the ram returns to neutral","the foot pedal force is at maximum","the bypass valve closes and the ram returns to neutral"],a:0,e:"NIL"},
+{q:"The type of binding tape used for cables in temperatures above 260°C is which of the following?",o:["Nomex","Teflon","Nylon"],a:1,e:"NIL"},
+{q:"What is the minimum bend radius of a loom adequately supported at a terminal block?",o:["10* diameter","8* diameter","3* diameter"],a:2,e:"Leaflet 9-3 7.3"},
+{q:"How are front release pins removed?",o:["The tool is inserted from the front and the pin is removed from the front","The tool is inserted from the rear and the pin Is removed from the front","The tool is inserted from the front and the pin is removed from the rear"],a:2,e:"Leaflet 9-3 8.3.2(b)(ii)"},
+{q:"If a co-axial cable clamp is over tightened so as to compress the dielectric, how will the capacitance change?",o:["Stay the same","Increase","Decrease"],a:1,e:"AC43 11-117. Decreasing dielectric thickness of a capacitor increases its capacitance"},
+{q:"What is the minimum bend radius of a single co-axial cable?",o:["10* diameter","8* diameter","6* diameter"],a:2,e:"AC43.13-1B Page 11-45 Para.11-96 bb"},
+{q:"What is wet arc tracking?",o:["A fault caused by hot stamp printing","A fault caused by insulation damage","A fault caused by 'knuckling through'"],a:0,e:"AC 43.13-1B, 11-210 and CAAIPs Leaflet 11-5 Para.8.2"},
+{q:"When using a heat shrink gun, what should the temperature of the gun be set to?",o:["100° below the heat shrink temperature","15° below the heat shrink temperature","100° above the heat shrink temperature"],a:2,e:"NIL"},
+{q:"In an electrical cable 1EF6B22NMS, what does the letter E represent?",o:["Circuit function","Cable size","Segment letter"],a:0,e:"Leaflet 9-3 Para.9.1.1"},
+{q:"On a coaxial cable, cable impedance is",o:["proportional to length","not effected by length","inversely proportional to length"],a:1,e:"NIL"},
+{q:"A secondary earth is",o:["not less than 0.5mm cross sectional area","18 AWG","22 AWG"],a:1,e:"Leaflet 9-1 para.3.3 & EEL/1-6 3.3.1(a) ii"},
+{q:"E' on a wire, under ATA 100 is a",o:["phase indication","system ID code","cable size"],a:1,e:"Leaflet 9-3 para.9.1.1"},
+{q:"To prevent wet arc tracking",o:["cable grips should be tight","ensure hot stamp printing is controlled","cables should not be stretched"],a:1,e:"Leaflet 11-5 8.2 and 6.7"},
+{q:"When splicing a cable with a soldered joint, the operation is finished when",o:["the solder has melted","the solder sleeve disappears","the solder and insulation have formed"],a:2,e:"NIL"},
+{q:"When manufacturing an electrical connector the unused holes are",o:["filled with connectors","filled with connectors and blanked","covered with blanks"],a:1,e:"Leaflet 9-3 para 8.3.2 f)iii) and AC 43.13B 11-234"},
+{q:"Co-axial cable is preferred to airframe cable in which application?",o:["Where the diameter of cable is not important","High frequency interference","Low frequency interference"],a:0,e:"NIL"},
+{q:"Forward release electrical connectors are removed by the wire being",o:["pushed forwards","twisted to the right","pulled backwards"],a:2,e:"Leaflet 9-3 8.32 II"},
+{q:"When crimping wires, the wires should be",o:["straight","lightly twisted","twisted"],a:1,e:"Leaflet 9-3 7.5.5"},
+{q:"Why are copper wires used in electrical systems?",o:["They have high permeability","They do not give off a magnetic field","They have a low resistance to current"],a:2,e:"NIL"},
+{q:"When crimping wires, the wire should",o:["be flush with the crimp","extend 0.8 mm beyond the crimp","be beneath the crimp"],a:1,e:"NIL"},
+{q:"1EF6B22 NMSV. What does the B mean?",o:["Segment letter","Cable number","Circuit function"],a:0,e:"Leaflet 9-3 9.1.1"},
+{q:"A white/blue insertion-extraction tool would be used on a cable of what size?",o:["10","22","16"],a:2,e:"NIL"},
+{q:"The value of the insulation resistance of an electric motor compared to its supply leads is",o:["greater","same","smaller"],a:2,e:"Leaflet 9-1 4.5.4(c)"},
+{q:"According to ATA 100, a symbol code 'X' on a wiring number denotes",o:["a warning circuit","a ground circuit","AC power"],a:2,e:"Aircraft Electricity and Electronics. Eismin 5th Edition page 79"},
+{q:"When securing wire after it leaves an LRU, cable bundle bends should be not less than?",o:["minimum radius of five times the outside diameter of the cable, or cable bundle","minimum radius of three times the outside diameter of the cable, or cable bundle","minimum radius of eight times the outside diameter of the cable, or cable bundle"],a:2,e:"CAAIP 9-3, 7.4 states 8 times the diameter"},
+{q:"When terminating an aluminium cable, what preparations would be carried out before crimping?",o:["Degrease stripped cable","Just terminate","Apply a mixture of 50% petroleum jelly and zinc oxide"],a:2,e:"CAAIPs Leaflet 9-1 3.5.4"},
+{q:"An in-line splice should be positioned on the",o:["terminal of the loom","outside of the loom","outer surface of the loom for easy inspection"],a:2,e:"NIL"},
+{q:"A conductor after being crimped. The maximum amount of conductor which protrudes from the terminal end should be",o:["1/32 inch","1/8 inch","1/16 inch"],a:0,e:"Leaflet 9-1 Fig 1(0.8 mm= 1/32 in.)"},
+{q:"Two or more operations should be performed to strip wire with hand operated wire stripper if the total stripping length exceeds",o:["0.50 in","0.75 inch","0.25 in"],a:1,e:"Leaflet 9-3 7.5.5(d)"},
+{q:"A cable loom should be protected by conduit when fed through the",o:["main equipment centre","wheelwell door","cargo compartment ceiling"],a:1,e:"NIL"},
+{q:"The size of proper conduit for electrical wires must be",o:["75% larger than the maximum diameter of wires","25% larger than the maximum diameter of wires","100% larger than the average diameter of wires"],a:1,e:"AC43 11-249"},
+{q:"Blue metal extract tool would be used with contacts sized",o:["16","12","22"],a:0,e:"NIL"},
+{q:"A Silver coated conductor in an unpresurised area is subject to moisture and has a damaged coating would be likely to cause",o:["Wet Arc Tracking","Knuckling Through","Red Plague"],a:2,e:"NIL"}
+],
+"08. Riveting": [
+{q:"When riveting, the distance from the edge to the rivet (land) should not be less than",o:["1D","2D","4D"],a:1,e:"A&P Technician Airframe Textbook 2-53"},
+{q:"The strength of a riveted joint compared to that of the original metal is",o:["75%","100%","125%"],a:0,e:"NIL"},
+{q:"A repair has a double riveted joint. The shear strength would be",o:["125%","75%","100%"],a:1,e:"NIL"},
+{q:"The standard minimum rivet row spacing is",o:["2 1/4 D","3 D","4 D"],a:2,e:"NIL"},
+{q:"What is the normal spacing between rivets?",o:["2 D","4 D","3 D"],a:1,e:"NIL"},
+{q:"In British rivets(solid) what is the length grading unit?",o:["1/16","1/10","1/32"],a:0,e:"CAAIPs BL/6-1, 4.2"},
+{q:"If the thickness of a single sheet of material, about to be joined by riveting was 1/16 of an inch thick what would be the approximate diameter of the rivets to be used?",o:["1/16 inch","3/16 inch","1/8 inch"],a:1,e:"CAAIPs BL/6-29 Para 3"},
+{q:"Regard riveting, which of the following is correct?",o:["Both of the above are correct","The length of a countersunk rivet(flush head) is measured from the end of the rivet to the top of the countersunk head","The length of a round head or flat head is measured from the end of the rivet to underside of rivet head"],a:0,e:"Jeppesen A&P Airframe Textbook 2-36 and AC43 page 4.16"},
+{q:"When riveting, a certain clearance must exist between the rivet and the hole in which it is fitted, to allow for shank expansion. If the clearance is too large, what could be the result?",o:["Indentations by rivet head on the material","Separation of the sheets may occur","Sheet may tend to buckle"],a:1,e:"CAAIPs BL/6-29 Para 9.3.1-Fig 4"},
+{q:"To replace one 1/8 inch rivet",o:["three 1/16 inch rivets would be required","two 1/16 inch rivets would be required","four 1/16 inch rivets would be required"],a:2,e:"CAIP BL/6-27 in the NOTE below para 5.3"},
+{q:"If treated rivets have not been used within the prescribed time they can be re-treated. What is the maximum number of times that they can be heat-treated?",o:["If no more in Stores, as many times as required","Twice only","Three times"],a:2,e:"CAAIPs BL/6-27 Para 6-3"},
+{q:"Rivets kept at a temperature of between –15°C and –20°C are usable for",o:["150 days","150 minutes","150 hours"],a:2,e:"CAAIPs BL/6-27 Para 6-2"},
+{q:"Avdel rivets are closed by",o:["a broaching process","a tapered mandrel","a squeezing process"],a:0,e:"CAAIPs BL/6-28 Para 3.2 Fig 2"},
+{q:"What is the purpose of the Avdel pin tester?",o:["To test the tightness of the pin in the rivet","To test the tightness of the rivet in the hole","To test the shear strength of the pin"],a:0,e:"NIL"},
+{q:"The stems of an Avdel rivet are",o:["removed with the riveting tool","nipped off and milled flush with the head","removed with a taper punch"],a:1,e:"NIL"},
+{q:"What is the pressure range for the Avdel Riveter Type F?",o:["40 to 60 lbs per sq. in","20 to 60 lbs per sq. in","60 to 80 lbs per sq. in"],a:2,e:"NIL"},
+{q:"When countersinking rivet holes in a material",o:["a special countersinking bit with a pad to prevent drilling too deep should be used","a plain countersinking bit should be used","the rivet head should stand 1/32 of an inch above the surface"],a:0,e:"NIL"},
+{q:"The riveting defect in the figure shown is",o:["too much hammering","the dolly was not square","the snap was not square"],a:2,e:"BL/6-29 Para 9-3-1 Fig 4"},
+{q:"Rivet allowance is",o:["the distance the rivet is positioned from the edge of the repair plate","the amount of material required to form the rivet on installation","the distance between rivets in the same row"],a:1,e:"BL/6-29 8.1"},
+{q:"What is the approximate distance of the sphere of influence of a rivet?",o:["4 D","2 D","5 D"],a:2,e:"NIL"},
+{q:"Rivet clearance is",o:["the distance between rivets in the same row","the amount that the rivet hole diameter exceeds the rivet diameter","the distance between rows of rivets"],a:1,e:"BL/6-29 4.2"},
+{q:"The minimum rivet pitch is",o:["2 1/2* the rivet diameter","3* the rivet diameter","2* the rivet diameter"],a:1,e:"A&P Airframe Textbook CH12-37 Fig 12-57"},
+{q:"The riveting defect in the figure shown is",o:["the snap was not square","the hole was too small","an incorrect snap has been used"],a:1,e:"CAAIPs BL/6-29 Para 9.3.1 Fig 4. AC43 21"},
+{q:"The 'grip' of a rivet is",o:["the length of rivet left to form the head","the thickness of plates which can be fastened","the area of the plates held firmly together"],a:1,e:"NIL"},
+{q:"The strength of a riveted joint is determined by",o:["shear strength and pitch of rivet","pitch and tensile strength of rivet","shear strength of rivet and material it is made of"],a:0,e:"BL/6-27 5.2"},
+{q:"If the bearing strength of a metal is greater than the shear strength of the rivet, what will occur?",o:["Rivet will joggle","Rivet will show incorrectly installed","Rivet will pull through the metal"],a:0,e:"NIL"}
+],
+"09. Pipes and Hoses": [
+{q:"When carrying out a pressure test on a pipe it should be",o:["twice the working pressure for two minutes","1.5 times the working pressure","three times the working pressure for five minutes"],a:1,e:"Leaflet 5-5 8.5"},
+{q:"When checking a hose after installation it should be checked for freedom of movement",o:["by flexing through the normal operating range plus 15°","by flexing through the normal operating range only","by flexing +/-15° either side of the neutral position"],a:0,e:"Leaflet 5-5 8.4.2"},
+{q:"If the outer cover of a flexible hose is found to be cracked",o:["it is unserviceable since it may have a restricted flow","it may still be serviceable","it is unserviceable since it may leak"],a:1,e:"Leaflet 5-5 7.2.2"},
+{q:"A rigid hydraulic pipe requires shaping. It should be carried out",o:["after annealing","after age hardening","as supplied"],a:2,e:"CAAIPs BL/6-15 3.3 and 4.4.4(iii)"},
+{q:"Fretting corrosion on a braided pipe would mean it was",o:["unserviceable and should be replaced","not necessarily unserviceable","only unserviceable if the corrosion penetrates the braids"],a:0,e:"NIL"},
+{q:"Pipe flaring is carried out",o:["as supplied","in the annealed state","after normalizing"],a:0,e:"BL/6-15"},
+{q:"To allow for shrinkage, vibration and whip all straight hoses must be",o:["5% longer than the distance between the fittings","2% longer than the distance between the fittings","3% longer than the distance between the fittings"],a:2,e:"CAAIPs Leaflet 5-5 6.5"},
+{q:"A flexible hose that cannot be internally inspected by eye or introscope can be ball tested by suspending from one end at a time to check",o:["a ball of 95% of bore of hose can be pushed through with a metal rod","a ball of 98% of bore of end fittings passes freely under own weight","ball of 90% of bore of end fittings passes freely under own weight"],a:2,e:"CAAIPs Leaflet 5-5 9.5.3 a"},
+{q:"Hoses are normally pressure tested to",o:["maximum working pressure","2 times maximum working pressure","1½ times maximum working pressure"],a:2,e:"CAAIPs Leaflet 5-5 8.5"},
+{q:"A fluid line marker with a skull& crossbones is",o:["fluid line carries toilet waste","warning symbol","radioactive symbol"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 10-13"},
+{q:"The international marking for a water injection pipeline is a series of",o:["chevrons","squares","dots"],a:0,e:"Jeppesen A&P Airframe Technician Textbook Page 10-13"},
+{q:"The international marking for a fire protection pipe line is a series of",o:["circles","squares","diamonds"],a:2,e:"Jeppesen A&P Airframe Technician Textbook Page 10-13"},
+{q:"To prevent corrosion where aluminium alloy pipelines are supported by rubber cleats, the pipe should be treated over the area of contact with",o:["french chalk","varnish","petroleum jelly"],a:1,e:"NIL"},
+{q:"The international marking for an instrument air pipeline is a",o:["series of dots","zig zag line","wavy band"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 10-13"},
+{q:"The maximum distance between end fittings to which a straight hose assembly is to be connected is 50 inches. The minimum hose length should be",o:["51 inches","51½ inches","3 inches"],a:1,e:"CAAIPs Leaflet 5-5 6.5"},
+{q:"The length of a hose assembly with elbowed end fittings is taken from",o:["the maximum length of the straight portion of hose","the centre of the bore at the nipple extremity","the extreme overall length"],a:1,e:"CAIPs AL/ 3-13 Para 2-3"},
+{q:"The international marking for a breathing oxygen pipe line is a series of",o:["dots","diamonds","rectangles"],a:2,e:"Jeppesen A&P General Technician Textbook Page 10-13"},
+{q:"The resistance between a flexible hose and a component should not exceed",o:["1 ohm","0.5 ohm","0.05 ohm"],a:2,e:"Leaflet 5-5 9.5.5"},
+{q:"Bore tests of flexible hoses are carried out using a suitable ball or bobbin of",o:["90% of the diameter of the end fittings","85% of the diameter of the end fittings","25% of the diameter of the end fittings"],a:0,e:"Leaflet 5-5 9.5.3(a)(ii)"},
+{q:"The 'Lay Line' on a flexible hose is",o:["an arrow painted on the hose to show the direction of fluid flow","a white line painted the full length of the hose to indicate any twist in the hose","a white line painted the full length of the hose to indicate any stretch in the hose"],a:1,e:"AL/3-13 4.2 figure 4"},
+{q:"Aluminium alloy pipe used for hydraulics systems is flared",o:["normalized","as supplied","annealed"],a:1,e:"BL/6-15 6.2"},
+{q:"Identify the parts required to make up a flared-tube fitting?",o:["Sleeve and nut","Ferrule and nut","Body, sleeve and nut"],a:0,e:"BL/6-15 6.2.2"},
+{q:"The flare angle on an AGS pipe is",o:["90 degrees","45 degrees","32 degrees"],a:2,e:"BL/6-15 6.1"},
+{q:"Repair to aluminium pipe can be done using burnishing",o:["if damage is surface only","if damage is no more than 5%","if damage is no more than 10%"],a:2,e:"AC 43 Pg.9-18 Para.9.30 c"},
+{q:"Rigid pipes are designed with bends to",o:["allow for expansion and contraction due to heat and absorb vibration","absorb vibration","fit to the aircraft structure"],a:0,e:"NIL"},
+{q:"You find a pipe with a flare end fitting of 74°. What specification has it been manufactured to?",o:["A.G.S","A.N","S.A.E"],a:1,e:"BL/6-15 6.1"},
+{q:"Bonding connections between flexible and rigid pipes are achieved by",o:["ti-wrapping the bonding lead to the pipes","using a corrugated strip","tucking the bonding leads between the flexible and rigid pipes"],a:1,e:"CAAIPs 9-1, 3.6.1"}
+],
+"10. Springs": [
+{q:"Springs are manufactured from",o:["high carbon alloy steel with high strength requirements","low carbon alloy steel with high strength requirements","high carbon alloy steel with low strength requirements"],a:0,e:"NIL"},
+{q:"A wear check on a cylinder head valve spring should include",o:["length under load","diameter and length","length off-load"],a:0,e:"EL/3-2 para 4.4"},
+{q:"Material used for springs is",o:["High carbon or alloy steel with low working stresses","Low carbon steel or alloy steel with high working stresses","Low carbon steel or alloy steel with low working stresses"],a:0,e:"NIL"}
+],
+"11. Bearings": [
+{q:"Needle roller bearings",o:["are susceptible to brinelling","can accept a small amount of misalignment","are designed to carry axial loads"],a:0,e:"CAIP BL/6-14 para 2.3.1 ii"},
+{q:"When rotating a ball bearing by hand, a regular click indicates",o:["damage to the balls","intergranular corrosion in the outer ring","a cracked ring"],a:2,e:"NIL"},
+{q:"Brinelling of a wheel bearing could be caused by",o:["rotation of the outer race in the wheel housing","heavy landing","overheating of the brakes"],a:1,e:"NIL"},
+{q:"Brinelling of a bearing is",o:["bluing of the bearing due to overheating","shallow smooth depressions caused by the rollers being forced against the cup, due to overtorquing","indentations in the race surface caused by continual static vibration"],a:1,e:"NIL"},
+{q:"A tapered roller bearing is designed to take",o:["radial loads only","both radial and axial loads","axial loads only"],a:1,e:"NIL"},
+{q:"Small indentations in the race of a ball bearing indicate",o:["overtorquing","corrosion","brinelling"],a:2,e:"Jeppesen A&P Airframe Textbook 1-46"},
+{q:"When fitting a ball bearing to a shaft it should be carefully positioned using",o:["a steel drift with light blows","a copper or aluminium tube drift","a soft steel or brass tube drift"],a:2,e:"CAIP BL/6-14 5.4"},
+{q:"Graphite prevents seizure and conducts heat. It is normally used in",o:["lithium based greases","sodium based greases","copper based greases"],a:1,e:"NIL"},
+{q:"False Brinelling of a bearing is",o:["movement of the outer ring relative to its housing","indentations on the race-way due to load transferred through the bearing when static","a scoring of the race-way surfaces due to ball or roller skidding"],a:1,e:"NIL"},
+{q:"On completion of assembly the bearing housing",o:["should be examined for end float","packed fully with grease","lightly packed with grease"],a:2,e:"NIL"},
+{q:"When checking a ball bearing for corrosion and foreign matter",o:["rotate at operational speed and check for roughness","make a strip down inspection","oscillate and rotate slowly to listen for roughness"],a:2,e:"NIL"},
+{q:"What type of load is a journal load?",o:["Radial","Axial","Centrifugal"],a:0,e:"NIL"},
+{q:"Bearings to be cleaned for further examination should be wiped free of all grease on outer surfaces with the aid of dry compressed air for cages and rolling parts. The bearings should then be soaked in",o:["M.E.K","lead free gasoline","white spirit"],a:2,e:"CAAIPs BL/6-14 8.1"},
+{q:"After cleaning a bearing should be dried with",o:["left in free air to dry naturally","clean, warm, dry compressed air","lint free rags"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 9-8"},
+{q:"Thrust bearings transmit",o:["thrust loads, thus limiting axial movement","radial loads, thus limiting axial movement","thrust loads, thus limiting radial movement"],a:0,e:"BL/6-14 2.2.3 and 3.1"},
+{q:"Chipping of a ball bearing indicates",o:["brinelling","chattering","spalling"],a:2,e:"NIL"},
+{q:"A Hardy Spicer coupling has what type of bearings?",o:["Ball Bearings","Needle bearings","Plain bearings"],a:1,e:"BL/6-14 2.3.1(ii)"},
+{q:"Graphite greases are used for",o:["medium temperature applications","high temperature applications","low temperature applications"],a:1,e:"NIL"},
+{q:"If during an engine overhaul, ball or roller bearings are found to have magnetised but otherwise have no defects, they",o:["are in an acceptable service condition","must be degaussed before use","cannot be used again"],a:1,e:"Leaflet 4-7 4.9"},
+{q:"Ball and roller bearings are made from a combination of low carbon steel and a percentage of",o:["Chromium","Nickel","Nickel chrome"],a:1,e:"NIL"},
+{q:"On inspection a bearing is found to have distortion, what action should be taken?",o:["Reject bearing","No action required. Some distortion is normal","Blend out distortion and re-grease bearing"],a:0,e:"NIL"},
+{q:"On inspection a bearing is found to show signs of overheating, what action should be taken?",o:["Reject bearing","No action required. Some overheating is normal","clean up bearing and repack with grease"],a:0,e:"NIL"},
+{q:"When a bearing has 2 parts and the inner ring and outer ring is installed",o:["neither of the practices are allowed","the inner ring can be removed from its inner shaft for cleaning","the outer ring can be removed from its housing for inspection"],a:2,e:"NIL"}
+],
+"12. Transmissions": [
+{q:"A chain removed for routine inspection, it",o:["does not need proof loading","must be proof loaded to 50%","must be proof loaded to 150%"],a:0,e:"Leaflet 5-4 6.6"},
+{q:"An aircraft control chain is connected using",o:["nuts and bolts","quick release pins","a split link and spring clip"],a:0,e:"Leaflet 5-4 3.4"},
+{q:"If a control chain can be lifted clear of a tooth, it should be",o:["rejected as unserviceable","removed and an elongation check carried out","cleaned, re-tensioned and inspected after a period of time"],a:1,e:"Leaflet 5-4 5.3"},
+{q:"To check a chain for articulation",o:["it should be run over the finger through 180° and checked for smoothness and kinks","move each link individually and check for tightness","lay on a flat surface and check for kinks"],a:0,e:"Jeppesen A&P Airframe Textbook 2-27"},
+{q:"How do you remove a tight link from a chain which is to be used on an aircraft control system?",o:["Dismantle, inspect, rectify and re-assemble the chain","If the chain has a tight link, the chain has to be removed from service","You may be able to remove the tight link by applying a light tap with a hammer"],a:2,e:"Leaflet 5-4 6.4"},
+{q:"The initial lubricant on a new chain",o:["must be replaced with grade altitude grease","should be removed and replaced with the approved oil","should not be removed"],a:2,e:"Leaflet 5-4 4.4.5"},
+{q:"Control chains should be fitted in an aircraft",o:["with the minimum of slack in the chain","so that the chain can be removed easily","with as much slack as possible to allow for contraction"],a:0,e:"NIL"},
+{q:"Backlash is a type of wear associated with",o:["gears","rivets","bearings"],a:0,e:"NIL"},
+{q:"After a chain has been cleaned in paraffin it should be",o:["hung up to drip dry","dried in hot air","washed in soapy water then hung to drip dry"],a:1,e:"AL/3-2 6.3.1 a"},
+{q:"What fraction of the minimum breaking load should be the proof load for a chain?",o:["0.1","1/3","0.1%"],a:1,e:"Leaflet 5-4 3.3. AL/3-2 Para 6-6"},
+{q:"If corrosion is found on a chain",o:["replace the chain","clean off the corrosion and if acceptable re-fit the chain","lubricate the chain"],a:0,e:"Leaflet 5-4 5.4. AL/3-2 Para 5-4"},
+{q:"The three principle dimensions specified for a chain is the diameter of the rollers and",o:["pitch and chain length","the pitch and width between the inner plates","the pitch and width across the outside of the plates"],a:1,e:"Leaflet 5-4 Para.3.1. AL/3-2 3.1"},
+{q:"The distance between the centres of the rollers of a chain is called",o:["pitch","crest","length"],a:0,e:"Leaflet 5-4 3.3. AL/3-2 3.1"},
+{q:"Which of the following formulas should be used to calculate the percentage extension of an aircraft control chain? Note: M= Measured length under load in inches X= Number of pitches measured P= Pitch of chain in inches",o:["M+(X*X)*100/P*M","X-(M*P)*100/M*P","M-(X*P)*100/X*P"],a:2,e:"AL/3-2 6.3.1"},
+{q:"The maximum allowable extension of a chain assembly over a nominal length is",o:["3%","5%","2%"],a:2,e:"Leaflet 5-4 6.3.2. AL/3-2 Para 6.3.2"},
+{q:"A feather key locates a gear on a shaft and permits",o:["a positive drive with the gear firmly locked","a positive and strong drive transmission","a positive drive and axial movement"],a:2,e:"NIL"},
+{q:"A chain is removed by",o:["nuts and bolts","spring clips","removing chain links on an endless chain"],a:0,e:"Leaflet 5-4 3.4 & 6"},
+{q:"The box unit in a Teleflex control run which is not suitable for heavily loaded controls is called",o:["Double entry","Single entry","Straight lead"],a:2,e:"NIL"},
+{q:"How do you check a chain for elongation?",o:["Hang chain up, check sight line and measure","Adjust the end fittings","Lay flat on a table, apply tensile load and measure"],a:2,e:"Leaflet 5-4 6.3.2. AL/3-2 Para 6.3.2"},
+{q:"Drive planes on an epicyclic gear are",o:["around a common axis of the plane","at different angles to the plane","at right angles to the plane"],a:0,e:"NIL"},
+{q:"Compared with the spur gears, spiral gears have",o:["have mechanical advantages","less stress concentration on gears","more wear resistance"],a:1,e:"NIL"},
+{q:"The clutch which can overrun the driving member, is known as",o:["overload clutches","no-slip clutches","freewheel clutches"],a:2,e:"NIL"},
+{q:"A gear system, or gear train, is made up of gears that are",o:["driven and driver","idler","driven, driver and idler"],a:2,e:"NIL"}
+],
+"13. Control Cables": [
+{q:"Proof testing after cable installation is",o:["sometimes required","not required","always required"],a:1,e:"NIL"},
+{q:"A control cable that has been contaminated with acid should be",o:["cleaned","rejected","cleaned, inspected, and reinspected after a period of time"],a:1,e:"NIL"},
+{q:"A balance cable is installed in a control system to",o:["allow the aircraft to be flown 'hands off'","correct for wing heaviness","enable the cable to be tensioned"],a:2,e:"A&P Technician Airframe Textbook 2-27"},
+{q:"How would you use a Pacific T5 tensiometer?",o:["Use correct chart and correct riser","Use a standard riser and use the chart to correct for different sized cables","Use a load meter to apply the correct load"],a:0,e:"NIL"},
+{q:"What is the purpose of an aileron balance cable?",o:["Allows for hands off flying","Equalizes control cable tension","Relieves pilot loads"],a:1,e:"Jeppesen A&P Airframe Textbook 1-27"},
+{q:"How would you inspect a cable for fraying?",o:["Run your fingers the full length of the cable","Operate the controls and feel for stiffness","Run a rag the full length of the cable"],a:2,e:"Jeppesen A&P Airframe Textbook 1-43"},
+{q:"When manufacturing aircraft control cables, the cable can be cut by",o:["using a hacksaw with the cable under tension","using an oxy-acetylene torch","using a chisel on a flat metal surface"],a:2,e:"CAAIPs Leaflet 2-12 3.6"},
+{q:"The check for a cable pulling out of a swaged fitting is by",o:["seeing that the cable is still past the safety holes in the swage","looking for a shiny surface on the cable near the fitting","seeing that there are no broken wires near the fitting"],a:1,e:"NIL"},
+{q:"A 'Reel' used to hold an aircraft cable in storage should have a minimum diameter of",o:["at least 25 times that of the cable diameter","at least 50 times that of the cable","at least 40 times that of the cable diameter"],a:2,e:"Leaflet 2-12 page 2 para 3.1"},
+{q:"Large control cables(45 to 120 cwt) may have tension loads that can break the locking wire or lease lock nuts. How is this overcome?",o:["The cable is kept slightly slack","Duplicating the number of cables to cut down on individual tensile loads","A tube is fitted over the turnbuckle assembly and drilled to take up to 3 bolts, to prevent independent rotation of any part"],a:2,e:"CAAIPs AL/3-7 Para. 9.5.8"},
+{q:"To correctly tension cables it can help",o:["to use a cable with turnbuckles at least every eight feet","to take up initial slack by additional pulleys","to have control surface locks in to support weight and adjust turnbuckles equally"],a:2,e:"NIL"},
+{q:"A cable is replaced",o:["when a shiny portion is found","when each strand is worn to limits","if a chemical spillage is suspected"],a:2,e:"NIL"},
+{q:"What is the proof loading for cables after swaging?",o:["1/3 minimum breaking strain","2/3 minimum breaking strain","50% minimum breaking strain"],a:2,e:"CAAIPs Leaflet 2-12 8.1"},
+{q:"The best way to check control cables for broken wires is to",o:["run a rag along the cable in both directions","examine them visually","increase the tension and check with a magnifying glass"],a:0,e:"AC43 7-149(d)"},
+{q:"If the turnbuckles in a control system are tightened excessively the result will be",o:["the cable will break","the cables will vibrate excessively and cause failure of controls","the aircraft will be heavy on controls"],a:2,e:"AC 43 7-149(j)"},
+{q:"A control cable is proof loaded to ensure that",o:["the end fittings on the cable are secure","it will not stretch after fitting in an aircraft","it will not break after fitting in an aircraft"],a:0,e:"Leaflet 2-12 8"},
+{q:"British turnbuckles are checked for safety by",o:["looking through the hole and checking for threads showing","attempting to pass a hardened pin probe through the inspection hole","attempting to push locking wire through the hole"],a:1,e:"AL/3-7 9.5.7"},
+{q:"A suspected chemical spillage on a cable, you should",o:["clean, inspect and refit immediately","replace the cable","clean the cable and inspect 24 hours later"],a:1,e:"NIL"},
+{q:"HTS aircraft control cables are protected from corrosion by",o:["Galvanising","cadmium coating","zinc plating"],a:0,e:"Leaflet 2-12 2.3"},
+{q:"What is the purpose of the hole in the swaged end fitting on a swaged cable?",o:["To ensure the cable end passes the inspection hole on drilled through type fittings but leaves the locking wire hole clear","To allow trapped air to escape","To allow a split pin to be inserted"],a:0,e:"Leaflet 2-12 5.2(d). CAIPs BL/6-24 5.2(d)"},
+{q:"The inspection hole in a turnbuckle is",o:["to allow the locking wire to pass through for the purpose of locking","to ensure that the locknuts are adequately tightened","to ensure that the turnbuckle is in safety"],a:2,e:"Leaflet 2-12 9.5.7. CAIPs AL/3-7 9.5.7"},
+{q:"Swaging of a cable end fitting is checked by",o:["measuring the length of the barrel before and after swaging","using a go/no-go gauge on the barrel","looking for cracks on the swage indicating poor swaging"],a:1,e:"Leaflet 2-12 5.3(b) Jeppesen A&P Airframe Technician Textbook 1-43"},
+{q:"A flight control cable is replaced if",o:["single wires are blended together","a wire is 20% worn","the protective fluid coating is missing"],a:0,e:"AC43 7-149 g"},
+{q:"In aircraft control cables, when a lock is fitted to the control surface",o:["it will prevent the control surface movement but not the control column movement","it will prevent the control surface and the control column movement","it will not prevent the control surface movement but will lock the control column"],a:1,e:"NIL"},
+{q:"When checking cable tensions you are looking for",o:["free movement only","full and free movement","artificial feel"],a:1,e:"NIL"},
+{q:"A cable should be replaced when individual wires are worn greater than",o:["40%","60%","20%"],a:0,e:"AC43 Para 7-149 g"}
+],
+"14. Material Handling": [
+{q:"The purpose of a joggle is",o:["to act as a tear stopper","to make the holes for a rivet line up","to produce a flush fit at a metal joint"],a:2,e:"A&P Technician Airframe Textbook 2-8"},
+{q:"Caustic soda applied to a metal turns black. This would indicate the metal is",o:["magnesium alloy","duralumin","aluminium"],a:1,e:"NIL"},
+{q:"Removal of a scratch from a sheet of metal requires",o:["polishing","blending","burnishing"],a:2,e:"A&P Mechanics Airframe Textbook Page 130"},
+{q:"When dimpling a sheet of metal you would require",o:["an oversized rivet and special reaction block","a male and female die","a male die only"],a:1,e:"A&P Technician Airframe Textbook 2-59"},
+{q:"The skin on an aircraft is normally manufactured from",o:["2024 aluminium alloy","7075 aluminium alloy","2117 aluminium alloy"],a:0,e:"A&P Technician Airframe Textbook 2-7"},
+{q:"The mold point is",o:["the midpoint in the thickness of a sheet of metal to which the radius dimension is calculated","the centre of curvature of a radius used corner in a metal fabricated component","an imaginary point from which real base measurements are provided"],a:2,e:"A&P Technician Airframe Textbook 2-71"},
+{q:"Relief holes are",o:["holes drilled in a battery container to provide drainage","holes drilled in the corner of a metal box to prevent cracking","holes drilled to stop a crack"],a:1,e:"A&P Technician Airframe Textbook 2-77"},
+{q:"The 'setback' is",o:["the distance from the edge of the metal to the bend tangent line","the distance from the mold point to the bend tangent line","the distance from the bend tangent line to the setback line"],a:1,e:"A&P Technician Airframe Textbook 2-71"},
+{q:"Faying surfaces are",o:["surfaces that are in contact with each other","surfaces that are stressed","surfaces that have been treated with anti-corrosion compound"],a:0,e:"NIL"},
+{q:"In sheet metal bending, how would you measure the bend radius to calculate the bend allowance?",o:["Measure to the inside of the bend radius","Measure to the outside of the bend radius","Measure to the inside of the bend radius plus half the metal thickness"],a:0,e:"Jeppesen A& P Tecnician Airframe Textbook pg 2-70"},
+{q:"When dimpling sheet with a squeeze dimpling tool",o:["the jaws are not adjustable","adjust the jaws to accommodate different material gauges","use a lubricant"],a:1,e:"Jeppesen A&P Airframe Textbook 2-59"},
+{q:"Bend radius on sheet metal is",o:["inside radius + ½ thickness","inside radius","outside radius"],a:1,e:"Jeppesen A&P Airframe Textbook 2-70"},
+{q:"Aircraft skin is joggled to",o:["Provide smooth airflow at faying surfaces","Make a frame lighter but stronger","Conform with the 'Area Rule'"],a:0,e:"Jeppesen A& P Tecnician Airframe Textbook pg 2-82"},
+{q:"Zinc Chromate applied between faying surfaces will",o:["improve adhesion thus relieving the amount of riveting necessary","improve bonding between them","inhibit dissimilar metal(electrolytic) corrosion"],a:2,e:"NIL"},
+{q:"If a non-ferrous metal being examined by chemical test turns black when caustic soda is applied to the surface, the metal is",o:["duralumin","alclad","aluminium"],a:0,e:"NIL"},
+{q:"To aid marking out on Fe metals use",o:["graphite grease","copper sulphate solution","engineer's blue"],a:1,e:"Fe means Ferrous. Copper sulphate solution should be used"},
+{q:"The sight line on a sheet metal flat layout to be bent in a cornice or box brake is measured and marked",o:["one-half radius from either bend tangent line","one radius from the bend tangent line that is placed under the brake","one radius from either bend tangent line"],a:1,e:"A&P Airframe Textbook 5-60 Pg 232 Fig 5-118"},
+{q:"If copper sulphate is used on magnesium alloy it will",o:["effervesce to a copper colour","have no effect","effervesce to a black colour"],a:2,e:"NIL"},
+{q:"If it is necessary to compute a bend allowance problem and bend allowance tables are not available, the neutral axis of the bend can be",o:["found by adding approximately one-half of the stock thickness to the bend radius","found by subtracting the stock thickness from the bend radius","represented by the actual length of the required material for the bend"],a:0,e:"Jeppesen A& P Technician Airframe pg 2-73 fig 2-131"},
+{q:"The formula for setback for a 90° bend is",o:["(½R+ T)","(R+ T)","(R+ ½T)"],a:1,e:"A&P Airframe Textbook 5-55 Pg 227 Fig 5-112"},
+{q:"Caustic soda placed on the edge of alclad will turn",o:["white – black – white","all white","black – white – black"],a:0,e:"NIL"},
+{q:"In marking a light alloy",o:["the scriber must be held at an angle to give a smooth line where bending is required","caustic soda is used","a pencil is used to mark the material and all marks removed after bending"],a:2,e:"BL/6-29 4.1 A&P General Textbook 9-33 Pg 32"},
+{q:"When assembling metals of different potential, corrosion may be inhibited by application of",o:["zinc or chromic acid & assemble while wet","zinc or barium chromate & assemble while wet","nothing- assemble bare"],a:1,e:"BL/4-2 4.4.6"},
+{q:"Steel wire brushes or steel wool should",o:["be used to clean magnesium alloys","be used to clean aluminium sheet","never be used on light alloys"],a:2,e:"NIL"},
+{q:"When a piece of metal is bent, the surface of the metal on the outside of the bend is",o:["in compression","neither in tension or in compression","in tension"],a:2,e:"NIL"},
+{q:"The sight line of a bend is",o:["at the tangent line","half a radius from the tangent line","one radius from the tangent line"],a:2,e:"NIL"},
+{q:"The sharpest bend that can be placed in a piece of metal without critically weakening the part is called the",o:["maximum radius of bend","minimum radius of bend","bend allowance"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 2-70"},
+{q:"Scribers are used to",o:["produce an accurate finish","make centre pop marks for drilling","mark guidelines on material"],a:2,e:"NIL"},
+{q:"A hole drilled at the intersection of two bends in a fabricated sheet metal component is called",o:["a drain hole","a crack stopper","a relief hole"],a:2,e:"BL/6-14 2.2.3 and 3.1"},
+{q:"Dissimilar metal diffusion bonding gives",o:["high strength and ductility","high strength and stiffness","high strength and brittleness"],a:1,e:"NIL"},
+{q:"Marking out on stainless steel can be clarified by application of",o:["ammonia","copper sulphate","sal ammoniac"],a:1,e:"NIL"},
+{q:"When drawing lines on aluminium alloy sheet prior to bending",o:["a thin coat of zinc chromate primer should be used, ready for pencil lines","a scriber should be used","a wax pencil should be used"],a:0,e:"CAIP BL/6-29 4.1"},
+{q:"After solution treatment of aluminium alloy, the effect of immediate refrigeration at a temperature with the range-15°C to-20°C is",o:["to suspend natural ageing for a limited period","to permanently soften the metal to retard the onset of fatigue","to increase the rate of artificial ageing"],a:0,e:"BL/9-1 9. BL/6-27 6.2"},
+{q:"Diffusion bonding and superplastic forming provides",o:["high strength and high ductility","high strength and high stiffness","high stiffness and high ductility"],a:2,e:"NIL"},
+{q:"In a composite repair lay-up, how much should each layer extend beyond the layer below it?",o:["2-3 inches","1-2 inches","3-4 inches"],a:1,e:"AC43 Page 3-5"},
+{q:"To enable a composite panel to dissipate static charge it would be sprayed with",o:["polyurethane paint","ferrous paint","aluminium paint"],a:2,e:"NIL"},
+{q:"A mechanic has completed a bonded honeycomb repair using the potted compound repair technique. What non-destructive testing method is used to determine the soundness of the repair after the repair has cured?",o:["Eddy current test","Metallic ring test","Ultrasonic test"],a:1,e:"NIL"},
+{q:"A non-destructive testing technique which is suitable for inspecting for delamination in Redux bonded structure of light aluminium alloys is",o:["ultrasonic","eddy-current","magnetic flow"],a:0,e:"NIL"},
+{q:"Why is an extra layer of fibreglass added to a composite repair?",o:["To provide additional flexibility","For sacrificial sanding","To increase the strength of the repair"],a:2,e:"AC 43 3-3(3) page 3-5"},
+{q:"How do you reduce or remove electrostatic charges which may build up on fibreglass surfaces?",o:["No special treatment is necessary because fibre glass is an insulator","The surface is treated with a special conductive paint","The surface is impregnated with copper strips"],a:1,e:"Leaflet 9-1 3.4.4"},
+{q:"Prior to aluminium alloy bonding we use",o:["alkaline etch","acid etch","solvent wipe"],a:1,e:"Phosphoric acid and chromic acid wash"},
+{q:"Glass reinforced panels are bonded by",o:["special conductive paint","wire mesh","bonding strips to conductors"],a:0,e:"Leaflet 9-1 para.3.4.4"},
+{q:"What solvents could you use to clean tools used for fibreglass repairs?",o:["Trichloroethylene or acetone","Lead free petrol/kerosene","acetone or MEK"],a:2,e:"CAAIPs AL/7-6 6.6"},
+{q:"Chopped strand mat is a good general purpose mat because",o:["it has short fibres","it gives equal properties in all directions","it is a stiffer than woven cloth"],a:1,e:"NIL"}
+],
+"15. Welding, Brazing, Soldering and Bonding": [
+{q:"Before soldering stainless steel it must be",o:["pickled","cleaned with emery cloth","sand papered"],a:0,e:"BL/6-1 5.3"},
+{q:"Insufficient heat used in soldering will cause",o:["the joint to oxidize","a high resistance joint potential","contamination of the joint"],a:1,e:"NIL"},
+{q:"A dry joint when soldering is caused by",o:["too large an iron","too much flux","too little heat"],a:2,e:"NIL"},
+{q:"The oxy acetylene flame for silver soldering should be",o:["oxidizing","carbonising","neutral"],a:2,e:"BL/6-2 12.2.4"},
+{q:"A flux is used in soldering to",o:["to dissolve oxides","etch the metals surface for more adhesion","to prevent solder spikes"],a:0,e:"NIL.BL/6-1 4.2"},
+{q:"Plumbers solder is grade",o:["C","D","B"],a:1,e:"NIL.BL/6-1 4.1 table 2"},
+{q:"Why is it necessary to use flux in all silver soldering operations?",o:["To increase heat conductivity","To prevent overheating of the base metal","To chemically clean the base metal of oxide film"],a:2,e:"BL/ 6-2 Para 5-2"},
+{q:"When making a small soldered electrical connection, using flux-cored solder",o:["the connection should be heated first and then solder applied","the soldering iron and solder should be applied simultaneously to the connection","the soldering iron should be loaded with solder and then applied to the connection"],a:1,e:"NIL"},
+{q:"The type of flux to be used when soft soldering on aircraft is",o:["active","non-active","either active or non-active"],a:1,e:"BL/6-1 4.2.8"},
+{q:"The operational temperature of soldering irons is",o:["fjust above the melting point of solder","below the melting point of the base metal","60°C above the melting point of solder"],a:2,e:"NIL"},
+{q:"What elements is solder made from?",o:["Tin, lead and copper","Tin and lead only","Tin, lead and silver"],a:1,e:"BL/6-1"},
+{q:"General purpose solders are graded by",o:["a colour coding","a letter coding","a numerical coding"],a:1,e:"BL/6-1 table 2"},
+{q:"What solder should be used to solder aluminium?",o:["D.T.D. 685 lead-silver-tin solder","90% tin and 10% zinc","wire flux cored solder"],a:2,e:"CAAIPs BL/6-1, 14"},
+{q:"Solder can be used to join",o:["some dissimilar metals","only copper based metals","similar metals only"],a:0,e:"NIL"},
+{q:"A flux is used in soldering to",o:["dissolve oxides","prevent solder spikes","etch the metal surface for more adhesion"],a:0,e:"NIL"},
+{q:"On completion of soldering a non-activated flux",o:["must be cleaned off with an acid solution","need not be cleaned off","must be cleaned off with a selected solvent"],a:2,e:"CAIP BL/6-1 para 4.2.3"},
+{q:"A dry joint in soldering is most likely to be caused by",o:["flux not used","components not hot enough","wrong solder used"],a:1,e:"NIL"},
+{q:"What action is taken when soldering flux residue may have lodged in deep crevices of an assembly?",o:["It must be immersed in a weak solution of hydrochloric acid and rinsed thoroughly in running water","It must be immersed in a weak solution of phosphoric acid and rinsed in water","It must be thoroughly rinsed with a weak solution of sulphuric acid and washed in cold water"],a:0,e:"BL/6-1 8.6"},
+{q:"A phosphate based flux paste is for soldering",o:["aluminium","brass","stainless steel"],a:2,e:"BL/6-1 4.2.5"},
+{q:"The soldering method where molten solder is pumped from the bottom of a bath through a slot so that a stationary wave of solder appears on the surface is known as the",o:["rotary bath method","stationary wave method","standing wave bath method"],a:2,e:"CAAIPs BL/6-1, 9.2"},
+{q:"Solders are available in two forms:",o:["stick solder with a rosin core and solder in a wire form having a rosin core","Solder in a wire form needing a separate flux and stick solder needing no flux at all","stick solder needing a separate flux and solder in wire form having a rosin core"],a:2,e:"BL/6-1 4.1"},
+{q:"A resurfaced soldering iron cannot be used effectively until after the working face has been",o:["fluxed","polished","tinned"],a:2,e:"CAAIPs BL/6-1, 6.1.1"},
+{q:"High temperature solder is used where the operating temperature is high. It is an alloy of",o:["lead/ copper/ antimony","tin/ zinc/ antimony/ silver","tin/ lead/ antimony/ silver"],a:2,e:"CAAIPs BL/6-1, 4.1.2"},
+{q:"Soft solder is suited for joints, which are",o:["subjected to fatigue","subjected to strong forces","subjected to small forces"],a:2,e:"AC 43 page 4061 para 4. BL/6-1"},
+{q:"Silver solder melts within the range",o:["400°C- 550°C","200°C- 400°C","600°C- 850°C"],a:2,e:"BL/6-2, Para 1.1"},
+{q:"The term 'dry joint' is usually applied to",o:["a metal being lightly heated","a defect associated with a soldered joint","a water tight joint"],a:1,e:"NIL"},
+{q:"Silver soldering is suited for",o:["electronic component soldering","high temperature applications","general soldering work"],a:1,e:"BL/6-1 Para.4.1.2"},
+{q:"Silver solder is made from",o:["tin, copper and zinc","copper, tin and silver","copper, zinc and silver"],a:2,e:"Workshop Technology WAJ Chapman Page 105"},
+{q:"The materials most commonly soldered in soft soldering are",o:["brass and mild steel","stainless steel and titanium","aluminium and magnesium"],a:0,e:"NIL"},
+{q:"What purpose does flux serve in welding aluminium?",o:["Ensures proper distribution of the filler rod","Removes dirt, grease, and oil","Minimises or prevents oxidation"],a:2,e:"NIL"},
+{q:"The shielding gases generally used in the Tungsten Inert Gas(TIG) welding of aluminium consist of",o:["nitrogen or hydrogen, or a mixture of nitrogen and hydrogen","a mixture of nitrogen and carbon dioxide","helium or argon, or a mixture of helium and argon"],a:2,e:"NIL"},
+{q:"Which items listed below is the most important consideration when selecting a welding rod?",o:["Thickness of the metal to be welded only","Type of torch","Type and thickness of the metal to be welded"],a:2,e:"BL/6-4 2 & 4.1"},
+{q:"What is a good weld?",o:["Build up by 1/8 inch in the middle of the weld","An oxide coating on the base metals","Sides sloping to the base metals"],a:2,e:"Jeppesen A& P airframe technician textbook p 4-9"},
+{q:"Brazing material is made from",o:["copper zinc and silver","copper and tin and lead","copper, silver and tin"],a:0,e:"Workshop Technology WAJ Chapman Page 103"},
+{q:"Filing or grinding a weld bead",o:["may be necessary to avoid adding excess weight or to achieve uniform material thickness","may be performed to achieve a smoother surface","reduces the strength of the joint"],a:2,e:"CAAIPs Leaflet 2-10 3"},
+{q:"The primary reason for using flux when welding aluminium is to",o:["prevent oxides from forming ahead of the weld","prevent molten metal from flowing too widely","promote better fusion of the base metal at a lower temperature"],a:0,e:"BL/6-4 2"},
+{q:"In Gas Tungsten Arc(GTA) welding, a stream of inert gas is used to",o:["lower the temperature required to properly fuse the metal","prevent the formation of oxides in the puddle","concentrate the heat of the arc and prevent its dissipation"],a:1,e:"NIL"},
+{q:"After welding you would normalise to",o:["remove oxidation from the welded joint","remove carbon build up from the welded joint","release the stresses from the material"],a:2,e:"NIL"},
+{q:"The flux used during brazing is a mixture of water and",o:["zinc chloride","hydrochloric acid","borax powder"],a:2,e:"NIL"},
+{q:"Oxides form very rapidly when alloys or metals are hot. It is important, therefore, when welding aluminium to use a",o:["solvent","filler","flux"],a:2,e:"BL6-4 8.2.2"},
+{q:"Which statement concerning a welding process is true?",o:["In the oxy acetylene welding process, the filler rod used for steel is covered with a thin coating of flux","In the metallic-arc welding process, filler material, if needed, is provided by a separate metal rod of the proper material held in the arc","The inert-arc welding process uses an inert gas to protect the weld zone from the atmosphere"],a:2,e:"Jeppesen A& P airframe technician textbook pg 4-4 Gas Metal Arc Welding paragraph"},
+{q:"When inspecting a butt-welded joint by visual means",o:["the penetration should be 100 percent of the thickness of the base metal","the penetration should be 25 to 50 percent of the thickness of the base metal","look for evidence of excessive heat in the form of a very high bead"],a:0,e:"Jeppesen A&P General Textbook 11-4 and Jeppesen A&P Airframe Textbook 4-2"},
+{q:"What is undesirable in a good weld?",o:["oxides mixed in with the filler material","fusing the edges of materials to be joined","100% penetration by filler material"],a:0,e:"NIL"},
+{q:"In selecting a torch tip size to use in welding, the size of the tip opening determines the",o:["temperature of the flame","melting point of the filler metal","amount of heat applied to the work"],a:2,e:"NIL"},
+{q:"The most important consideration(s) when selecting welding rod is/are",o:["material compatibility","current setting or flame temperature","ambient conditions"],a:0,e:"NIL"},
+{q:"When inspecting a weld, you should make sure that",o:["the parent(or basis) materials are fully fused together","the weld has inclusions inside the bead","there are voids either side of the weld"],a:0,e:"BL/6-4 13.1(a) and BL/6-5 8.4(a) and AC43.13-1B Page 4-54 Para.4-48"}
+],
+"16. Aircraft Weight and Balance": [
+{q:"Fore and aft limits of the CG",o:["are determined by the pilot when calculating the loading data","are specified by the manufacturer","are determined by the licensed engineer after a major check and weighing"],a:1,e:"Leaflet 1-4 3.3.2"},
+{q:"What angle of turn will double the weight of the aircraft?",o:["30°","60°","45°"],a:1,e:"NIL"},
+{q:"The basic equipment of an aircraft is",o:["that equipment which is required for every role of the aircraft for which the aircraft is operated plus unusable fuel","all equipment including fuel and oil necessary for a particular flight","the crew equipment, and other equipment including fuel and oil necessary for a particular flight"],a:0,e:"Leaflet 1-4 1.2 a"},
+{q:"Aircraft measurements aft of the datum are",o:["either positive or negative","positive","negative"],a:1,e:"Leaflet 1-4 3.2.1"},
+{q:"A Weight and Centre of Gravity Schedule is required by",o:["all aircraft above 2730 kg MTWA","all aircraft not exceeding 2730 kg MTWA","all aircraft regardless of weight"],a:0,e:"Leaflet 1-4 2.9.1(a)"},
+{q:"Aircraft below 5700kg not used for commercial air transport purposes are required to be reweighed",o:["every 2 years","every 5 years","as required by the CAA"],a:2,e:"CAAIPs BL/6-3 6.4"},
+{q:"Variable load is weight of",o:["crew, their baggage and equipment relevant to role","fuel, oil and non-expendable equipment relevant to role","basic weight plus operating weight"],a:0,e:"BL/ 1-11 Para 1-2(c)"},
+{q:"The term 'reaction' used in weighing an aircraft refers to",o:["the sum of the loads on the main landing gear only","the individual loads on each landing gear","the sum of the loads on all of the landing gear"],a:1,e:"Leaflet 1-4 1.2(f)"},
+{q:"Aircraft must be reweighed",o:["after two years from manufacture only","after two years from manufacture then at periods not exceeding five years","at periods not exceeding five years"],a:1,e:"Leaflet 1-4 2.2"},
+{q:"For purposes of calculating weight and C of G position, an adult male(with baggage) is considered to have a mass of",o:["85 kg","65 kg","75 kg"],a:0,e:"JAR OPS(with baggage) and AN(G)R Para 4"},
+{q:"Points forward of the datum point are",o:["negative","neutral","positive"],a:0,e:"Leaflet 1-4 3.2.1"},
+{q:"Where would you find documented, the fore and aft limits of the C of G position?",o:["In the aircraft Maintenance Manual","In the Flight Manual(or the documentation associated with the C of A)","In the technical log"],a:1,e:"Leaflet 1-4 2.9.4 and 3.3.2"},
+{q:"Previous weighing records are",o:["retained for 2 yrs only","are kept with aircraft records","destroyed after 5 yrs"],a:1,e:"Leaflet 1-4 2.7"},
+{q:"A Load Sheet is compiled in the order of",o:["Variable Load, Fuel Load, Disposable Load, Basic Weight","Basic Weight, Variable Load, Disposable Load, Fuel Load","Basic Weight, Variable Load, Fuel Load, Disposable Load"],a:2,e:"Leaflet 1-4 Page 24"},
+{q:"A Weight and Centre of Gravity Schedule must be signed by",o:["the CAA","the pilot","a Licensed aircraft engineer"],a:2,e:"Leaflet 1-4 2.9"},
+{q:"An aircraft which has its C of G forward of the Forward Limit",o:["the take-off run will not be affected","will have a longer take-off run","will have a shorter take-off run"],a:1,e:"Leaflet 1-4 3.3.1"},
+{q:"The basic weight of an aircraft is",o:["the pilot, flight crew and their luggage","the passengers, baggage and fuel","the aircraft, minimum equipment, unusable fuel and oil"],a:2,e:"CAAIPs BL/ 1-11 Para 1-2(b)"},
+{q:"When an aircraft has been reweighed under JAR OPS, what should be done to the old Weight and Balance Report?",o:["Kept in the aircraft logbook","Destroyed after 3 months","Kept in the weight and balance schedule"],a:1,e:"JAR OPS Subpart P"},
+{q:"If the C of G of an aircraft with a full complement of fuel is calculated. Then",o:["the C of G will always be within limits if it was within limits with full fuel tanks","the C of G must be recalculated with zero fuel to ensure it will still be within limits","the C of G will only need to be recalculated if the fuel weight is behind the aircraft C of G position"],a:1,e:"NIL"},
+{q:"Cargo placed aft of the datum will produce a",o:["neutral moment","negative moment","positive moment"],a:2,e:"Leaflet 1-4 5.4.4(a)"},
+{q:"A load sheet",o:["need not be carried on the aircraft if one remains at base","is always carried on the aircraft","is never carried on the aircraft"],a:1,e:"NIL"},
+{q:"The Datum point on an aircraft, for measuring C of G position could be",o:["the front bulkhead","anywhere on the aircraft","the nose of the aircraft"],a:1,e:"AC 43 Page 10-1 para F"},
+{q:"Increasing the weight of an aircraft",o:["increases the glide range","has no affect on the glide range","decreases the glide range"],a:1,e:"Mechanics of Flight Kermode Page 194"},
+{q:"A load Sheet must be signed by",o:["a licensed aircraft engineer","the Commander of the aircraft","the Loading Officer"],a:1,e:"NIL"},
+{q:"What is meant by empty weight?",o:["Basic weight only","Basic weight minus unusable fuel plus oil","Basic weight plus unusable fuel plus oil"],a:2,e:"Jeppesen A&P General Textbook 6-2"},
+{q:"A Weight and Centre of Gravity Schedule is to be raised",o:["in triplicate, for the CAA, the operator and the maintenance organisation","in duplicate, for the CAA and the operator","once only, for the CAA"],a:1,e:"Leaflet 1-4 2.9.4"},
+{q:"Where would you find the information on the conditions for weighing the aircraft?",o:["Maintenance Manual","Technical Log","Flight Manual in conjunction with the documents associated with the CofA"],a:0,e:"NIL"},
+{q:"In aeronautical weighing terms",o:["all arms for forward of the reference datum are positive(+) and all arms aft of the reference datum are negative(-)","all reference datum are as per company procedures","all arms for forward of the reference datum are negative(-) and all arms aft of the reference datum are positive(+)"],a:2,e:"NIL"},
+{q:"Details on recording of weight and C of G position can be found in",o:["BCAR section A","Air Navigation Order","Airworthiness Notices"],a:0,e:"Leaflet 1-4 2.1"},
+{q:"If a new Weight and Centre of Gravity Schedule is issued, the old one must be retained for",o:["one year","two years","six months"],a:2,e:"JAR OPS 1.920"},
+{q:"A weighing cell is based on the variation of",o:["induced voltage with displacement","resistance with strain","differential currents with stress"],a:1,e:"NIL"},
+{q:"When weighing an aircraft using elastic load cells, the load cells go",o:["as a single unit or combination of units under the aircraft wheels","between undercarriage and aircraft","between top of jack and the aircraft"],a:0,e:"Leaflet 1-4 4.5.1"},
+{q:"When weighing an aircraft with load cells",o:["only the main wheels are weighed","the aircraft is jacked","a load cell should be placed under each set of wheels"],a:1,e:"Leaflet 1-4 4.4"},
+{q:"When weighing an aircraft, the hydrostatic weighing units are positioned",o:["either under or on top of each jack","one under each jack","one on top of each jack"],a:2,e:"NIL"},
+{q:"When weighing an aircraft, the hydraulic system should be",o:["empty","completely full","filled to 'maximum level' mark"],a:2,e:"Leaflet 1-4 1.2(b)"},
+{q:"When weighing an aircraft by the weighbridge method, the aircraft is",o:["only levelled laterally","jacked and levelled","resting on the wheels"],a:2,e:"Leaflet 1-4 4.2"}
+],
+"17. Aircraft Handling and Storage": [
+{q:"When mooring an aircraft what type of rope should be used?",o:["Nylon","Fibre, tied tight due to stretch when wet","Fibre, with some slack due to shrinkage when wet"],a:0,e:"Leaflet 10-1 4.3.1"},
+{q:"Removal of ice by the use of deicing fluid on the aircraft, before flight",o:["must be 1 hour before flight to enable fluid to be cleaned from aircraft","will provide sufficient prevention of ice formation until take off","may remove ice for a period of time depending on the airfield conditions"],a:2,e:"AL/11-3 3.1.4"},
+{q:"When deicing an aircraft with pressure deicing fluid, the sensors on the outside of the aircraft should",o:["have their heating switched on","be fitted with blanks or bungs","not be blanked"],a:1,e:"AL/11-3 5.3.1"},
+{q:"When Ground Power is connected to aircraft, the generators are",o:["paralleled to supply","paralleled to supply for ground starting only","never paralleled"],a:2,e:"NIL"},
+{q:"If ice and snow is found on the wings of an aircraft. Before flight the",o:["snow should be removed but ice can remain because it has no appreciable affect on the airflow","all snow and ice must be removed","ice should be removed but snow can remain because the airflow will remove it"],a:1,e:"GOL/1-1 7.9.2. AL/11-3 3.1"},
+{q:"There is ice and snow on a helicopter blade. You",o:["wipe off excess snow and leave ice","leave a layer of ice","remove all traces of ice and snow"],a:2,e:"AL/11-3 2.2"},
+{q:"Why is the last part of towing an aircraft, done in a straight line?",o:["To relieve side pressure from the main wheels","To relieve hydraulic pressure from the steering mechanism","To allow nose wheel chocks to be placed at 90 degrees to the aircraft"],a:0,e:"NIL"},
+{q:"Aluminium clad alloy sheet should not be polished with mechanical buffing wheels as this",o:["will cause large static charges to build up","may remove the aluminium coating","may remove the alloy coating"],a:1,e:"NIL"},
+{q:"An aircraft should be cleared of snow",o:["using air blast","using cold fluid","using hot fluid"],a:0,e:"CAAIPs AL/11-3 Para 5"},
+{q:"When refueling an aircraft from a tanker, why are the aircraft and tanker bonded together?",o:["To discharge static electricity from the aircraft to the tanker","To maintain the aircraft and tanker at the same electrical potential","To enable the aircraft re-fuel pumps to be operated from the tanker electrical supply"],a:1,e:"Pallett- Aircraft Electrical Systems Pg.95"},
+{q:"When turning and towing an aircraft, why should sharp radiuses be avoided?",o:["Power steering leaks could occur","Scrubbing of main-wheel tyres could occur","Scrubbing of nose-wheel tyres could occur"],a:1,e:"Leaflet 10-1 3.2.4"},
+{q:"When an aircraft is pulled out of soft ground, the equipment should be attached to",o:["the tail cone","the main gear","the nose gear"],a:1,e:"CAAIPs GOL/ 1-1 Para 3-1-6"},
+{q:"When a helicopter lands, how does the pilot signal to ground staff when it is safe to approach the aircraft?",o:["Turn the anti collision lights off","Flash the landing lights","Flash the Nav lights"],a:0,e:"ANO Section 2 Rule 9"},
+{q:"When the park brake has been applied on an aircraft which has a pressurized hydraulic system and is reading maximum system pressure, the brake gauges to the left and right main wheels will read",o:["no indication","full system pressure","full scale deflection"],a:1,e:"NIL"},
+{q:"De-icing fluid Type 1 is used",o:["for short holdover times","where the ambient temperature is below-10degrees Centigrade","where holdover times are long"],a:0,e:"AL/11-3 2.6"},
+{q:"When picketing a helicopter you",o:["tie down one blade","fit sleeves to the blades to protect them if they strike the ground","fit sleeves and tie off all blades"],a:2,e:"Leaflet 10-1 4.4.1"},
+{q:"Which is bad practice for removing the ice and snow in the cold weather?",o:["Dry snow by hot air","Deep ice by de-icing fluid","Use brush for deep wet snow"],a:0,e:"AL/11-3 5.0"}
+],
+"18. Disassembly, Inspection, Repair and Assembly": [
+{q:"Taper pins resist what loads",o:["compression","shear","tension"],a:1,e:"A&P Technician General Textbook 8-29"},
+{q:"What test do you do on a bonded join?",o:["Shear","Peel","Tension"],a:1,e:"NIL"},
+{q:"What would you use to check the run-out on a control rod?",o:["Micrometer + ball bearing","DTI + V blocks","3 leg trammel + feeler gauge"],a:1,e:"NIL"},
+{q:"Taper pins are used in which of the following applications?",o:["To take compression loads","To take shear loads","To take compression and shear loads"],a:1,e:"Jeppesen A&P Airframe Textbook 1-27"},
+{q:"When using a D.T.I. to check the run-out of a shaft, readings of -15 to +25 would indicate a run-out of",o:["0.025 inches","0.020 inches","0.040 inches"],a:1,e:"CAAIPs EL/3-3 Para. 3.2"},
+{q:"A dent is measured in a tubular push-pull rod by",o:["passing a ball down its bore","callipers and feeler gauges","a steel ball and micrometer"],a:2,e:"NIL"},
+{q:"What is used on Magnesium to re-protect it?",o:["Selenious Acid","Deoxidine","Chromic Acid"],a:0,e:"NIL"},
+{q:"In the procedure to be followed after spillage of battery acid, neutralizing is carried out",o:["by washing with distilled water","by applying a coating of Vaseline","with a dilute solution of sodium bicarbonate"],a:2,e:"CAAIPs Leaflet 9-2 5.4.1"},
+{q:"After carrying out an identification test of aluminium alloy with caustic soda, the caustic soda should be neutralized with",o:["Chromic anhydride solution","Copper sulphate solution","Phosphoric acid"],a:0,e:"BL/4-2 Para 2-4-5 'Note'"},
+{q:"To neutralize spilled battery acid on aluminium alloy, use",o:["sulphuric acid","bicarbonate of soda","caustic soda"],a:1,e:"BL/4-1 4.1.3"},
+{q:"Hydrogen embrittlement of high tensile steel is caused if it is treated with",o:["Zinc Chromate","Nitric acid","Phosphoric acid"],a:2,e:"BL/4-2 3.2.2(iii) BL/7-4 5.2"},
+{q:"Dents in a tubular push-pull rod are not allowed",o:["anywhere on the rod","in the middle third of the rod","in the end thirds of the rod"],a:1,e:"NIL"},
+{q:"When checking a diode forward bias function, the positive lead of the ohmmeter should be placed on the",o:["cathode and the negative lead to the anode","anode and the negative lead to the cathode","cathode and the negative lead the earth"],a:1,e:"NIL"},
+{q:"The bonding resistance of primary structure must not exceed",o:["0.05 ohms","0.005 ohms","0.5 ohms"],a:0,e:"Leaflet 9-1 3.8 table 1"},
+{q:"What is the maximum resistance between the main earth system and a metal plate on which the earthing device(tyre) is resting?",o:["100 megohms","1 megohm","10 megohms"],a:2,e:"EEL/1-6 Para 3.10.8 & Leaflet 9-1 3.10.8"},
+{q:"The three electrical checks carried out on aircraft are (1) continuity (2) bonding (3) insulation. What is the order in which they are executed?",o:["2-3-1","1-2-3","2-1-3"],a:2,e:"NIL"},
+{q:"When an earth-return terminal assembly has to be replaced which of the following checks must be carried out?",o:["Bonding and continuity tests","Bonding and millivolt drop tests","Bonding and insulation resistance tests"],a:1,e:"EEL/1-6 Para 3.7.2 & Leaflet 9-1 3.7.2"},
+{q:"When carrying out millivolt drop checks on a circuit, what is an approximate guide for a correct reading?",o:["10 millivolts for every 15 amps flowing","10 millivolts for every 5 amps flowing","5 millivolts for every 10 amps flowing"],a:2,e:"Leaflet 9-1 4.3(b). EEL/1-6"},
+{q:"Effective continuity is not possible unless which of the following conditions exists?",o:["All circuit earths are disconnected","The portion of the circuit under test must constitute a simple series circuit with no parallel paths","All manually operated switches must be off"],a:1,e:"Leaflet 9-1 4.2.3. EEL/ 1-6 Para 4-2-3"},
+{q:"Why is a low voltage supply used for continuity testing?",o:["To prevent fuses 'blowing' and lamps burning out","To avoid damage to the wiring","To avoid breaking down a high resistance film that might exist between contacting surfaces"],a:2,e:"NIL"},
+{q:"When replacing a bonding connection and the original conductor cannot be matched exactly, which of the following replacements would you use?",o:["One manufactured from the same type of material, but of greater cross sectional area should be selected","One manufactured from any piece of Nyvin cable having the correct current capacity may be used","One manufactured from any conducting material of the same cross sectional area be used"],a:0,e:"Leaflet 9-1 3.5.2"},
+{q:"What is a typical minimum insulation resistance value for an aircraft undercarriage bay?",o:["10 megohms","5 megohms","2 megohms"],a:2,e:"EEL/1-6 Para 4-5-4(a) & Leaflet 9-1 4.5.4(a)"},
+{q:"The recommended insulation resistance of a DC motor is",o:["2 megohms","0.5 megohms","5 megohms"],a:1,e:"Leaflet 9-1 Para.4.5.4"},
+{q:"Bonding value for secondary structure is a maximum of",o:["0.05 ohms","1 ohm","0.5 ohms"],a:1,e:"Leaflet 9-1 para.3.8. EEL 1-6 3.8"},
+{q:"Wrinkling of an aircraft skin will",o:["cause rivets to pull","weaken the skin","increase drag on the aircraft"],a:0,e:"NIL"},
+{q:"You have removed a bolt from a critical bolted joint for inspection and rectification. What action should you take prior to inspection?",o:["Before any inspection is carried out, the nut/bolt and hole must be cleaned with a solvent such as trichloroethylene","Clean the bolt shank and thread and re-grease and replace bolt and check for side-play","A preliminary inspection should be made before the hole is cleaned"],a:2,e:"CAIP AL/7-5 5.4"},
+{q:"On inspection of a critical bolted joint you witness black or grey dust or paste. What type of corrosion has taken place and what type of material is involved?",o:["Exfoliation corrosion in magnesium alloys","Galvanic corrosion in magnesium alloys","Fretting corrosion in aluminium alloys"],a:2,e:"CAIP BL/4-1 3.1.5"},
+{q:"What is indicated by the wrinkling of the underside of an aircraft skin?",o:["Hogging","Fretting","Sagging"],a:0,e:"NIL"},
+{q:"What is used to re-protect magnesium?",o:["Selenious acid","Deoxidine","Chromic acid"],a:0,e:"CAAIPs BL/7-5 6.3.1"},
+{q:"What is used on magnesium to remove corrosion?",o:["Strontium chromate","Chromic acid/ sulphuric acid solution","Selenious acid"],a:1,e:"CAAIPs BL/4-2 2.4.4. BL/7-5 9.3.5(i)"},
+{q:"Galvanic corrosion refers to a type of",o:["corrosion between two pieces of material","plating process","surface corrosion"],a:0,e:"AC43 6-20"},
+{q:"Chromating used on magnesium alloys produces",o:["chromium surface electrochemically","a chromate film surface","metal chromates on the electrochemically"],a:1,e:"CAAIPs BL/7-5 Para.4"},
+{q:"Chromating used on magnesium alloys",o:["uses chromium and converts the surface electrochemically","uses chromates and converts the surface chemically","uses chromium, which is deposited on the surface"],a:1,e:"BL/7-3 11"},
+{q:"When carrying out a bonding test in the presence of an anodic coating, what should you do?",o:["Take account of the resistance of the coating","Disregard the resistance of the coating","Penetrate the coating so a good electrical contact is made"],a:2,e:"CAAIPs Leaflet 9-1, 3.10.6"},
+{q:"Maximum value of resistance between all isolated parts which may be subjected to appreciable electrostatic charging and the main earth",o:["0.5 Megohm or 100 kilohm per sq.ft. of surface area whichever is less","1 ohm","0.05 ohm"],a:0,e:"Leaflet 9-1 3.8 Table 1 or EEL/1-6 3.5"},
+{q:"Removal of corrosion from aluminium clad alloy is best done",o:["mechanically by buffing","chemically by trichloroethylene","chemically by sulphuric acid solution"],a:2,e:"NIL"},
+{q:"Control methods for galvanic corrosion include",o:["reducing cyclic stressing and increasing cross sectional area","joining similar metals and using jointing compounds","ensuring correct heat treatments and correct alloying"],a:1,e:"NIL"},
+{q:"The treatment for stress corrosion is",o:["not the same as fatigue corrosion","the same as for surface corrosion or surface cracks in sheet metal","always the replacement of the part"],a:2,e:"NIL"},
+{q:"Very light corrosion on aluminium alloy can be removed by",o:["using a solvent","rubbing with wire wool","using Alocrom 1200"],a:0,e:"NIL"},
+{q:"To remove corrosion on Fe metals use",o:["selenious acid rust remover","sulphuric acid rust remover","phosphoric acid rust remover"],a:2,e:"NIL"},
+{q:"The usual manufacturer's anti corrosive process to be applied to Fe aircraft parts is",o:["cadmium plating","anodising","metal spraying"],a:0,e:"NIL"},
+{q:"An intervention defect is one where",o:["the engineer has the discretion on whether to intervene","there is a requirement for the maintenance engineer to intervene","the defect occurred because of some previous maintenance action"],a:2,e:"NIL"},
+{q:"Vapour phase inhibitor should be used",o:["when re-protecting after corrosion","when degreasing a component","when painting an aircraft"],a:0,e:"NIL"},
+{q:"When carrying out insulation resistance checks",o:["the measurement is always infinity if the cable is installed correctly","the measurement will also show cable continuity","the measurement varies depending upon the ambient conditions of the aircraft under test"],a:2,e:"EEL/1-6 4.5.3, Leaflet 9-1 4.5.3"},
+{q:"How is damage classified on an aircraft skin?",o:["Negligible, repairable, replacement","Negligible, allowable, replacement","Negligible, allowable, repairable"],a:2,e:"NIL"},
+{q:"When carrying out a millivolt drop test on a terminal, the maximum value should be",o:["50mV/10A","10mV/10A","5mV/10A"],a:2,e:"Leaflet 9-1 4.3(b). EEL/1-6"},
+{q:"A jury strut is used",o:["as a reference when checking the C of G position","as a datum when placing the aircraft in a rigging position","to support the structure during repairs"],a:2,e:"NIL"},
+{q:"Run out' on a control rod is measured by",o:["micrometer, surface plate and vee-blocks","surface plate, vernier callipers and vee-blocks","dial test indicator, surface plate and vee-blocks"],a:2,e:"NIL"},
+{q:"How do you check the resistance of a fire bottle cartridge?",o:["Use an insulation tester","Use a multimeter","Use a light and bulb"],a:1,e:"NIL"},
+{q:"If after forming a crimp in an electrical condutor a high resistance is suspected, how would you carry out a check without disturbing the connection?",o:["Use a multimeter set to millivolts and carry out a millivolts drop test","Carry out an insulation check","Use a multimeter set to ohms to check the resistance"],a:0,e:"NIL"},
+{q:"Damaged chromate film should be repaired by using",o:["phosphoric acid 10% by weight in water","selenious acid 10% by weight in water","selenious acid 20% by weight in water"],a:1,e:"BL/7-3 5.2"},
+{q:"Stop Drilling' is the process of",o:["drilling holes to stop a crack at the crack ends","drilling holes in a metal prior to riveting","drilling a rivet head to remove it from the metal"],a:0,e:"NIL"},
+{q:"When inserting a helicoil insert, which way does the tang face?",o:["Away from the hole","Towards the hole","Towards the mandrel"],a:1,e:"Jeppesen A&P Technician General Textbook Page 8-31"},
+{q:"On a patch repair you should use",o:["material one gauge thicker than the original structure","the same rivet spacing as the original structure","only aluminium alloy rivets"],a:1,e:"AC43 Page 4-32"},
+{q:"What tap do you use when fitting a Helicoil?",o:["The same as the original thread size","The next size up from the original tap size","The tap supplied with the Helicoil kit"],a:2,e:"NIL"},
+{q:"When fitting a thread insert",o:["the insert should be tapped in using a hammer","the hole should be expanded using a tap supplied by the insert manufacturer","a thread the next size up from the original should be tapped"],a:1,e:"CAAIPs Leaflet 2-10 3.2.2"},
+{q:"A stud broken off below the surface is removed by",o:["using a stud box","a stud remover tool fitted into a drilled hole","cutting a slot in it and removing with a screwdriver"],a:1,e:"NIL"},
+{q:"A thread insert is made from",o:["white metal","aluminium alloy","stainless steel"],a:2,e:"NIL"},
+{q:"On a composite repair the vacuum should be",o:["above required level","below required level","at the required level"],a:2,e:"NIL"},
+{q:"If bridging strips or bonding cords are fractured, what action may be taken?",o:["The broken ends can be repaired with an 'in-line' splice","A new conductor should be fitted","The broken ends can be soldered"],a:1,e:"Leaflet 9-1 3.6.3"},
+{q:"A UNF threaded wire thread insert may be identified",o:["by a black painted tang","by a red painted tang","by an unpainted tang"],a:0,e:"BL/6-22 3.1"},
+{q:"Transducers used in ultrasonic testing exhibit which of he following effects?",o:["Hyper-acoustic","Ferromagnetic","Piezoelectric"],a:2,e:"CAAIPs leaflet 4-5 page 3 para 3.2"},
+{q:"The eddy current method of N.D.T. uses",o:["AC or DC","Direct current","Alternating current"],a:2,e:"CAAIPs leaflet 4-5 page 1 para 2.1"},
+{q:"To measure the thickness of a paint finish, what type of NDT inspection is used?",o:["A woodpecker","Ultrasonic","Radiographic"],a:1,e:"CAAIPs leaflet 4-5 para 1.4"},
+{q:"When carrying out a dye penetrant test, after the developer has been applied it should be inspected",o:["after 30 minutes","as soon as the developer is dry and again after approximately 10 minutes","after 1 hour"],a:1,e:"CAAIPs Leaflet 4-2 Paras 7-1 and 7-2"},
+{q:"During a colour contrast test the penetrant time should be",o:["longer for a small crack","shorter for a small crack","longer for a wide crack"],a:0,e:"CAAIPs Leaflet 4-2 Para 4-1"},
+{q:"How should a dye penetrant field kit be stored?",o:["At a cold temperature in a darkened room","In direct sunlight","At room temperature away from direct sunlight"],a:2,e:"CAAIPs Leaflet 4-2 Para 9-1"},
+{q:"When carrying out a colour contrast test on a pressure vessel",o:["the dye should be applied to the outside and the developer to the inside","the dye should be applied to the inside and the developer to the outside","both the dye and the developer should be applied to the outside"],a:1,e:"CAAIPs Leaflet 4-2 Para 9-1"},
+{q:"When leak testing with a colour contrast field kit, the soak time for a component less than 1/8 in.(3mm) thick would be",o:["at least twice the normal soak time","at least 3 times the normal soak time","at least the normal soak time"],a:1,e:"CAAIPs Leaflet 4-2 Para 9-2"},
+{q:"When using a colour contrast dye penetrant kit, and a small crack is suspected in the material",o:["less developer should be used","less inhibitor should be used","a magnifying glass is recommended"],a:2,e:"CAAIP's leaflet 4-2 pg 6 para 7.5"},
+{q:"What NDT method would you use to detect delamination?",o:["Colour contrast dye penetrant","Ultrasound","Eddy current"],a:1,e:"Leaflet 4-5 1.4"},
+{q:"Magnetic particle testing detects faults",o:["transverse","longitudinally","longitudinal and transverse"],a:0,e:"CAAIP 4-7, 2.2"},
+{q:"Dye penetrant in a cold climate",o:["takes longer to work","is not affected","works more quickly"],a:0,e:"CAAIPs Leaflet 4-2 Para 4-2"},
+{q:"If after spraying the developer, red blotches appear, the part",o:["has sub-surface defects","was not cleaned properly","is porous"],a:2,e:"CAAIPs Leaflet 4-2 Para 7-3"},
+{q:"What is the purpose of the developer in a dye penetrant inspection?",o:["It acts as a blotter to draw out the penetrant that has seeped into the crack","It is drawn to the crack by electrostatic attraction","It seeps into the crack and makes it show up"],a:0,e:"CAAIPs Leaflet 4-2 Para.6"},
+{q:"The main advantage of dye penetrant inspection is",o:["the part to be inspected does not require cleaning","the defect must be opened to the surface","the penetrant solution works on any non-porous material"],a:2,e:"NIL"},
+{q:"To detect a minute crack using dye penetrant inspection usually requires",o:["the surface to be highly polished","a longer than normal penetrating time","that the developer be applied to a flat surface"],a:1,e:"CAAIPs Leaflet 4-2 Para 7-1"},
+{q:"When checking an item with the magnetic particle inspection method, circular and longitudinal magnetization should be used to",o:["evenly magnetize the entire part","ensure uniform current flow","reveal all possible defects"],a:2,e:"Leaflet 4-2 2 and leaflet 4-7, 4.5"},
+{q:"Which type crack can be detected by magnetic particle inspection using either circular or longitudinal magnetisation?",o:["45°","longitudinal","transverse"],a:0,e:"CAAIPs leaflet 4-7 para 2.2"},
+{q:"Surface cracks in aluminium castings and forgings may usually be detected by",o:["submerging the part in a solution of hydrochloric acid and rinsing with clear water","gamma ray inspection","the use of dye penetrants and suitable developers"],a:2,e:"Leaflet 4-2 1.6.2"},
+{q:"Which of these metals is inspected using the magnetic particle inspection method?",o:["Magnesium alloys","Aluminium alloys","Iron alloys"],a:2,e:"Leaflet 4-7 1.1"},
+{q:"One way a part may be demagnetized after magnetic particle inspection is by",o:["slowly moving the part out of an AC magnetic field of sufficient strength","slowly moving the part into an AC magnetic field of sufficient strength","subjecting the part to high voltage, low amperage AC"],a:0,e:"Leaflet 4-7 4.9.2"},
+{q:"The testing medium that is generally used in magnetic particle inspection utilises a ferromagnetic material that has",o:["low permeability and high retentivity","high permeability and low retentivity","high permeability and high retentivity"],a:1,e:"NIL"},
+{q:"The 'Dwell Time' of a dye-penetrant NDT inspection is the",o:["time it takes for a defect to develop","time the penetrant is allowed to stand","amount of time the developer is allowed to act"],a:1,e:"A&P General Textbook 12-3 Pg 447 Para 2"},
+{q:"What non-destructive testing method requires little or no part preparation, is used to detect surface or near-surface defects in most metals, and may also be used to separate metals or alloys and their heat-treat conditions?",o:["Eddy current inspection","Magnetic particle inspection","Ultrasonic inspection"],a:0,e:"NIL"},
+{q:"Gamma Ray Testing of combustion chambers will show up",o:["grey on white background","black on lighter background","light grey on black background"],a:2,e:"NIL"},
+{q:"Which of these non-destructive testing methods is suitable for the inspection of most metals, plastics and ceramics for surface and subsurface defects?",o:["Eddy current inspection","Magnetic particle inspection","Ultrasonic inspection"],a:2,e:"NIL"},
+{q:"Ultrasonic flaw detectors use",o:["high frequency sound waves","a magnetic field","x-rays"],a:0,e:"NIL"},
+{q:"Defects are indicated in the dye penetrant crack detection test by",o:["red lines on a white background","yellowish green marks","green lines and dots"],a:0,e:"NIL"},
+{q:"NDT using colour dye process at temperatures below 15°C will",o:["not be affected by the temperature","retard the penetrant action of the dye and penetration time is extended","mean choosing alternative NDT method"],a:1,e:"CAAIPs Leaflet 4-2 Para 4-2"},
+{q:"When using dye penetrant NDT on a tank, the dye penetrant should be applied",o:["on the outside with developer on the outside","on the inside, with developer on the outside","on the inside with the developer on the inside"],a:1,e:"CAAIPs Leaflet 4-2 Para 9-1"},
+{q:"In order for dye penetrant inspection to be effective, the material being checked must",o:["be non-magnetic","be magnetic","have surface cracks"],a:2,e:"A&P General Textbook 12-2 Pg 446(B)"},
+{q:"Which of the following metals can be inspected using the magnetic particle inspection method?",o:["Aluminium alloys","Iron alloys","Magnesium alloys"],a:1,e:"NIL"},
+{q:"After completion of electromagnetic crack detection, the test piece must be",o:["allowed to cool to room temperature as slowly as possible","de-magnetised before returning to service","allowed to lose any residual magnetism over as long a period possible"],a:1,e:"NIL"},
+{q:"Which of the following N.D.T. techniques cannot be used on a component manufactured from austenitic stainless steel?",o:["Magnetic-particle","Penetrant dye","Hot oil and chalk"],a:0,e:"NIL"},
+{q:"Fluorescent penetrant processes for the detection of cracks or material defects are used with",o:["a tungsten light source","an ultra-violet radiation source","an infra-red light source"],a:1,e:"CAAIPs Leaflet 4-3 Para 1-5"},
+{q:"What is an isotope the power source of?",o:["X-Rays","Ultra Violet Rays","Gamma Rays"],a:2,e:"CAAIP's leaflet 4-6 para 2"},
+{q:"The fluid used in the 'Oil and Chalk' method of non-destructive testing is a mixture of",o:["lubricating oil and petrol","lubricating oil and lard oil","lubricating oil and paraffin"],a:2,e:"CAAIPs Leaflet 4-1 Para 3-2"},
+{q:"Under magnetic particle inspection, a part will be identified as having a fatigue crack under which condition?",o:["The discontinuity pattern is straight","The discontinuity is found in a highly stressed area of the part","The discontinuity is found in a non-stressed area of the part"],a:1,e:"NIL"},
+{q:"When inspecting a component which is being subjected to the hot fluid chalk process, the examination for defects should be carried out",o:["whilst the item is still quite hot","immediately on removal of the item from the chalk cabinet","when the item is quite cool"],a:2,e:"CAAIPs Leaflet 4-1 3"},
+{q:"Circular magnetization of a part can be used to detect defects",o:["perpendicular to the concentric circles of magnetisation","parallel to the long axis of the part","perpendicular to the long axis of the part"],a:0,e:"CAIP BL/8-5 para 2.1"},
+{q:"An indication of porosity when using a penetrant dye crack detection method is",o:["areas where dye is not showing","an area of scattered dots of dye","closely spaced dots of dye formed in a line"],a:1,e:"CAAIPs Leaflet 4-2 7.3"},
+{q:"In a test for adequate demagnetization of a component after a magnetic particle test, the test compass should not deflect",o:["more than 1° when standing due east of the component","more than 1° when standing due south of the component","more than 1° when standing north-east of the component"],a:0,e:"CAAIPs Leaflet 4-7 4.10.2"},
+{q:"If on application of developer it all turns to a pinkish hue, what has happened?",o:["Thin porosity","The hue has pinked","Incorrect cleaning"],a:2,e:"CAAIPs Leaflet 4-2 Para 6-6"},
+{q:"If dye penetrant inspection indications are not sharp and clear, the most probable cause is that the part",o:["is not damaged","was not correctly degaussed before the developer was applied","was not thoroughly cleaned before developer was applied"],a:2,e:"AC43 5.60 G"},
+{q:"The pattern for an inclusion is a magnetic particle build-up forming",o:["a single line","parallel lines","a fern-like pattern"],a:1,e:"NIL"},
+{q:"When carrying out a penetrant dye crack test, before the dye is applied the surface being tested should be",o:["etch primed","thoroughly degreased","painted with developer fluid"],a:1,e:"Leaflet 4-2 Para 2-4"},
+{q:"When carrying out a dye penetrant inspection, what time should elapse after applying the developer before inspecting the component?",o:["Initial inspection after 30 seconds followed by a 2nd inspection after 10 minutes","After 15 minutes","After 10 minutes"],a:0,e:"Leaflet 4-2 Para 7-2"},
+{q:"When should the developer be applied to the component?",o:["After excess penetrant has been removed and the area completely dried","Before applying penetrant","Before the penetrant dries"],a:0,e:"Leaflet 4-2 Para 1.5, 5.4.1"},
+{q:"To check the structure of a wing",o:["ultrasound NDT is used","high voltage X-rays are used","low voltage X-rays are used"],a:1,e:"BL/8-4 2.1.6"},
+{q:"Which of the following NDT methods requires that the orientation(or direction) of the defect be known before the test can commence?",o:["Ultrasonic and Dye Penetrant","Magnetic Particle and Ultrasonic","X-Ray and Magnetic Particle"],a:1,e:"Leaflet 4-5 1.2"},
+{q:"Which of the following defects could not be detected by Eddy Current NDT inspection?",o:["A crack in a glass fibre reinforced plastic cowl","A crack in a magnesium alloy wheel casting","Heat damage of a Haynes Alloy turbine blade"],a:0,e:"BL/8-8 2"},
+{q:"Which of the following methods could be used to detect the presence of tiny drops of Mercury in a large area of aircraft hull structure after an accident with a mercury thermometer?",o:["X-Ray","Magnetic Particle","Ultrasonic"],a:0,e:"NIL"},
+{q:"Which of the following NDT methods requires that the surface of the test piece is cleaned down to bare metal?",o:["Eddy Current","Magnetic Particle","Dye-penetrant"],a:2,e:"Leaflet 4-2 2.1"},
+{q:"When using the colour contrast NDT",o:["the surface paint should be removed","the surface should be lightly scuffed","the surface should be bead blasted"],a:0,e:"Leaflet 4-2 2.1"},
+{q:"When using dye penetrant field kit, removal of excess penetrant is done by applying the solvent by",o:["spraying once direct on the part","spraying twice direct on the part","using a lint free cloth"],a:2,e:"Leaflet 4-2 5.3"},
+{q:"Liquid penetrant tests can be used to detect",o:["internal porosity in castings","corrosion wall thinning in pipes and tubes","fatigue cracks in magnesium alloy parts"],a:2,e:"CAAIP Leaflet 4-2 2.3"},
+{q:"Water-washable liquid penetrants differ from Post-emulsification penetrants in that they",o:["do not need an emulsifier added","need not be removed from surfaces prior to development","can only be used on aluminium alloys"],a:0,e:"BL/8-2 1.3"},
+{q:"When using a post-emulsification penetrant, the timing is most critical during",o:["penetrant removal","emulsification","penetration"],a:1,e:"BL/8-7 para 4.2"},
+{q:"A liquid penetrant test cannot",o:["be used on porous materials","locate sub-surface discontinuities","be used on non-metallic surfaces"],a:1,e:"Leaflet 4-2, A&P Technician General Textbook 12-4 Pg 448 Para 3(B)"},
+{q:"Hot air drying of articles during liquid penetrant testing is carried out at a temperature of",o:["75°F","250°F","130°F"],a:2,e:"Leaflet 4-2 5.4.3"},
+{q:"To check the structure of a wing, which NDT is used?",o:["Radiographic","Dye penetrant","Magnetic Flaw"],a:0,e:"NIL"},
+{q:"Magnetic Flux detection will show defects which are",o:["transverse to the flux direction only","longitudinal to the flux direction only","longitudinal and transverse to the flux direction"],a:0,e:"Leaflet 4-7 2.2"},
+{q:"A hairline crack would show up on a dye penetrant inspection as",o:["a continuous line of small dots","a thin broken line or chain","a group of dots spread over a wide area"],a:0,e:"Leaflet 4-2 7.4"},
+{q:"When carrying out an ultrasonic inspection, what is the gel used for?",o:["To create a good sonic coupling between the the probe and the test piece","To reduce the friction between the probe and the test piece","To prevent the test piece from becoming scratched by the probe"],a:0,e:"Leaflet 4-5 3.4"},
+{q:"Fluorescent dye penetrant is suited for what materials?",o:["Non magnetic non-ferrous materials","Ferrous magnetic materials","Plastics and non magnetic materials"],a:0,e:"Leaflet 4-3 1.2. CAAIPs BL/8-7"},
+{q:"In film radiography, image quality indicators(IQI) are usually placed",o:["between the intensifying screen and the film","on the film side of the object","on the source side of the test object"],a:2,e:"BL/8-4 3.3.1"},
+{q:"Which type crack will probably cause the most build-up in the magnetic particle indicating medium?",o:["Grinding","Shrink","Fatigue"],a:2,e:"NIL"},
+{q:"When using dye penetrant NDT on a tank, the penetrant should be applied",o:["on the inside, with developer on the inside","on the outside, with developer on the outside","on the inside, with developer on the outside"],a:2,e:"BL/8-2 9"},
+{q:"To detect a fault with magnetic particle flaw detection, the test requires",o:["two passes in any direction","one pass in any direction","two passes at 90 degrees to each other"],a:2,e:"BL/8-5 2.1"},
+{q:"The substance used in ultrasound inspection is",o:["a couplant to allow sound waves to travel","a cleaning agent to keep the components clean","a developer"],a:0,e:"Leaflet 4-5 4.5.2 BL/8-3 3.3"},
+{q:"Dye penetrant defects are marked using",o:["crayon, unless used in a highly stresses area","pencil","chalk"],a:0,e:"Leaflet 4-3 5.4 BL/8-2 7.5"},
+{q:"A pressure vessel of thickness 1/16 inch to 1/8 inch is being tested with dye penetrant. The penetrant should be left for",o:["3 times longer than normal","less than normal","the same length of time as normal"],a:0,e:"Leaflet 4-2 9.2"},
+{q:"Which of the following NDT techniques cannot be used on a component manufactured from austenitic stainless steel?",o:["Penetrant dye","Magnetic particle","Hot oil and chalk"],a:1,e:"NIL"},
+{q:"The dye penetrant field test kit consists of cans of",o:["penetrant, cleaner, developer and a brush","spray penetrant, spray cleaner and spray developer","penetrant, cleaner and developer"],a:1,e:"NIL"},
+{q:"The liquid applied to a component being checked by magnetic particle inspection is for",o:["acting as a transmission medium for the test","to prevent corrosion occurring from contact with the probe","to prevent scratching of the surface by the probe"],a:0,e:"NIL"},
+{q:"Which is the preferred method of test for aluminium alloy alloy?",o:["Electroflux","Magnaflux","Ultrasonic"],a:2,e:"NIL"},
+{q:"A composite flap panel has corrosion. What NDT method will you use to detect?",o:["Low voltage x-ray","Coin tap test","High voltage x-ray"],a:0,e:"Leaflet 6-9 Appendix 1 Paragraph 4"},
+{q:"The eddy current method of flaw detection can detect",o:["sub surface flaws only","surface flaws and those just beneath the surface","surface flaws only"],a:1,e:"Leaflet 4-8"},
+{q:"With dye penetrant how is the developer applied?",o:["Using a tank","As an even layer of chalk applied over the area","At a distance of 10 to 12 inches with several passes"],a:2,e:"Leaflet 4-2 6"},
+{q:"When using the dye penetrant method crack detection, the indications on a short, deep crack are",o:["single dots","circles","long chain"],a:0,e:"Leaflet 4-2 7"},
+{q:"A deep internal crack in a structural steel member is detected by",o:["x-ray or ultrasonic process","fluorescent penetrant method","magnetic flaw method"],a:0,e:"Leaflet 4-6"},
+{q:"The ultrasonic method of crack detection can be used on",o:["surface and subsurface defects on all metals","surface and subsurface defects on ferrous metals only","subsurface defects on all metals"],a:0,e:"leaflet 4-5 1.1 and 4.2.2"},
+{q:"Porosity in cast materials",o:["only occurs on the surface","is only detectable on the surface","is detectable as a surface or sub surface defect"],a:2,e:"NIL"},
+{q:"When using the fluorescent ink flaw detection method, the component should be inspected using an",o:["ultraviolet lamp","infrared lamp","ordinary lamp and special glasses"],a:0,e:"Leaflet 4-3 1.5"},
+{q:"When using the dye penetrant method of crack detection, it should not normally be used at temperatures",o:["above 20°C","below 0°C","above 15°C"],a:1,e:"Leaflet 4-2 4.2"},
+{q:"When using the dye penetrant method, the part should be kept wet with the penetrant for",o:["5 minutes","15 minutes","up to one hour"],a:2,e:"Leaflet 4-2 4.1"},
+{q:"What NDT would you carry out on aluminium alloy?",o:["Electroflux","Magnetic flaw","Ultrasonic"],a:2,e:"NIL"},
+{q:"Where would you disconnect a chain?",o:["At a bolted joint","At an riveted joint","At a spring clip joint"],a:0,e:"CAAIPs EEL/ 3-1 Para 8-3-1(b) & CAAIPs Leaflet 5-4 3.4"},
+{q:"How many times can a locking plate be used?",o:["3 times, then discarded","indefinitely providing it is a good fit around the component to be locked","once, then discarded"],a:1,e:"CAAIPs Leaflet 2-5 5.1"},
+{q:"A hi-lock collar should be",o:["not lubed or washed because they are lubed at manufacture","washed in solvent before fitting","lubricated before fitting"],a:0,e:"NIL"},
+{q:"When drilling out a rivet, use a drill",o:["larger than the hole","same size as the hole","smaller than the hole"],a:1,e:"CAAIPs Leaflet 6-4 3.7.1"},
+{q:"When riveting two dissimilar sheets of metal together the joint should be protected with",o:["jointing compound","paint","grease"],a:0,e:"NIL"},
+{q:"The maximum temperature for Nyloc nuts is",o:["120°C","100°C","160°C"],a:0,e:"NIL"},
+{q:"What type of rivet would you use when there is access to only one side of the work?",o:["Blind","Pop","Hilok"],a:0,e:"CAAIPs BL/6-28"},
+{q:"Torque loading is carried out to provide",o:["as tight a joint as possible","sufficient clamping without over-stressing","flexibility"],a:1,e:"NIL"},
+{q:"What is generally the best procedure to use when removing a solid shank rivet?",o:["Drill through the manufactured head and shank with a drill one size smaller than the rivet and remove the rivet with a punch","Drill through the manufactured head and shank with a shank size drill and remove the rivet with a punch","Drill to the base of the manufactured rivet head with a drill one size smaller than the rivet shank and remove the rivet with a punch"],a:2,e:"NIL"},
+{q:"What action is taken with a common circlip removed from a component?",o:["It is replaced with a new item on assembly","It is checked for springiness","It is examined for distortion"],a:1,e:"NIL"},
+{q:"The maximum bolt diameter for which a 1/16 split pin may be used is",o:["7/16","1/4","3/8"],a:2,e:"Leaflet 2-5 table 1"},
+{q:"Why is a shouldered stud used?",o:["To provide a rigid assembly","To decrease weight without loss of strength","As a replacement for a damaged stud"],a:0,e:"NIL"},
+{q:"A thread insert is removed by",o:["once fitted, a thread insert must not be removed","using a drill the major diameter of the thread insert","a special drill provided by the thread insert manufacturer"],a:2,e:"NIL"},
+{q:"When fitting Rivnuts into position, how are they secured and prevented from rotating?",o:["Lock nut at the rear","A locating key","Peened"],a:1,e:"Jeppesen A&P Airframe Technician Textbook Page 2-48"},
+{q:"Hi-loks are installed with the",o:["thread and shank not lubricated","shank lubricated when fitting","thread lubricated when fitting"],a:0,e:"NIL"},
+{q:"A jury strut is one giving",o:["a temporary support","a part of the structure that takes only tensile loads","additional support to a stressed area"],a:0,e:"CAAIPs AL/7-14 Para 2-3-5"},
+{q:"Which type of repair has to be used where the damage is large and lost strength of the area has to be restored?",o:["Filling plate and patch","Patch repair to the punctured skin","Insert and butt strap"],a:2,e:"NIL"},
+{q:"Which of the following actions would be taken to fit a locking device to a nut or bolt, if the correct torque has been reached but the locking device will not fit?",o:["Tighten further until device fits","File the base of the nut","Change the nut or bolt for one that will achieve the desired condition"],a:2,e:"BL/6-30 para 3.3"},
+{q:"In the Push-pull tube linkage used in aircraft flying control systems, how is the length of the tube adjusted?",o:["Fit a new push-pull tube","By adjusting end fittings at each end of the tube","It is fixed and does not require adjusting"],a:1,e:"NIL"},
+{q:"Spotfacing is done to",o:["provide a flat area on a rough surface","compensate for height in lieu of a spring washer","provide a good surface for welding"],a:0,e:"NIL"},
+{q:"When fitting a hydraulic component, the hydraulic seal should be lubricated with",o:["with a specified hydraulic oil","grease","the same fluid that is used in the hydraulic system(e.g. skydrol)"],a:2,e:"NIL"},
+{q:"A gap in a firewall can be plugged by",o:["an aluminium plate","a fire proof bung or bush","a plastic bung"],a:1,e:"NIL"},
+{q:"In a critically bolted joint",o:["a PLI washer can be used more than once only with self locking nuts","a PLI washer can be affected by thread lubricant","a PLI washer can only be used once"],a:2,e:"CAIP AL/7-8 4.5.3"},
+{q:"Which of the following jointing compounds should not be used in the vicinity of a joint where the temperature may exceed 200°C?",o:["DTD 900","DTD 200","DTD 369"],a:2,e:"CAAIPs AL/7-8 3.4"},
+{q:"Why is jointing compound applied to the surfaces of material being joined together prior to riveting?",o:["To act as a sealant and prevent filiform corrosion","To inhibit electrolytic action","To prevent swarf damage"],a:1,e:"CAAIPs BL/6-29"},
+{q:"A metallic stiff nut",o:["cannot be torque loaded","cannot be used in areas in excess of 250oC","is pre lubricated and does not need lubricating"],a:1,e:"NIL"},
+{q:"How do you prevent earth loops forming on screened cables?",o:["Do not earth the screen","Earth both ends of the screen","Earth one end of the screen"],a:2,e:"NIL"},
+{q:"When fitting a shackle pin, fit with",o:["head uppermost","0.020","a shake-proof washer under the head"],a:0,e:"NIL"},
+{q:"The threads on a stud",o:["are of opposite hand at each end of the plain of portion","are of the same hand at each end of the plain portion","are continuous throughout its length and there is no plain portion"],a:1,e:"NIL"},
+{q:"The angle between starts on a double start thread is",o:["180 degrees","120 degrees","90 degrees"],a:0,e:"NIL"},
+{q:"What does 18N and contiguous circles on the head of a bolt indicate?",o:["1.8 inch threaded portion and plain shank 1/2 in UNF","1.8 inch nominal length 1/2 in BSF","1.8 inch plain shank 1/2 inch UNF"],a:2,e:"Leaflet 3-3 2.3.4. BL/2-3 2.1.2"},
+{q:"A UNF bolt is indicated by",o:["a triangle on the head","2-3 rings on the head","green dye"],a:1,e:"CAAIP Leaflet 3-3 2.3.4(a)"},
+{q:"Immediately after carrying out an insulation check, which of the following applies?",o:["A continuity check must be carried out before switching on the circuit for the first time","The readings observed and the atmospheric conditions at the time should be noted and compared to previous readings","The observed readings should be noted and an independent check carried out by another engineer"],a:1,e:"Leaflet 9-1 4.5.3. EEL/ 1-6 Para 4-5-3"},
+{q:"An Insulation test is carried out on a group of cables and a low reading obtained. What action would you take?",o:["A low reading would be expected because the cables are in parallel","Change or renew all the cables involved in the test","Break the circuit down and carry out further checks"],a:2,e:"EEL/ 1-6 Para 4-4-2 & Leaflet 9-1 4.4.2"},
+{q:"BITE systems to be used on the ground only are deactivated by",o:["on take off","the parking brake","by the undercarriage retraction"],a:0,e:"NIL"},
+{q:"After the normal function test of an individual circuit has been completed and the circuit switched off",o:["a second function test must be carried out to verify the first","the fuse should be removed and the circuit again switched on to check the isolation of the circuit concerned","a duplicate check must be carried out in accordance with AWN 3"],a:1,e:"CAAIPs EEL/1-6 Para 4-6-3"},
+{q:"A millivolt drop check is to be carried out on a heavy duty relay. The Millivoltmeter would be connected to the relay",o:["when contacts closed and power is on","when contacts open and power off","when contacts are open and power is on"],a:0,e:"Leaflet 9-1 Para.4.3"},
+{q:"Electrical cables installed on aircraft. What is used to indicate a fault?",o:["Bonding test","Continuity test","Resistance test"],a:1,e:"CAAIPs Leaflet 9-1, 4.2.1"},
+{q:"When checking resistance of a cable to the starter motor what test is carried out?",o:["Millivolt drop test","Safety Ohmmeter","Time Domain Reflectometer"],a:0,e:"NIL"}
+],
+"19. Abnormal Events": [
+{q:"When inspecting an aircraft after a lightning strike, you should observe",o:["entry damage","all signs of burning","entry and exit damage"],a:1,e:"AL/7-1 5.4"},
+{q:"To ensure protection against HIRF affecting audio and navigation aids",o:["ensure that all audio and navigation equipment is adequately screened","inspect and check all bonding leads to ensure their serviceability and replace if defective","ensure that the correct number of static wicks are fitted"],a:0,e:"Understanding HIRF By Gerald L. Fuller"},
+{q:"Which of the following is a preventive process against HIRF?",o:["Monitoring HIRF on the communication system","Visual inspections","Periodically checking aircraft bonding"],a:1,e:"Understanding HIRF By Gerald L. Fuller"},
+{q:"How do you prevent aquaplaning during landing?",o:["Reduce flare","Use reverse thrust","Put flaps up"],a:1,e:"NIL"},
+{q:"Skin wrinkling on the lower surface of a wing is caused by",o:["hogging","tension","sagging"],a:0,e:"NIL"},
+{q:"After a report of flight through heavy turbulence, you would",o:["check the aircraft symmetry","carry out a major overhaul","not carry out any checks"],a:0,e:"CAAIPs Leaflet 6-3"},
+{q:"After a heavy landing you should check",o:["engine compressor shaft alignment","engine thrust alignment","engine module alignment"],a:1,e:"Leaflet 6-3 2.8(b)"},
+{q:"A lightning strike on an aircraft would show",o:["the entry and exit point","the entry point only","the exit point only"],a:0,e:"NIL"},
+{q:"When an engine is not in direct electrical contact with its mounting, how should it be bonded?",o:["With at least one primary conductor","With at least two primary conductors on one side of the engine","With at least two primary conductors, one each side of the engine"],a:2,e:"Leaflet 9-1 3.5.9. EEL/1-6 Para 3.5.7"},
+{q:"On a composite aircraft, large items are bonded",o:["by use of large copper strips","Don't need to be bonded because they are made of an insulating material","by primary bonding leads attached to a cage"],a:2,e:"Leaflet 9-1 3.4.2"},
+{q:"HIRF interference occurs when",o:["in use on mid frequencies","in use on low frequencies","in use on all frequencies"],a:2,e:"NIL"},
+{q:"Non metallic parts of the aircraft",o:["do not require to be bonded because they are non conductive","must be bonded by bonding leads","must be bonded by application of conductive paint"],a:2,e:"Leaflet 9-1 Para.3.4.4"},
+{q:"Whenever possible a functional test should be carried out on an aircraft using which power supply?",o:["The aircraft battery","The aircraft generators","An external supply"],a:2,e:"Leaflet 9-1 4.6.1"},
+{q:"How many primary bonding conductors are required on an engine?",o:["1 only","2 on one side","1 on each side"],a:2,e:"Leaflet 9-1 Para 3.5.9 and EEL/1-6 Para.3.5.9"},
+{q:"What is the primary purpose of bonding of metallic parts of an aircraft?",o:["To provide a return path for electrical two-wire system","To prevent high potential differences between metallic parts from building up","To prevent lightening strikes"],a:1,e:"Leaflet 9-1 3.2"},
+{q:"In order to maintain HIRF protection, bonding checks between airframe and electrical components carrying voltages greater than 50V RMS or dc should not exceed",o:["0.05 ohm","1 ohm","1 Megohm"],a:1,e:"Leaflet 9-1 3.8 table 1"},
+{q:"Ribbon cables affected by mutual impedance and current loop leakage should be protected by",o:["earthing each alternate conductor to separate points","connecting all conductors to a common earth","shielding each individual conductor"],a:0,e:"NIL"},
+{q:"An aircraft with under-wing mounted engines has a heavy landing, where would you expect to see wrinkling of the skins?",o:["Bottom skin caused by engine inertia","Top skin only","On the top and bottom skins"],a:2,e:"Leaflet 6-3 2.6(a) and AL/7-1 Para 2-6(a)"},
+{q:"Which of the following could be a primary cause of HIRF protection failure?",o:["Corrosion on bonding leads","Broken or missing static wicks","Unserviceable radio filters"],a:2,e:"Understanding HIRF By Gerald L. Fuller"},
+{q:"What is the reason for a primary bonding connection's large cross-sectional area?",o:["To carry the static discharge current to the conducting nose wheel","To carry lightening discharge current should the need arise","To maintain the airframe at the same potential throughout"],a:1,e:"CAAIPs leaflet 9-1 3.3.1"},
+{q:"When an aircraft has been struck by lightning",o:["control surface bearings and hinges should be checked for stiffness in operation","control surface freedom of movement need not be checked provided skin punctures are less than 3/16 inch diameter","control surface freedom of movement need not be checked providing the bonding is undamaged"],a:0,e:"Leaflet 6-3 6.4 CAAIPs AL/7-1 5.4"},
+{q:"On an aircraft which has had a heavy landing, on the lower wing you may see",o:["sagging","hogging","wrinkling"],a:2,e:"Leaflet 6-3 para.2.6"},
+{q:"After a reported lightning strike",o:["the flight controls should be checked for full and free movement before the next flight","the flight controls need to be checked for full and free movement only if a bonding lead to one of the control surfaces is found to be burned or broken","the aircraft and its systems must have a major overhaul before the next flight"],a:0,e:"NIL"}
+],
+"20. Maintenance Procedures": [
+{q:"Mandatory Warning Plaques and symbols",o:["must be displayed on all flights","must be displayed in the cabin only if they are legible","need not be displayed if they are incorporated in the flight manual"],a:0,e:"NIL"},
+{q:"Following a major defect the C of A",o:["is not affected, however may run out on a time basis","will be invalidated and needs renewing","Nothing will happen"],a:0,e:"NIL"},
+{q:"When storing parts you should use",o:["monitor the temperature","silica gel","place in a sealed container"],a:1,e:"CAAIPs Leaflet 1-8 2.2.3"},
+{q:"ATA specification 100 is",o:["the procedures which must be complied with before an aircraft can be given a Certificate of Airworthiness in the Transport Category(Passenger)","the International standardization of maintenance manuals, illustrated parts catalogues, overhaul and repair manuals, service bulletins and letters","the American FAA specification controlling the manufacture of aluminium and its alloys"],a:1,e:"Jeppesen A&P General Textbook 14-12"},
+{q:"An aircraft should carry at least the following number of spare fuses:",o:["10","3","3 or 10%, whichever is greater"],a:2,e:"ANO Schedule 4"},
+{q:"Maintenance Schedules are issued",o:["in a folder with the operators name on the cover","with an approval certificate by the CAA","by the operator with CAA approval"],a:2,e:"BCAR A/B 6-2 Para. 3.4"},
+{q:"After a mandatory inspection has been carried out by a Licensed Engineer, what is issued",o:["a Certificate of Maintenance Review","Certificate of Release to Service","a Flight Release Certificate"],a:1,e:"NIL"},
+{q:"A hard time engine inspection involves",o:["replacement with a new or overhauled component","an in-situ function test","removal of an engine component, its inspection and refitting"],a:0,e:"Leaflet 1-7 2.2.1"},
+{q:"Who approves Maintenance Manuals?",o:["The CAA","The Department of Trade and Industry","The Board of Trade"],a:0,e:"NIL"},
+{q:"A Certificate of Release to Service must be issued after",o:["a repair has been carried out in accordance with an approved repair scheme","a re-fuel has been done","engine runs"],a:0,e:"NIL"},
+{q:"If the operator varies the content of the maintenance schedule, what action must be taken?",o:["Amend the Maintenance Schedule and seek the CAA approval","Await CAA approval before amending the Maintenance Schedule","Amend the Maintenance Schedule"],a:1,e:"NIL"},
+{q:"When is an EASA Permit to Fly conditions required?",o:["To allow an unregistered aircraft to fly for air test","To allow an aircraft to fly on air test to check out a modification","After a Certificate of Maintenance Review has been signed"],a:1,e:"NIL"},
+{q:"When there is an overlap of responsibility, how is the CRS signed?",o:["Appropriate Type Rated Licensed Aircraft Engineers must each certify the parts appropriate to their license coverage","Only one appropriate Type Rated Licensed Aircraft Engineer may sign the CRS as he assumes responsibility for the operation, the other engineers must sign the paperwork","An appropriate Type Rated Licensed Aircraft Engineer and an ATPL holder sign the CRS when the aircraft is away from base"],a:0,e:"AWN 3"},
+{q:"Information contained in the ANO is",o:["of a legal nature in all sections and is therefore mandatory","of a mandatory nature where safety is concerned","written in compliance of the Civil Aviation Act of 1943 ratifying the ICAO Convention"],a:0,e:"NIL"},
+{q:"An 'On Condition' Inspection involves",o:["a program of inspections used to increase the life of lifed components","an inspection of a component with a view to continued operation if its condition warrants such action","replacement of life expired components for new ones"],a:1,e:"CAAIPs BL/ 1-16 Para 2-2-2"},
+{q:"Air Navigation General Regulations are to be found in",o:["Airworthiness Requirements CAP 455","British Civil Airworthiness Requirements Section A","CAA Printed Manual CAP 393"],a:2,e:"CAAIPs BL/1-9 Para 8-11"},
+{q:"The information in the ANO is given in the form of",o:["Articles of Law, some of which are further clarified by Schedules","Chapters, each one dealing with a different aspect of Civil Aviation, these chapters being backed up by the schedules","Regulations, each one covering a different aspect of Civil Aviation and as such is mandatory"],a:0,e:"CAAIPs BL/1-9 Para 4"},
+{q:"British Civil Airworthiness Requirements",o:["form the Technical requirements for the design and operation of aircraft and their equipment","interpret the ANO and form the Technical requirements for the design","are printed by the CAA and are of an advisory nature"],a:1,e:"CAAIPs BL/1-9 Para 4-4"},
+{q:"A CMR is raised after",o:["defect rectification","scheduled servicing at specified intervals","major overhaul"],a:1,e:"NIL"},
+{q:"Compliance with the ANO is restricted to",o:["aircraft and their equipment which are on the UK Civil Register only","aircraft and their equipment which are on the UK & Commonwealth Civil Registers","All civil aircraft and their equipment on the international Civil Register"],a:0,e:"NIL"},
+{q:"A Certificate of Release to service states that",o:["a task has been carried out in accordance with the ANO","an operator has satisfied the CAA of his competence","the aircraft has been maintained to an approved schedule"],a:0,e:"NIL"},
+{q:"Technical and Administrative information is officially circulated to L.A.M.E.S. in",o:["B.C.A.R.s","A.W.N.s","C.A.I.P.s"],a:1,e:"NIL"},
+{q:"Vital point inspections are carried out",o:["after an area is disturbed","on a 'C' check","on an 'A' Check"],a:0,e:"BCAR A5-3 para 3"},
+{q:"What colour is used to identify a 'primary structure' when using the aircraft Maintenance Manual?",o:["Yellow","Green","Red"],a:2,e:"NIL"},
+{q:"Which of the following NDT methods can be carried out and certified by a mechanic not approved specifically for NDT inspections",o:["Ultrasonic","Magnetic Particle","Neither of the above"],a:2,e:"AWN 3 para 1.7"},
+{q:"B.C.A.R's",o:["contain minimum requirements to be met","are issued by Ministry of Trade and Industry","detail mandatory requirements for aircraft design and construction"],a:0,e:"CAAIPs BL/ 1-9 Para 6-1"},
+{q:"The purpose of the CRS is",o:["to ensure that the log book entry is complete","to turn a log book or job card entry into a legal document and to ensure that the signatory takes full responsibility for the work done","to comply with article 15 of the ANO which states that an aircraft must not fly unless it is properly equipped for the intended flight"],a:1,e:"AWN 3 para 1.5"},
+{q:"Duplicate inspections are",o:["inspections which have to be duplicated but which can finally be certified by one LAE or approved signatory","inspections certified by one approved signatory or LAE and then certified by a second approved signatory or LAE","inspections signed by a mechanic and countersigned by an approved signatory or licensed engineer"],a:1,e:"NIL"},
+{q:"When related to aeronautical engineering, the term 'Inspection' is defined in the publication",o:["Airworthiness Notice(AWN) 3","ANO article 11","BCAR Section L"],a:0,e:"AWN 3 page 2 para 1.2(d)"},
+{q:"The technical laws relating to Civil Aviation are contained in",o:["the Civil Aircraft Inspection Procedures","the Air Navigation Order","the Civil Aviation Act 1971"],a:1,e:"NIL"},
+{q:"Civil aircraft manufactured in the UK are constructed from parts that have been",o:["manufactured to approved drawings","manufactured by British Aerospace","tested to destruction"],a:0,e:"NIL"},
+{q:"Design drawings of aircraft components are produced by organizations approved by",o:["C.A.A. in accordance with BCAR","British Standards Institute","S.B.A.C"],a:0,e:"CAAIPs BL/ 1-4 Para 2"},
+{q:"Civil Aircraft Airworthiness Information Procedures",o:["contain information of a mandatory nature","contain approved inspection schedules","are a guide to the general maintenance of aircraft"],a:2,e:"NIL"},
+{q:"British Civil Airworthiness Requirements",o:["specify the minimum qualifications for air crew and engineers","list the minimum design requirements for aircraft","give General technical information"],a:1,e:"CAAIPs BL/ 1-9 Para 6-1"},
+{q:"What work has to be recorded and signed for?",o:["Only work which entails a duplicate inspection","Only work involving replacements","All work carried out"],a:2,e:"NIL"},
+{q:"Are CAAIP. mandatory?",o:["Only selected parts which are in B.C.A.R","Yes, but only for six months at a time","No, nothing in CAAIPs is mandatory"],a:2,e:"NIL"},
+{q:"With a serviceable chain not required for use, how should you store it?",o:["Lay the chain flat in full length, lubricate and wrap in brown paper to exclude all dirt and moisture","Clean, lubricate, wrap the chain in grease proof paper and suspend","Carefully coil, lubricate, lay flat and wrap in grease proof paper"],a:2,e:"Leaflet 5-4 6.7. CAAIPs AL/3-2 Para 6.7"},
+{q:"What is the licensed engineer responsible for when fitting a new component to an aircraft?",o:["That the paperwork is signed by an approved signatory","That is has a green serviceable tag","The correct part number, the modification state and the serviceability of the component"],a:2,e:"NIL"},
+{q:"If an aircraft exceeded the RVSM, when shall the crew report the incident in the appropriate channels",o:["48 hrs","24 hrs","72 hrs"],a:2,e:"JAR OPS Subpart D. Para.1.420"},
+{q:"If the aircraft is away from base who may certify the second part of the duplicate inspection?",o:["a pilot with a licence for the aircraft type","a pilot with a licence for any similar aircraft type","any licensed engineer"],a:0,e:"BCAR A/B 6-2 10.3.9"},
+{q:"Block cumulative maintenance means that",o:["all the checks require the same man hour input except for the major inspections","each check usually involves an increased aircraft down time","all the maintenance is carried out in blocks"],a:1,e:"NIL"},
+{q:"A separate modification record book is required for",o:["passenger aircraft exceeding 2730 kgs MTWA","all aircraft","passenger aircraft exceeding 3600 kgs MTWA"],a:0,e:"BCAR A/B 7-9 Para.1.3"},
+{q:"Sector record pages from the Tech Logs, must be",o:["at least duplicated","retained for two years from the date of issue","retained for four years from the last effective date"],a:0,e:"BCAR A/B 7-8 Para.4.1"},
+{q:"Minimum equipment to be carried is listed in",o:["JAR 145","JAR OPS","JAR 25"],a:1,e:"JAR OPS subpart K"},
+{q:"What should be checked before a licensed engineer signs a CRS?",o:["That he/she has worked for 6 months on the aircraft type within the previous 2 years","That he/she has worked for 4 months on the aircraft type within the previous 2 years","That he/she has had continuation training within the previous 2 years"],a:0,e:"JAR 145.35 and associated IEM"},
+{q:"Rubber components should be stored",o:["in a cool dark area","in warm and humid conditions","in a well lit room"],a:0,e:"Leaflet 1-8 3.13.1 and 3.13.3"},
+{q:"Storage of components to prevent corrosion is helped",o:["by using silica gel","by wrapping in grease proof paper","by placing them in a plastic box"],a:0,e:"BL/1-7 2.2.3"},
+{q:"Dye penetrant kits should be stored",o:["out of sunlight in a dry place","in direct sunlight to keep it dry","in a dark damp cupboard"],a:0,e:"NIL"},
+{q:"When receiving new parts it is the responsibility of the engineer to check",o:["it has a green serviceable label attached","it is of the correct modification state and is serviceable","it was designed to acceptable standards"],a:1,e:"AWN 3"},
+{q:"For airworthiness purposes, aircraft structural parts are graded as",o:["primary, secondary and tertiary","class A, B and C","1, 2 and 3"],a:0,e:"NIL"},
+{q:"If an unauthorized repair is carried out",o:["the aircraft can fly with a Certificate of Fitness for Flight","the Cof A is invalidated until an authorized repair has been done","the Cof A is not invalidated providing a CRS is issued"],a:1,e:"NIL"},
+{q:"A C.of A. for export",o:["does not give authority by itself for the aircraft to fly","gives authority for the aircraft to fly","is required before aircraft registration in a foreign country"],a:0,e:"NIL"},
+{q:"A fitness for flight is issued for an aircraft after a major modification by",o:["the pilot, type rated on that particular aircraft","a appropriate licensed aircraft engineer","a CAA surveyor or person approved within the CAA"],a:1,e:"NIL"},
+{q:"An unauthorised repair has been carried out",o:["sign a CRS for the repair","apply for it as a modification","carryout an approved repair"],a:2,e:"NIL"},
+{q:"A Part-66 licensed engineer, when signing a CRS for a non-Part-145 company would need to have",o:["maintenance experience for 6 months within the last 24 months","an aircraft type refresher in the last 24 months","maintenance experience for 4 months within the last 24 months"],a:0,e:"NIL"},
+{q:"A National UK licensed engineer, when signing a CRS would need to have",o:["an aircraft type refresher in the last 24 months","maintenance experience for 4 months within the last 24 months","maintenance experience for 6 months within the last 24 months"],a:2,e:"AWN 3(issue 20) pg 4 para 1.8"},
+{q:"Vital point inspections",o:["are points which require special certifying LAEs","are components which involve duplicate inspections","are lifed components"],a:1,e:"BCAR A5-3 para 3"},
+{q:"On a pre flight check you notice an instrument glass is cracked. You should",o:["enter into technical log","check MEL","tell oncoming captain"],a:1,e:"NIL"},
+{q:"A Category-A licensed engineer can sign a CRS for what?",o:["A task he has been locally trained for","An aircraft that he has sufficient type ratings for","A task that someone else has completed"],a:0,e:"NIL"},
+{q:"When removing a piece of equipment from an aircraft that supports the aircraft, what should you do?",o:["Go ahead and remove the part","Wait for the new part to arrive before replacing","Fit a jury strut in place of the removed part"],a:2,e:"NIL"},
+{q:"How do you prime a dead weight tester?",o:["wind handle fully out and pour fluid in the reservoir","Remove the weights and pour fluid into the hole","wind handle fully in and pour fluid in the reservoir"],a:2,e:"NIL"},
+{q:"When you change an EGT gauge, you should",o:["do a test without considering ambient temperature, as it is already accounted for by the instrument","do a test immediately, taking ambient temperature into consideration","do test letting new gauge 'soak' for 30 minutes then do test taking ambient temperature into consideration"],a:2,e:"NIL"},
+{q:"What is the problem with using a megger on a piece of equipment containing capacitors",o:["Fluctuating readings will occur while the capacitors charge up","Feedback from the capacitors will blow the megger up","Impedance in the capacitors will give a false high reading"],a:0,e:"NIL"},
+{q:"Watermarks on bearings are indications of",o:["bearing insufficiently lubricated","intergranular corrosion","bearing been run dry"],a:1,e:"Jepperson A& P Airframe Technician Textbook page 9-9 fig 9-11"},
+{q:"What is the allowable reaction on a rivet?",o:["2D","1D","1.5D"],a:1,e:"Allowance is 1.5D, formed tail is 0.5D, so reaction must be 1.0D"}
+]
+};
+
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+  pool = shuffle(pool);
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `<label><input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</label>`;
+    });
+    div.innerHTML = `<div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div><div class="q-category">📂 ${escapeHtml(q.category)}</div><div class="options">${optionsHtml}</div><div class="explanation hidden" id="exp-${idx}"></div>`;
+    area.appendChild(div);
+  });
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `<button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button><button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>`;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `<div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div><div style="font-size: 32px; font-weight: bold;">${percent}%</div>`;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
