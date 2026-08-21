@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Module 17 - Propeller Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #ffffff; color: #000000; margin: 0; padding: 20px; line-height: 1.5; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+  .controls { background: #f5f5f5; border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 6px; }
+  .controls label { font-weight: bold; margin-right: 8px; }
+  select, button { padding: 8px 14px; font-size: 14px; border: 1px solid #000; background: #fff; cursor: pointer; margin: 4px; }
+  button:hover { background: #eee; }
+  button.primary { background: #000; color: #fff; }
+  button.primary:hover { background: #333; }
+  .stats { display: flex; justify-content: space-between; flex-wrap: wrap; margin: 15px 0; padding: 10px; border: 1px solid #ccc; background: #fafafa; }
+  .stats div { margin: 4px 10px; }
+  .question { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 6px; background: #fff; }
+  .question.correct { border-left: 6px solid #2e7d32; background: #f1f8e9; }
+  .question.wrong { border-left: 6px solid #c62828; background: #ffebee; }
+  .q-head { font-weight: bold; margin-bottom: 8px; }
+  .q-category { font-size: 12px; color: #555; font-style: italic; }
+  .options label { display: block; padding: 6px 10px; margin: 4px 0; cursor: pointer; border-radius: 4px; }
+  .options label:hover { background: #f0f0f0; }
+  .explanation { margin-top: 10px; padding: 10px; background: #fffbe6; border-left: 4px solid #f9a825; font-size: 14px; }
+  .correct-answer { color: #2e7d32; font-weight: bold; }
+  .user-wrong { color: #c62828; text-decoration: line-through; }
+  .score-box { text-align: center; padding: 20px; margin: 20px 0; border: 2px solid #000; border-radius: 8px; display: none; }
+  .score-box h2 { margin: 0 0 10px 0; }
+  .progress-bar { width: 100%; height: 30px; background: #eee; border: 1px solid #000; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress-fill { height: 100%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+  .green { background: #2e7d32; }
+  .yellow { background: #f9a825; color: #000 !important; }
+  .red { background: #c62828; }
+  .filter-buttons { margin: 10px 0; }
+  .filter-buttons button { font-size: 13px; padding: 6px 12px; }
+  .hidden { display: none; }
+</style>
+<script src="auth.js"></script>  
+</head>
+<body>
+<div class="container">
+  <h1>🛩️ Module 17 - Propeller Quiz</h1>
+  <div class="controls">
+    <label for="category">เลือกหมวด:</label>
+    <select id="category"></select>
+    <button class="primary" onclick="startQuiz()">เริ่มทำข้อสอบ</button>
+    <button onclick="resetQuiz()">🔄 ทำใหม่</button>
+  </div>
+  <div class="stats">
+    <div><strong>หมวด:</strong> <span id="catName">-</span></div>
+    <div><strong>จำนวนข้อ:</strong> <span id="totalQ">0</span></div>
+    <div><strong>ตอบแล้ว:</strong> <span id="answered">0</span></div>
+  </div>
+  <div id="scoreBox" class="score-box">
+    <h2>ผลลัพธ์</h2>
+    <div id="scoreText"></div>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="filter-buttons">
+      <button onclick="filterQ('all')">📋 แสดงทั้งหมด</button>
+      <button onclick="filterQ('wrong')">❌ เฉพาะข้อที่ผิด</button>
+      <button onclick="filterQ('correct')">✅ เฉพาะข้อที่ถูก</button>
+    </div>
+  </div>
+  <div id="quizArea"></div>
+</div>
+
+<script>
+const quizData = {
+"17.1. Fundamentals": [
+{q:"High speed propellers are designed to.",o:["rotate at high RPM","operate at high forward speeds","operate at supersonic tip speeds"],a:1,e:"NIL."},
+{q:"When in the windmill position ATM.",o:["opposes CTM","is not related to CTM","assists CTM"],a:2,e:"ATM normally increases blade angle but in the windmill condition reverses and assists CTM."},
+{q:"The optimum angle for a fixed pitch propeller is.",o:["15 degrees","2- 4 degrees","6- 10 degrees"],a:1,e:"Jepperson A&P Powerplant Page 12-4 Refers."},
+{q:"A left handed propeller is one that.",o:["rotates clockwise when viewed from the rear","rotates clockwise when viewed from the front","is fitted to an engine on the left side of the aircraft"],a:1,e:"Left hand propeller rotates anti-clockwise when viewed from the rear."},
+{q:"Forces acting on a propeller are.",o:["centrifugal, twisting, and bending","torque, thrust and centrifugal","torsion, tension and thrust"],a:0,e:"Jepperson Powerplant Page 12-5 to 12-7 refers."},
+{q:"The blade angle at the root is.",o:["less than the tip","same from tip to root","greater than the tip"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 13 Refers."},
+{q:"What force on a propeller blade turns the blades to a fine pitch?",o:["ATM","Torque","CTM"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 15 refers."},
+{q:"The purpose of propeller twist is.",o:["coarsen the blade angle at the root","to maintain Blade Angle along the blade","to maintain Angle of Attack at the same value along the blade"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 13 Refers."},
+{q:"The forces acting on a propeller blade are.",o:["bending, twisting and centrifugal","thrust, aerodynamic and tension","thrust and torque"],a:0,e:"Refer Jepperson Powerplant Page 12- 5 to 7."},
+{q:"Blade angle at the root is.",o:["low","high","master blade angle"],a:1,e:"Jepperson Aircraft Propellers and Control Pages 55-58 Refer."},
+{q:"Blade angle is taken from the chord and.",o:["propeller shaft","relative airflow","plane of rotation"],a:2,e:"Jepperson Aircraft Propellers and Control Page132 refer."},
+{q:"What forces act on a propeller blade?",o:["Thrust and torque","Bending, thrust, torque","Bending, CTM and ATM"],a:2,e:"Refer Jepperson Aircraft Propellers and Controls Page 14-15 Note Thrust and Torque are both."},
+{q:"CTM will.",o:["try to bend the blade away from the engine","turn the blade about the lateral axis","cause the tips to rotate at supersonic speeds"],a:1,e:"Jepperson Aircraft Propellers and Controls page Page 15 refers."},
+{q:"From reverse pitch, to return to normal pitch it.",o:["passes through coarse then fine","passes through coarse","passes through fine"],a:2,e:"NIL."},
+{q:"When in reverse pitch, CTM will tend to move the propeller blades towards.",o:["a positive pitch","a position depending on rpm","a negative pitch"],a:0,e:"CTM always rotates towards the plane of rotation."},
+{q:"If the blade angle is increased.",o:["the pitch becomes finer","the pitch becomes coarser","lateral stability decreases"],a:1,e:"Pitch is an alternative name for blade angle."},
+{q:"As a propeller blade moves through the air, forces are produced, which are known as.",o:["lift and torque","lift and drag","thrust and torque"],a:2,e:"Jepperson A&P Powerplant Page 12-6."},
+{q:"A rotating propeller imparts rearwards motion to a.",o:["small mass of air at high velocity","large mass of air at low velocity","small mass of air at low velocity"],a:1,e:"Kermode Mechanics of Flight Fig 4.4 refers."},
+{q:"Propeller efficiency is.",o:["the ratio of output speed to input propeller speed","the ratio of the work applied to the geometric pitch to useful work on the C.S.U","the ratio of the useful work done by the propeller to work done by the engine on the propeller"],a:2,e:"Kermode Mechanics of Flight Page 134 Refers."},
+{q:"Geometric Pitch is the distance moved.",o:["in one revolution","in one revolution when slip is maximum","in one revolution without slip"],a:2,e:"Jepperson Aircraft Propellers and Controls page 15. CTM increases as a function of Centrifugal."},
+{q:"As propeller rotation speed increases the centrifugal turning moment on the blades will.",o:["increase","decrease","remain constant through r.p.m. range"],a:0,e:"Jepperson Aircraft Propellers and Controls page 15 refers."},
+{q:"Propeller torque is the resistance offered by the propeller to.",o:["feathering","changing pitch","rotation"],a:2,e:"Jepperson A&P Powerplant Page 12-4 refers."},
+{q:"The angle between the resultant airflow direction and the propeller blade plane of rotation is known as.",o:["angle of attack","blade angle","helix angle or angle of advance"],a:2,e:"The helix angle is the angle between the plane of rotation and the relative airflow."},
+{q:"At constant rpm, advance per revolution depends on.",o:["SHP","forward speed","forward speed"],a:1,e:"Jepperson A&P Powerplant Fig 12-12 refers."},
+{q:"Aerodynamic Twisting Moment.",o:["turns the blade to windmill","turns the blades to high pitch","turns the blades to high pitch"],a:1,e:"Jepperson A&P Powerplant Page 12/6 refers."},
+{q:"Under normal operation the point of maximum stress on a propeller blade is at the.",o:["root","root","root"],a:0,e:"Jepperson A&P Powerplant Fig 12-8 refers"},
+{q:"Propeller blade angle.",o:["is constant along the blade length","decreases from root to tip","increases from root to tip"],a:1,e:"Jepperson Aircraft Propellers and Controls Fig 11-33 refers."},
+{q:"Coarse pitch is used for.",o:["take off and climb","maximum economical cruise in level flight","landing and power checks"],a:1,e:"Jepperson Aircraft Propellers and Controls page 30 refers."},
+{q:"Effective pitch is.",o:["distance moved in one revolution","geometric pitch plus slip","pitch measured at the master station"],a:0,e:"Effective pitch is geometric pitch minus slip."},
+{q:"A windmilling Propeller has.",o:["a small positive blade angle","a small positive angle of attack","a small negative angle of attack"],a:2,e:"Windmilling occurs with a small negative AoA and a small positive blade angle."},
+{q:"Windmilling causes.",o:["propeller underspeeding","maximum propeller drag","Centrifugal Twisting Moment"],a:1,e:"NIL."},
+{q:"Torque acts.",o:["in the same direction as the plane of rotation","at right angles to the plane of rotation","in opposition to the direction of rotation"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 15 refers."},
+{q:"The purpose of blade twist is to.",o:["reduce angle of attack at the blade root","to ensure that tip speed does not go faster than Mach 1","to even out thrust distribution across the propeller"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 14 refers."},
+{q:"Thrust is greatest.",o:["at 70 to 80% of propeller length","in the first 50%","the same all along the length"],a:0,e:"Beyond this point the blade chord is reduced to lessen tip thrust."},
+{q:"CTM changes the pitch of a blade.",o:["about its twisting axis","bending forward","towards the feather plane"],a:0,e:"CTM reduces pitch towards the plane of rotation, about the twisting axis."},
+{q:"The velocity of the slipstream behind the aircraft in relation to the ambient air is.",o:["less","greater","equal"],a:1,e:"If there was not a difference then no thrust would be produced. T= mass(Vout-Vin)."},
+{q:"High speed aerofoils are employed at.",o:["the master station","the tips","the root"],a:1,e:"On helicopters they are called BERP tips."},
+{q:"A right hand propeller.",o:["rotates clockwise when viewed from the rear","is always fitted to the starboard engine","rotates clockwise when viewed from the front"],a:0,e:"Left or right is determined by sitting in the cockpit and viewing the rotation."},
+{q:"Given that blade angle is measured from the centre of the hub, the blade angle at the hub is considered to be.",o:["lowest","Master Station value","highest"],a:2,e:"Refer to Jepperson Aircraft Propellers and controls page 13."},
+{q:"A windmilling propeller will create.",o:["more drag in feather","more drag in fine pitch","more drag in coarse pitch"],a:1,e:"A windmilling propeller is always in fine pitch."},
+{q:"The chord line of a propeller is.",o:["a line joining the leading and trailing edges","a line joining the tip to the root of the blade","a line joining the tips of the blades"],a:0,e:"NIL."},
+{q:"The plane of rotation is defined as.",o:["the plane in which thrust force acts","the plane in which the propeller rotates","the angle at which the blade strikes the airflow"],a:1,e:"NIL."},
+{q:"Thrust bending force on a propeller blade.",o:["intensifies the centrifugal forces to some degrees","can be used in propeller design to reduce some operation stress","tends to bend the propeller blade forward at the tip"],a:2,e:"NIL."},
+{q:"What conditions are applied to a propeller blade windmilling?",o:["Positive angle of attack, thrust negative","Negative angle of attack, thrust positive","Negative angle of attack, thrust negative"],a:2,e:"NIL."},
+{q:"The primary purpose of propeller is to.",o:["change engine horsepower to thrust","provide static and dynamic stability to aircraft","create lift on the fixed aerofoils of an aircraft"],a:0,e:"NIL."},
+{q:"The primary purpose of a feathering propeller is to.",o:["prevent further engine damage when an engine fails in flight","prevent propeller damage when an engine fails in flight","eliminate the drag created by a windmilling propeller when an engine fails in flight"],a:2,e:"NIL."}
+],
+"17.2. Propeller Construction": [
+{q:"A fibreglass composite blade.",o:["will never be struck by lighting","does not require lightning strike protection","requires lightning strike protection"],a:2,e:"NIL."},
+{q:"The timber most often used today for propeller construction is.",o:["birch","spruce","balsa"],a:0,e:"NIL."},
+{q:"Electronic torque measuring systems utilise.",o:["strain gauges in the reduction gear","stress gauges in the reduction gear","pressure transducers in the reduction gear"],a:0,e:"NIL."},
+{q:"A conventional turboprop torque meter uses.",o:["hydraulic oil as the pressure medium","coiled spring levers as the pressure medium","engine oil as the pressure medium"],a:2,e:"Pallett Aircraft Instruments and integrated Systems page 357."},
+{q:"Metal at the tip and along the leading edge of a wooden propeller is.",o:["for balancing","for protection","for Anti-icing"],a:1,e:"Jepperson Aircraft Propellers and Control page 18 refers."},
+{q:"Blade cuffs are fitted to the root of the blades.",o:["to increase the strength of the blade","to increase thrust","to increase flow of cooling air into the engine nacelle"],a:2,e:"Refer Jepperson Powerplant Page 12- 3."},
+{q:"Low torque sensing is used to.",o:["increase power","increase pitch","initiate auto-feather"],a:2,e:"Refer Jepperson Aircraft Propellers and Controls Page 135."},
+{q:"Torque sensing is used to.",o:["reduce drag","reduce drag following engine shutdown","synchronise blade angle"],a:1,e:"Jepperson Aircraft Propellers and Controls page 135 Refers."},
+{q:"The minimum percentage seating on a propeller rear cone should be.",o:["90%","70%","95%"],a:1,e:"Jepperson Aircraft Propellers and Controls Page 31 shows 70% Old CAIPs shows 80%."},
+{q:"The propeller is 'feathered' when the blades are at.",o:["0° to plane of rotation","20° to plane of rotation","90° to plane of rotation"],a:2,e:"Jepperson Aircraft Propellers and Controls page 75 refers."},
+{q:"The thrust of a propeller is normally taken by the.",o:["torque meter","propeller rear cone","front bearing in the reduction gear"],a:2,e:"Jepperson A&P Powerplant Page 1-30/1-31 refers."},
+{q:"On which type of turbo-propeller would you expect to find a parking brake?",o:["Compounded twin spool","Direct coupled twin spool","Free turbine"],a:2,e:"The parking brake stops the propeller rotating when the engine is stopped."},
+{q:"What does the torque meter reading indicate in a gas turbine engine?",o:["Torque reaction at the reduction gear","The ratio between engine thrust and engine torque","Engine torque"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 55 refers."},
+{q:"The gear segments on the blade roots of a hydromatic propeller mesh with the.",o:["stationary cam","torque tubes and eye bolts","moving cam"],a:2,e:"Jepperson A&P Powerplant Page 12-16 refers."},
+{q:"A propeller is centralised on the propeller shaft by.",o:["the front and rear cones","the front git seal","the rear pre-load shims"],a:0,e:"Front and rear cones- Jepperson Aircraft Propellers and Controls."},
+{q:"Reduction gearing allows the.",o:["blade tips to operate below the speed of sound","blade tips to operate above the speed of sound","blade tips to rotate slower than the root of the propeller blade"],a:0,e:"Propellers always operate slower than the engine to ensure the blade tips do not go sonic."},
+{q:"When fitting a propeller to a tapered shaft.",o:["locate the master spline","ensure the master spline and blade alignment are in accordance with the MM","ensure fully seated"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 29 refers."},
+{q:"What is the purpose of small holes at the tip of wooden propellers?",o:["Drainage","Balancing","Pivot points used during manufacture"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 143 refers."},
+{q:"The thrust face of a propeller blade is the.",o:["root to which the gear segment is fitted","blade face or flat side","blade back or curved side"],a:1,e:"Jepperson A&P Powerplant Fig 12-16 Refers."},
+{q:"Solidity of a propeller can be increased by.",o:["increasing blade chord","increasing blade angle","increasing blade thickness"],a:0,e:"AC Kermode Mechanics of Flight Page 138 refers."},
+{q:"A turbo-prop engine.",o:["uses an epicyclic reduction gear system","uses a spur gear reduction system","does not require a reduction gear system due to the prop shaft being driven from the low speed compressor"],a:0,e:"All large engines use Epicyclic reduction gearing."},
+{q:"Total power of a turbo-prop engine is measured in.",o:["Equivalent Shaft Horsepower(ESHP)","Shaft Horsepower(SHP)","Brake Horsepower(BHP)"],a:0,e:"ESHP is SHP plus residual thrust."},
+{q:"The disadvantage of using reverse pitch on a turbo-propeller engine is.",o:["exhaust gas ingestion, high gas temperature and debris ingestion","debris ingestion","high gas temperature"],a:1,e:"Jepperson A&P Powerplant page 12-33 refers."},
+{q:"A compound twin spool engine is.",o:["turbo prop propeller driven by a power turbine","turbo prop twin spool compressor","LP Compressor driven by a free turbine"],a:1,e:"Rolls Royce Jet Engine Page 5 refers."},
+{q:"With the engine stationary the indication that the propeller is in ground fine pitch is.",o:["blade and spinner markings aligned","below stop warning light on","flight fine pitch stop lever withdrawn"],a:0,e:"Unattributed notes."},
+{q:"When the power lever on a turbo prop engine is moved from ground idle to flight fine the fuel flow increases and the blade angle.",o:["increases","decreases","remains the same"],a:0,e:"Ground idle is a lower pitch than flight idle."},
+{q:"How is the blade station measured?",o:["In inches from the centre of the hub","In inches from the tip","As a percentage of blade length from the tip"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 10 refers."},
+{q:"The oil used in the torquemeter system is.",o:["DTD 585","engine oil pressure boosted by a pump driven off the reduction gear","PCU oil pressure"],a:1,e:"Rolls Royce The Jet Engine Fig 12-4 Refers."},
+{q:"Which type of turboprop engine is practically free from surge and requires low power for starting?",o:["Compound twin spool","Directly coupled","One using a centrifugal compressor"],a:0,e:"Rolls Royce The Jet Engine page 5 refers."},
+{q:"Blade stations are measured from the.",o:["centre of the hub","tip","shank"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 13 refers."},
+{q:"Auto feathering is disarmed.",o:["during landing","during take off","in the cruise"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 136 refers."},
+{q:"With a multi-engined aircraft the torque pressure would be.",o:["There is only one gauge for all engines","same on all engines","similar on all engines"],a:1,e:"All engines are synchronised to the same RPM and are travelling at the same forward speed."},
+{q:"If torque pressure fell to zero during the cruise what would indicate that the gauge had failed?",o:["Engine would auto feather","Engine would overspeed","Engine would continue to run"],a:2,e:"Auto feather would engage if torque had actually failed, but if it is just the gauge, then the engine would be unaffected."},
+{q:"The purpose of using reverse pitch propellers is to.",o:["provide aerodynamic breaking","allow aircraft to taxi backwards","reverse the direction of rotation of the propeller"],a:0,e:"Jepperson aircraft propellers and controls Page 97 Refers."},
+{q:"The RPM of a windmilling propeller is primarily related to.",o:["EAS","IAS","TAS"],a:2,e:"Relative airflow is a function of rotational speed and TAS."},
+{q:"A ducted propeller is used because.",o:["ducted props give more thrust for the diameter of disc","only ducted propellers can be vectored","ducted props give less thrust for the diameter of disc"],a:0,e:"The duct provides for less tip losses."},
+{q:"A two position prop uses.",o:["high pitch for take off and low pitch for cruise","low pitch for take off and climb and high pitch for cruise","high pitch for take off, low pitch for climb and descent and high pitch for cruise"],a:1,e:"Jepperson aircraft propellers and controls Page 49 Refers."},
+{q:"A propeller operating in the Beta range is operating between.",o:["Flight Idle and Ground Idle","coarse and flight fine pitch","maximum reverse pitch and Flight idle pitch"],a:2,e:"Jeppesen Aircraft Propellers and controls page 108 refers."},
+{q:"The CSU oil pump is provided to.",o:["boost engine oil pressure to decrease pitch","boost engine oil pressure to alter pitch","boost engine oil pressure to increase pitch"],a:0,e:"A CSU is used on a single acting propeller system. Spring pressure+ counterweights move it to coarse pitch."},
+{q:"Counterweights are used to.",o:["counter the ATM of the blades","counteract the CTM of the blades","balance the blades"],a:1,e:"The counterweights are seen on single acting propeller systems."},
+{q:"The pressure face of a propeller is.",o:["the flat face","the leading edge","the camber face"],a:0,e:"The pressure face is the thrust face or blade face. They all mean the same."},
+{q:"In blade station numbering the stations nearest the hub are.",o:["datum","highest","lowest"],a:2,e:"Blade stations are measured in inches-from the hub."},
+{q:"A propeller mounted forward of the engine is known as.",o:["hydromatic propeller","a tractor propeller","a pusher propeller"],a:1,e:"A tractor propeller pulls the aircraft through the air."},
+{q:"Contra-rotating propellers are.",o:["two propellers on the same shaft on one engine-each revolving in a different direction","propellers geared to rotate in the opposite direction to the engine","propellers on a twin engined aircraft revolving in opposite directions"],a:0,e:"Enables extra power to be absorbed."},
+{q:"An aerodynamic breaking propeller goes through.",o:["the feathered pitch position to act as a brake","the coarse pitch position to act as a brake","the fine pitch position to act as a brake"],a:2,e:"You must go through fine to get to reverse-the braking position."},
+{q:"The term spinner is applied to.",o:["a propeller tip vortex","a streamline covering over the propeller hub","an acrobatic manoeuvre"],a:1,e:"The spinner covers the front of the hub."},
+{q:"Turbo-prop engines require a slightly higher viscosity oil than a turbo-jet engine due to.",o:["lower engine rpm","higher engine rpm","reduction gear and propeller pitch chang mechanism"],a:2,e:"The mechanical gear system exerts higher forces on the lubricant."},
+{q:"The propulsive efficiency of a propeller-turbine engine is higher than that of a jet-turbine engine at aircraft speeds.",o:["above approximately 450 mph","within the range 450 mph and 700 mph","below approximately 450 mph"],a:2,e:"Turbo props are used only below 450 kts as the prop becomes inefficient above this."},
+{q:"A propeller has the requirement of a.",o:["manufacturers data plate","type certificate or equivalent certificate","batch number"],a:1,e:"JAR 25.905 refers."},
+{q:"Variable pitch propellers are used because they are.",o:["reduce vibration and noise","have peak efficiency over a greater speed range","more economical"],a:1,e:"range from 150-350 kts."},
+{q:"The condition lever normally has the following settings.",o:["normal, beta-range and reverse range","cut-off, idle and high idle","rich, lean and cut-off"],a:1,e:"Jeppersen A&P Powerplant page 12-36 refers. the condition lever controls the propeller governor."},
+{q:"What is the ground clearance for a Tricycle Geared Aircraft?",o:["7 inches","9 inches","1 inch"],a:0,e:"Jeppersen Aircraft Propellers and Controls Page 9 refers."},
+{q:"In a variable pitch propeller system, a decrease in propeller RPM will alter the angle of attack on the blade to.",o:["increase angle of attack","decrease angle of attack","increase negative torque"],a:1,e:"The blade fines off to maintain RPM."},
+{q:"To achieve reverse pitch the blade angle must be.",o:["more than 17°","less than 0°","more than 90°"],a:1,e:"Jeppersen Aircraft Propellers and Controls Page 97 refers."},
+{q:"Centrifugal latches are fitted to lock the propeller.",o:["in the feathered position","when stationary","in the fine pitch position"],a:1,e:"Used on lightweight single acting propeller systems; latches are used on shutdown to stop spring pressure pushing the blades to the feather position thus making the load on the engine excessive for the next start."},
+{q:"Counterweights are fitted to blade root to.",o:["counteract ATM","assist blade to move to fine pitch","counteract CTM"],a:2,e:"Jeppersen Aircraft Propellers and Controls Page 71 refers."},
+{q:"The limits for blade angle are controlled by pitch stops on the.",o:["propeller shaft","blade root","cylinder"],a:2,e:"eppersen Aircraft Propellers and Controls Page 81-83 refers."},
+{q:"The range of angles of a VP propeller is usually limited by.",o:["the fine pitch position","the feathering angle","coarse and fine pitch stops"],a:2,e:"A Variable Pitch(VP) propeller will have at least 2 stops- coarse and fine; although sophisticated types also have ground fine and reverse pitch stops."},
+{q:"The purpose of fine pitch stop is to.",o:["maintain constant speed in flight","prevent the propeller moving below flight fine pitch in flight","maintain maximum RPM at takeoff"],a:1,e:"CAIP's Leaflet PL/1-1 para 5.2.2 refers."},
+{q:"Which best describes a Variable Pitch propeller?",o:["The blade angles can be changed in flight","Its blade angles are set with an automatic system with which the pilot has no input","Its blade angles can only be set on the ground"],a:0,e:"propellers which can only be adjusted on the ground are known as 'ground adjustable' not 'variable pitch'."},
+{q:"The holding coil of a hydromatic propeller feathering button switch holds a relay closed that applies power to the propeller.",o:["dome feathering mechanism","feathering pump motor","governor"],a:1,e:"The feathering pump is required as the existing pressure from the engine will be decaying. The pump is held energised until the prop feather switches sense that the propeller has reached the feather position."},
+{q:"The primary purpose of the front and rear cones for propellers that are installed on splined shafts is to.",o:["prevent metal-to-metal contact between the propeller and the splined shaft","reduce stresses between the splines of the propeller and the splines of the shaft","position the propeller hub on the splined shaft"],a:2,e:"AC65-12A."},
+{q:"The constant-speed control unit is also called a.",o:["propeller pitch control","accumulator","governor"],a:2,e:"NIL."}
+],
+"17.3. Propeller Pitch Control": [
+{q:"When the compressive force on a speeder spring is reduced, the propeller blades will.",o:["remain fixed","fine off","coarsen"],a:2,e:"Aircraft Propellers and Controls."},
+{q:"A hydraulic pitch lock is utilised in a hydromatic propeller to.",o:["lock out the coarse pitch oil line in the event of underspeeding","lock out the fine pitch oil line in the event of overspeeding","prevent the propeller overspeeding in the event of oil supply failure"],a:1,e:"Refer Jepperson Aircraft Propellers and Controls page 136."},
+{q:"When in the beta range, the propeller pitch is controlled.",o:["directly from the power lever","indirectly from the power lever","directly from the pitch change mechanism to the PCU"],a:0,e:"Refer Jepperson Aircraft Propellers and Controls Page 102."},
+{q:"The advantage of the beta range is it allows.",o:["high power settings with higher than normal pitch settings when in flight","low fine pitch settings with high power","low power settings with higher than normal pitch setting for ground manoeuvres"],a:2,e:"Refer Jepperson Aircraft Propellers and Controls Page 102."},
+{q:"If the speeder spring pressure of a CSU is increased the blade will.",o:["coarsen off","fine off","will not move"],a:1,e:"Jepperson Aircraft Propellers and Control pages 55-58."},
+{q:"On an underspeed condition the blades are turned to.",o:["fine","feather","coarse"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 55-58 refers."},
+{q:"In a hydromatic propeller with counterweights, what is used to make the propeller move to fine pitch?",o:["ATM","engine oil","centrifugal force acting on the counterweight"],a:1,e:"Refer Jepperson Aircraft Propellers and Controls Pages 55- 58."},
+{q:"Relaxing tension on the governor spring will result in the blade coarsening and.",o:["RPM decreasing, manifold pressure increasing","RPM increasing, manifold pressure increasing","manifold pressure constant, RPM decreasing"],a:0,e:"Refer Jepperson Aircraft Propellers and Controls Page 59."},
+{q:"The ground fine pitch stop is.",o:["never removed","removed on the ground","removed during flight"],a:1,e:"Refer Jepperson Aircraft Propellers and Controls Page 32 Low pitch stop is an alternative name on some applications."},
+{q:"If governor fly wheel overcomes the speeder spring, it indicates.",o:["underspeed","overspeed","onspeed"],a:1,e:"Jepperson Powerplant Page 12-4 refers."},
+{q:"Pitch control using torque measuring is for.",o:["reducing drag in engine failure","increasing drag","reducing drag in binding"],a:0,e:"Jepperson Aircraft Propellers and Control Pages 135 Refer."},
+{q:"If force is applied to the speeder spring, what will happen?",o:["Blade angle is frozen in last known position","Blade angle coarsen","Blade angle finer"],a:2,e:"Fly-weights will move inwards, tricking the CSU to believing there is a reduction in speed, thus decreasing the blade pitch to speed the propeller back up."},
+{q:"When is superfine pitch used?",o:["Landing and takeoff","In cruise","Engine starting to reduce propeller torque loading on starter motor"],a:2,e:"Caips Leaflet PL/1-1 refers to ground fine pitch; believed to be an alternative to Superfine Pitch."},
+{q:"When the flyweights fly outwards in a PCU, this is known as.",o:["onspeed","overspeed","low power settings with higher than normal pitch setting for ground manoeuvres"],a:1,e:"Refer Jepperson Aircraft Propellers and Controls Page 55-58."},
+{q:"In an on speed condition, oil in the tube.",o:["remains constant","flows in the tubes","flows out of the tubes"],a:0,e:"Refer Jepperson Aircraft Propellers and Controls Page 55-58."},
+{q:"On a reversing propeller moving to the maximum reversing angle, the propeller goes.",o:["from fine pitch through plane of rotation, course reverse then fine reverse","from course pitch through plane of rotation course, fine reverse then course reverse","from fine pitch through plane of rotation, fine reverse then course reverse"],a:2,e:"Fine reverse must come before coarse reverse."},
+{q:"If pressure is increased on the speeder spring, rpm increases. What happens to the blade angle?",o:["Remains unchanged","Increases","Decreases"],a:2,e:"Jepperson Aircraft Propellers and Controls pages 55-58 Refers."},
+{q:"In a prop with counterweights, what is used to make it move to fine pitch?",o:["ATM","Centrifugal force acting on the counterweight","Governor oil pressure"],a:2,e:"Jepperson Aircraft Propellers and Controls page 81 refers."},
+{q:"If a propeller is in fine pitch and then moves to feather it will pass through.",o:["flight fine only","reverse","coarse"],a:2,e:"Jepperson Aircraft Propellers and Controls Fig 11.1 refers."},
+{q:"A 'double' acting propeller has.",o:["nitrogen or air on one side of piston","oil pressure on one side of piston","oil pressure on two sides of piston"],a:2,e:"Jepperson Aircraft Propellers and Controls Fig 11-32 refers."},
+{q:"During normal propeller operation, oil pressure for the governor is provided by.",o:["a pump in the governor","a variable volume pump","the engine driven pump"],a:0,e:"Jepperson Aircraft Propellers and Controls refer. All governors have a built in pump."},
+{q:"Oil for an on-speed condition passes through.",o:["the coarse pitch line","the fine pitch line","neither of the lines"],a:2,e:"Jepperson Aircraft Propellers and Controls Pages 55-58 refer."},
+{q:"If the spur gear pump in a single acting propeller governor failed, the.",o:["blades would turn to a coarse pitch","blades would rotate to a fine pitch","blades would move to the feather position"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 62 refer."},
+{q:"The hydromatic variable pitch propeller is operated on the principle of.",o:["a venturi or 'u' tube with mercury","an electrical motor moving a gear segment","oil pressure moving a piston"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 85 refer."},
+{q:"The constant speed unit(C.S.U.) governor works on the principle of.",o:["manual selection through a gearbox","centrifugal twisting moments","spring pressure acting against centrifugal force"],a:2,e:"Jepperson A&P Powerplant Page 12-7/8 refers."},
+{q:"The purpose of the pitch change cams is to.",o:["convert rotary motion to linear motion","prevent windmilling","convert linear motion to rotary motion"],a:2,e:"Jepperson Aircraft Gas Turbine Powerplants Fig 12-14 refers."},
+{q:"The gear type pump in a C.S.U. or P.C.U.",o:["lubricates the entire propeller system","boosts engine oil system pressure","assist the governor valve to move"],a:1,e:"Jepperson Aircraft Propellers and Controls Fig 11-33 refers."},
+{q:"When an engine fails.",o:["the propeller is feathered using an electrical feathering pump","the propeller is feathered using the propeller governor pump","the propeller is feathered using counterweights"],a:0,e:"Jepperson A&P Powerplant Page 12-30 refers."},
+{q:"The purpose of an accumulator in a single acting propeller system is to.",o:["to port oil to the coarse pitch oil line to assist in feathering the propelle","accelerate the unfeathering process","provide back up to the governor pump"],a:1,e:"Jepperson A&P Powerplant Page 12-26 refers."},
+{q:"When auto feathering has taken place the feathering pump is switched off by.",o:["pressure control drop switch","carrying out the manual feather drill","removing the pump circuit breaker or fuse"],a:1,e:"The pump is switched off by pressing the alternate action pump switch-part of the manual feather drill."},
+{q:"On a free turbine engine it is possible to vary the propeller RPM whilst the engine RPM remains constant.",o:["by operating the Power lever","it is not possible to vary the propeller RPM","by operating the PCU control Lever"],a:2,e:"The PCU lever changes the pressure on the governor spring thus changing the pitch of the blades."},
+{q:"A propeller control Unit hydraulic system is supplied with oil from the.",o:["engine lubrication oil tank","aircraft hydraulic System","PCU oil tank"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 59 refers."},
+{q:"Low torque sensing is used to initiate.",o:["relighting","fine pitch selection","auto feathering"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 135 refers."},
+{q:"What is the purpose of the auto coarsening system?",o:["To prevent overspeeding in the event of the flight fine pitch stop failing","To reduce drag during power loss","To save the pilot making minor changes when changing altitude"],a:0,e:"CAIP's Leaflet PL/1-1 refer- note this is not an auto feather system."},
+{q:"In a single acting propeller, blade angle is increased by.",o:["counterweights and a feathering spring","CTM","oil pressure"],a:0,e:"CAIP's PL leaflets refer. Oil pressure turns the prop to fine. If the oil pressure is released by the CSU the spring and counterweights drive the prop to feather."},
+{q:"The function of a propeller pitch lock is to prevent the propeller from.",o:["coarsening","reducing below flight fine pitch","fining off in the event of pitch lock mechanism failure"],a:2,e:"CAIP's PL leaflets refer to a pitch lock that holds the fine pitch stop in position, but also adds that some manufacturers have a pitch lock device that locks the prop in its last position in the event of failure of the pitch lock mechanism. For a description of this system see Jeppesen Aircraft Propellers and Controls page 136."},
+{q:"The minimum propeller pitch is established by the.",o:["superfine pitch stop","pitch Lock","flight fine pitch stop"],a:0,e:"CAIP's PL leaflets refer. Oil pressure turns the prop to fine. If the oil pressure is released by the CSU the spring and counterweights drive the prop to feather."},
+{q:"Oil for the feathering system is taken from.",o:["a separate feathering oil tank","a feathering reserve in the engine oil tank","the engine lubrication system"],a:1,e:"Jepperson Aircraft Propellers and Controls Page 10 refers."},
+{q:"What are the centrifugal latches in a single acting propeller used for?",o:["Prevent CTM","Prevent feathering of the prop on shutdown","Prevent Propeller moving to superfine"],a:1,e:"Jepperson Aircraft Propellers and Controls Fig 11-4 refers."},
+{q:"In a two position propeller.",o:["ATM turns the prop to fine","oil pushes the prop to fine","oil pushes the prop to coarse"],a:1,e:"Jepperson aircraft propellers and controls Page 96 Refers."},
+{q:"An overspeed condition causes governor spring pressure to be.",o:["the same as centrifugal force","more than centrifugal force","less than centrifugal force"],a:2,e:"The bob weights lift the governor valve in this condition, thus they have more force than the spring."},
+{q:"When the engine is running, the CSU is sensing.",o:["propeller tip speed","propeller blade angle","engine RPM"],a:2,e:"Engine RPM is sensed via the governor bob weights."},
+{q:"An accumulator may be fitted to.",o:["feather the propeller","unfeather the propeller","provide emergency control"],a:1,e:"The accumulator is needed to drive the prop out of feather and hence get it rotating. Normally seen on a single acting propeller system."},
+{q:"If governor weight spring pressure is reduced.",o:["governor weights will pivot inwards raising the governor valve allowing the blades to move to a coarser pitch","governor weights will spring outwards raising the governor valve allowing the blades to move to a finer pitch","governor weights will spring outwards raising the governor valve allowing the blades to move to a coarser pitch"],a:2,e:"When 'on speed' spring pressure equals the governor centrifugal force."},
+{q:"A constant speed variable pitch propeller is running whilst stationary on the ground. If it is facing into a headwind it will.",o:["speed up","remain constant","slow down"],a:1,e:"A headwind acts the same as increased forward speed. The prop will coarsen off and the speed will remain the same."},
+{q:"If the TAS of an aircraft increases, the CSU will.",o:["increase the blade angle to provide constant RPM","decrease the blade angle to provide constant RPM","change the blade angle to provide constant RPM"],a:0,e:"This causes blade to coarsen off to stop overspeeding and as a result the speed remains the same."},
+{q:"When governor spring load is less than governor weights, the CSU is in.",o:["overspeed","underspeed","underspeed"],a:0,e:"Jeppersen Aircraft Propellers and Controls Page 57 refers."},
+{q:"An aircraft's propeller system beta range.",o:["is used to achieve maximum thrust during take-off","refers to the most fuel efficient pitch range to use at a given engine RPM","is used to produce zero or negative thrust"],a:2,e:"Beta range is used on the ground."},
+{q:"How is a propeller controlled in a large aircraft?",o:["By engine power lever","By varying teh engine RPM except for feathering and reversing","Independently of the engine"],a:0,e:"AC65-12A."},
+{q:"Manually feathering a hydromechanical propeller means to.",o:["block governor oil pressure to the cylinder of the propeller","port governor oil pressure to the cylinder of the propeller","block governor oil pressure from the cylinder of the propeller"],a:2,e:"AC65-12A."},
+{q:"How is the oil pressure delivery on a hydromatic propeller normally stopped after the blades have reached their full-feathered position?",o:["Stop lugs in the teeth of the rotating cam","Electric cut-out pressure switch","Pulling out the feathering push-button"],a:1,e:"AC65-12A."},
+{q:"Counterweights on constant-speed propellers are generally used to.",o:["increase blade angle","decrease blade angle","unfeather the propeller"],a:0,e:"AC65-12A."},
+{q:"Constant speed non-feathering McCauley, Hartzell and other propellers of similar design without counterweights increase pitch angle using.",o:["centrifugal twisting moment","spring pressure","oil pressure"],a:2,e:"AC 65-12A."},
+{q:"What are the rotational speed and blade pitch angle requirements of a constant-speed propeller during take-off?",o:["High speed and low pitch angle","High speed and high pitch angle","Low speed and high pitch angle"],a:0,e:"AC65-12A."},
+{q:"A constant speed propeller provides maximum efficiency by.",o:["increasing the lift coefficient of the blades","adjusting blade angle for most conditions encountered during flight","increasing blade pitch as the aircraft speed increases"],a:1,e:"AC65-12A."}
+],
+"17.4. Propeller Synchronising": [
+{q:"Synchrophasing reduces vibration by the use of.",o:["pulse probes and a single synchrophase unit","tachometers and correction motors","coordinating the rpm of each engine"],a:0,e:"Refer Jepperson Aircraft Propellers and Controls Page 134."},
+{q:"Synchronising can only be achieved if the slave propeller is.",o:["the same speed as the master","within 20 rpm of the master","within 100 rpm of the master"],a:2,e:"Jepperson Aircraft Propellers and Control page 132 refers."},
+{q:"Synchronising is carried out to.",o:["match propeller tip speed","match engine rpm","match blade phase angle difference"],a:0,e:"Jepperson Aircraft Propellers and Control page 132 refers."},
+{q:"The synchronisation governor monitors.",o:["RPM","propeller tip speeds","thrust tip speeds"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 37 refers."},
+{q:"Synchronisation is used to.",o:["reduce vibration and noise","reduce the pitch of the fastest running blade","preset the phase angle of propellers"],a:0,e:"Refer Jepperson Aircraft Propellers and Controls Page131."},
+{q:"Synchronisation is used.",o:["on the ground","in flight except landing and take off","in flight"],a:1,e:"Jepperson Aircraft Propellers and Control Page 136 refer to Auto Feather systems."},
+{q:"The propeller synchronising system is put into operation by.",o:["adjusting the engine rpm at required cruise speed then switching on the synchroniser","adjusting the engine rpm then propeller rpm to required speed then switching on","switching on the synchronizer then adjust the engine rpm so that all engines adjust together"],a:0,e:"Jepperson aircraft propellers and controls Page 132 Refers."},
+{q:"Propellers are synchronised by the.",o:["power lever","PCU governor","prop lever"],a:1,e:"EHJ Pallett Aircraft Electrical Systems Page 182 refers."},
+{q:"Unlike the automatic synchronizing system, the synchrophasing system of a two-propeller aircraft.",o:["sets the blade phase angle of two constant speed propellers","causes the same rotation speed of the two propellers","matches the blade angle of variable pitch propellers"],a:0,e:"Synchrophasing is the setting of blade phase angle difference to minimise vibration."},
+{q:"In a propeller synchrophasing system, an electric actuator.",o:["rotates(controls) the slave engine governor","equalizes the governor signals","turns the flexible shaft leading to the trimmer assembly"],a:0,e:"Jeppesen Propellers and controls Fig 13-20 shows the actuator attached to the governor."},
+{q:"If one signal is lost into the comparator unit when Synchrophasing is operating.",o:["Synchrophasing is lost and the engines continue to function normally","the slower engine immediately goes to feather","both engines remain running until there is a difference, of commonly,(4 to 5 percent), at which the slower of the engines is then feathered"],a:0,e:"Synchrophasing is used in conjunction with synchronising to reduce aircraft vibration."},
+{q:"Synchronisation controls RPM within what range?",o:["100 RPM","150 RPM","50 RPM"],a:0,e:"Jeppersen Aircraft Propellers and Controls Page 132 refers."},
+{q:"When should synchronisation be used?",o:["During cruise","During landing","Anytime"],a:0,e:"Jeppersen Aircraft Propellers and Controls Page 132 refers."},
+{q:"Propeller Synchronizing works utilizing.",o:["RPM Levers","propeller lever","governor"],a:2,e:"The governor is sometimes known as a comparator unit."},
+{q:"In relation to a propeller aircraft, synchrophasing would be used on.",o:["all Aircraft","all Multi engine aircraft","turbo prop Aircraft"],a:1,e:"Synchrophasing can be used on any multi propeller driven aircraft."},
+{q:"A propeller synchrophasing system allows a pilot to reduce noise and vibration by.",o:["setting the RPM of all propellers exactly the same","adjusting the plane of rotation of all propellers","adjusting the phase angle between the propellers"],a:2,e:"NIL."},
+{q:"A propeller synchronising system allows a pilot to reduce noise and vibration by.",o:["adjusting the phase angle between the propellers","setting the RPM of all propellers exactly the same","adjusting the plane of rotation of all propellers"],a:1,e:"65-12A."},
+{q:"What is the function of automatic propeller synchronizing system on multiengined aircraft?",o:["To control tip speed of all propellers","To control the power output of all engines","To control engine RPM and reduce vibration"],a:2,e:"65-12A."},
+{q:"On most reciprocating multiengined aircraft, automatic propeller synchronization is accomplished through the actuation of the.",o:["propeller governors","propeller control levers","throttle levers"],a:0,e:"AC 65-12A."}
+],
+"17.5. Propeller Ice Protection": [
+{q:"Electrically de-iced propeller slip rings have regular resistance checks for.",o:["oxidisation due to altitude","open circuit heating elements","wear between brushes and slip ring"],a:1,e:"A pair of slip rings conduct power to the heating elements CAIP's leaflet PL/1-4 refers."},
+{q:"Propeller anti-icing may be achieved by.",o:["using iso-propyl alcohol de-icing fluid sprayed on the blade","using commercial de-icing fluid sprayed on the pro","a using hot air from the compressor"],a:0,e:"Jepperson Aircraft Propellers and Control page 124 refers."},
+{q:"De-icing of the propeller can be monitored by.",o:["viewing the deicing fluid level sight glass","viewing the blade and observing ice falling off the blade","an ammeter in the flight deck"],a:2,e:"Jepperson Aircraft Propellers and Control page 129 refers."},
+{q:"Insulation testing of electrical de-icing systems should be periodically carried out because of.",o:["an open circuit in one of the blades","oxidation due to atmospheric conditions","wear on the slip rings"],a:0,e:"CAIPs leaflet PL/1-4 refers."},
+{q:"Insulation checks on propeller electrical heating elements should be carried out frequently due to.",o:["short/open circuits in the heating system wires along the propeller blade","oxidation of slip ring and brush gear assembly","deposits formed due to the wear of slip ring and brush gear assembly"],a:0,e:"CAIP's Leaflet PL/1-4 Para 3.3-2 Refers."},
+{q:"Where is the de-icing boot?",o:["Root","Trailing edge","Tip"],a:0,e:"Refer Jepperson Aircraft Propellers and Controls Pages 126-127."},
+{q:"How is anti icing fluid fed to the individual blades?",o:["Pump to a slinger ring","Pump to each blade rubber feed boot","Under gravity to the slinger ring then on to the blade"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 124 refers."},
+{q:"Ice is removed from blades by.",o:["a continuously heated electrical boot","rubber boots inflated in sequence using compressor hot air","inboard and outboard boot sections heated in sequence by action of the timer"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 126 refers."},
+{q:"Propeller blades are de-iced by.",o:["electrical heating elements bound in rubber overshoes on the blade leading edges","generating eddy currents in the blade","electrical heating elements wound around rubber shoes"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 126 refers."},
+{q:"Electrical power supplies on large aircraft, for electrical deicing are.",o:["AC","DC","Both AC or DC"],a:1,e:"CAIPs PL leaflets Refer."},
+{q:"Propeller slip rings.",o:["convey oil for PCU to pitch change mechanism","minimise slip","conduct electrical power for de-icing"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 126 refers."},
+{q:"On an electrical deicing system fast cycle is used.",o:["at low air temperature","at high air temperature","on the ground"],a:1,e:"Rolls Royce page 151 refers. Slow cycle meaning the elements are on for longer."},
+{q:"The output of an anti-icing pump is controlled by.",o:["a rheostat","the hand pump","a cyclic timer"],a:0,e:"Jepperson aircraft propellers and controls Page 124 Refers."},
+{q:"De-icing fluid goes to a slinger ring from.",o:["an electrical pump","a hand pump","a tank in the prop hub, providing constant feed once released"],a:0,e:"The pump is controlled by a rheostat to quicken or slow the flow."},
+{q:"To increase anti icing effectiveness.",o:["increase cycle times","increase the AC or DC current","use liquid as well as electrical anti icing systems"],a:1,e:"Anticing refers to fluid deicing in Jeppersen Propeller and Controls page 123 therefore it is the rheostat that is adjusted to vary current."},
+{q:"Propeller de-icing for varying rates of icing can be varied by.",o:["increasing propeller RPM","increasing cyclic timing","increasing the AC or DC voltage"],a:1,e:"Usually a slow and fast cycle are provided."},
+{q:"Propeller De-Icing can be checked by.",o:["checking the torque meter for abnormal readings","checking the the de-icing ammeter","visually checking for ice on the blades"],a:0,e:"Disturbed airflow due to ice will reduce the eficiency of the propeller."},
+{q:"Proper operation of electric deicing boots on individual propeller blades may be best determined by.",o:["feeling the sequence of boot heating and have an assistant observe the loadmeter indications","feeling the boots to see if they are heating","observing the ammeter or loadmeter for current flow"],a:0,e:"65-12A."},
+{q:"What unit in the propeller anti-icing system controls the output of the pump?",o:["Pressure relief valve","Rheostat","Cycling timer"],a:1,e:"65-12A."},
+{q:"Ice formation on the propellers, when the aircraft is in flight, will.",o:["decrease available engine power","increase aircraft stall speed and increase noise","decrease thrust and cause excessive vibration"],a:2,e:"65-12A."},
+{q:"Propeller fluid anti-icing systems generally use which of the following?",o:["Ethyl alcohol","Ethylene glycol","Isopropyl alcohol"],a:2,e:"65-12A."}
+],
+"17.6. Propeller Maintenance": [
+{q:"Thrust and camber faces of a propeller should be blended out to.",o:["5 times the depth of damage","10 times to the depth of damage","30 times to the depth of damage"],a:2,e:"Answer found in unattributed notes."},
+{q:"An aerodynamic correction factor that is preceded by the letter Q indicates.",o:["thrust balance","dynamic balance","torque balance"],a:2,e:"NIL."},
+{q:"Leading edges should be blended out to.",o:["5 times the depth of damage","10 times the depth of damage","30 times the depth of damage"],a:1,e:"Answer found in unattributed notes."},
+{q:"If the tip of an electrical overshoe is torn.",o:["it may be cut back","it may be classified as acceptable damage","it must not be cut back"],a:2,e:"NIL."},
+{q:"The shank of the propeller is permitted to have.",o:["no repairs","minor repairs","no decals fitted"],a:0,e:"Refer Jepperson A&P Powerplant Page 12-55."},
+{q:"When blending out a gouge on the face or camber side of a blade, the additional metal to be removed for stress relief is.",o:["0.02 inch","0.002 inch","0.2 inch"],a:1,e:"NIL."},
+{q:"Wooden propellers are permitted.",o:["repairs that do not affect weight and balance","no repairs","repairs using sawdust and aeroglue"],a:2,e:"Jepperson A&P Powerplant page 12-53 refers."},
+{q:"The preservative used to protect metal blades is.",o:["lanolin","brown storage wax","petroleum jelly"],a:0,e:"NIL."},
+{q:"Composite propellers may have minor repairs carried out by.",o:["any approved 3rd party maintenance organization","the operator","any approved composite repair facility"],a:2,e:"Must be composite specialist organization."},
+{q:"Details of propeller overhaul may be found in.",o:["Airworthiness Notice 75","the AMM","Airworthiness Notice 55"],a:0,e:"Refer CAA Airworthiness Notice 75."},
+{q:"The ground clearance of a single engine tail wheel aircraft propeller is measured with the aircraft.",o:["tail wheel on the ground","tail wheel in the take off position","in the rigging position"],a:1,e:"Refer JAR 25.925."},
+{q:"The structural clearance of a multi engine aircraft propeller.",o:["is taken between the engines with the props aligned","is taken between the prop and the fuselage","is taken from the ground"],a:1,e:"Refer JAR 25.925. Sometimes known as tip clearance."},
+{q:"What position should the blades be when installing the pitch change mechanism onto a hydromatic propeller?",o:["Feather","Zero pitch","Full reverse"],a:0,e:"NIL."},
+{q:"The ground(sea) clearance of a seaplane propeller is.",o:["1 inch","9 inches","18 inches"],a:2,e:"Jepperson Aircraft Propellers and Controls Fig 2-5 refers."},
+{q:"Cropping is permitted to a maximum of.",o:["1 inch on all blades","½ inch on all blades","½ inch on one blade only"],a:0,e:"If 1 blade is cropped all must be cropped equally."},
+{q:"Dynamic balance is confirmed by use of.",o:["knife edges and mandrel","a tracking check","a vibration analyser"],a:2,e:"Refer Jepperson Powerplant Page 12-60."},
+{q:"A metal propeller may be statically balanced by.",o:["adding varnish to the lighter blade","removing metal from the opposite blade","adding or removing lead wool to the hollow blade roots"],a:2,e:"Refer Jepperson Powerplant Page 12-12."},
+{q:"Mechanical vibration relating to propellers in a piston powered aircraft.",o:["is due to the crankshaft at intermittent power settings","is due to the lead lag of the propeller compared to the engine","is due to the power stroke of the engine and may have a more detrimental effect than aerodynamic vibration"],a:2,e:"Jepperson Aircraft Propellers and Control page 16 refers."},
+{q:"Aerodynamic Correction Factor(ACF).",o:["corrects for static balance","is indicated in the form of degrees and minutes of pitch","corrects for dynamic balance"],a:1,e:"ACF adjusts individual blade pitch angle to compensate for aerodynamic differences of blades in manufacture."},
+{q:"A propeller with an adjustable blade can be adjusted.",o:["on the ground with the engine stationary","in flight","on the ground with the engine running"],a:0,e:"Jepperson Aircraft Propellers and Controls Page 37 refers."},
+{q:"When on the ground with the engine idling the prop control should be.",o:["fully aft with the mixture at idle","fully aft with the mixture at rich","fully forward with the mixture at idle"],a:1,e:"Jepperson Powerplant Page 2-16 refers- rich mixture cools the cylinders."},
+{q:"Operation with the engine at maximum boost should be limited to.",o:["prop at fine to prevent overstressing the engine","prop at course to prevent overstressing the engine","prop at wind mill to prevent overstressing the engine"],a:1,e:"Maximum Boost indicates maximum power is applied to the prop."},
+{q:"Damage to a leading edge can be blended in comparison to a blade face.",o:["by maintaining a smooth depression","by not exceeding 25% of the chord","at a steeper angle"],a:2,e:"10:1 compared to 30:1."},
+{q:"The longitudinal clearance between the nose wheel and the propeller on a tricycle geared propeller is.",o:["9 inches","18 inches","1/2 inch"],a:2,e:"Refer JAR-25.925."},
+{q:"A tracking check compares.",o:["2 Adjacent blades","2 Opposite blades","any 2 blades"],a:2,e:"Refer Jepperson Aircraft Propellers and Controls Page 32."},
+{q:"A line of indentations at one blade section can be.",o:["blended within limits","left for up to 12 months","declared unserviceable"],a:2,e:"Jepperson Aircraft Propellers and Control Page 126 Refer."},
+{q:"Propeller vibration due to a problem with propeller installations would have a.",o:["the same frequency as turbine vibration","lower frequency than turbine vibration","higher frequency than turbine vibration"],a:1,e:"Propeller RPM is always less than Gas Turbine RPM therefore vibration frequency will always be less."},
+{q:"Preloading propeller blades before installation prevents.",o:["blade distortion","blade flutter","aerodynamic imbalance on the blades"],a:1,e:"Preloading refers to shimming the blade gear boss when being mated with the bevel gear cams in the hub."},
+{q:"When unfeathering a propeller, the blades should be put into what position to stop propeller overspeed?",o:["Negative pitch","Fine pitch","Coarse pitch"],a:2,e:"A Prop moved to coarse pitch will rotate the engine without overspeeding."},
+{q:"Blade angle is measured using a.",o:["clinometer","propeller protractor","bevel protractor"],a:1,e:"Refer Jepperson Aircraft Propellers and Controls Fig 1-7."},
+{q:"In the Beta range, angle of attack increases. The fuel flow increases, and what else increases?",o:["Fuel temperature","EPR and fuel temperature","RPM and EGT"],a:2,e:"If fuel flow increases then RPM and EGT of the Gas Generator must increase."},
+{q:"With a propeller defect, the frequency of vibration will be.",o:["higher than a auxiliary gearbox defect","lower than a turbine defect","higher than a turbine defect"],a:1,e:"Propeller vibration is always lower then turbine vibration."},
+{q:"Blending of propeller blade defects refers to the.",o:["repainting of blade tips after cropping","matching of paint finishes for appearances","conversion of rough or sharp edges into smooth depression"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 21.Blending is the smoothing of a defect."},
+{q:"Removal of material from the propeller blade tips, resulting in a reduction in propeller diameter is called.",o:["tipping","cropping","topping"],a:1,e:"If you crop one blade(normally 1 inch maximum) the opposite blade must also be cropped."},
+{q:"Prior to using the universal propeller protractor.",o:["ensure the propeller blade is at the horizontal","determine the reference blade station","check date stamp for serviceability"],a:1,e:"Jepperson Aircraft Propellers and Controls Page 3 refers."},
+{q:"To fit a new front cone to a prop shaft firstly.",o:["etch the propeller serial number to the rear face","cut in half with a hacksaw and etch a unique serial number to both halves","coat in Engineers blue to ensure seating in the propeller front boss"],a:1,e:"Jepperson Aircraft Propellers and Controls Page 30 refers."},
+{q:"Blade tracking is adjusted by.",o:["adding lead wool to the blade shank","re-seating the propeller on the front and rear cones","by fitting shims to the propeller shaft hub"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 33 refers."},
+{q:"Which of the following functions requires the use of a propeller blade station?",o:["Indexing blades","Propeller balancing","Measuring blade angle"],a:2,e:"NIL."},
+{q:"To conduct a power check of an internal combustion engine requires.",o:["coarse pitch setting and advance the throttle to the target RPM","fine pitch setting and advance the engine to the target RPM setting","fine pitch setting and advance the engine to the max RPM setting"],a:1,e:"Jepperson A&P Powerplant Page 2-16 refers."},
+{q:"The power output of a turboprop engine is checked by.",o:["reference RPM","reference Thrust","reference Torque"],a:2,e:"Rolls Royce Jet Engine Page 137."},
+{q:"Immediately after blending out damage to to a blade the repair must be.",o:["re-protected against corrosion","crack checked","balanced"],a:1,e:"Crack check before re-protection."},
+{q:"How is the efficiency of a turboprop engine assessed?",o:["By correcting propeller RPM for ambient Air temperature and barometric pressure","By comparing compressor and propeller RPM against a reference figure","By comparing torquemeter pressure against a reference figure"],a:0,e:"Rolls Royce The Jet Engine Page 138 Refers."},
+{q:"The limits for a tracking check are.",o:["1/4 inch maximum difference between adjacent blades","1/8 inch maximum difference between opposite blades","1/8 inch maximum difference between all blades"],a:2,e:"Jepperson Aircraft Propellers and Controls Page 43 refers."},
+{q:"After a lightning strike.",o:["the prop must be tracked","the propeller shaft should be checked for concentricity","the heater elements should be checked for continuity and insulation"],a:2,e:"Taken from unattributed notes- has anyone got a reference?"},
+{q:"After overspeeding to 110%.",o:["no action is required","return propeller for overhaul","remove propeller for inspection"],a:0,e:"Up to 115% no action is necessary."},
+{q:"Indentations to the blade face are measured.",o:["individually","individually and collectively","collectively"],a:1,e:"Taken from unattributed notes- has anyone got a reference?"},
+{q:"When a propeller has had a report of overspeeding.",o:["procedure is dependant on the extent of overspeeding","the propeller must be removed and sent to the manufacturer","the propeller must be removed and tracked"],a:0,e:"CAIPS Lflt PL/1-4 refers inspection after overspeeding depends upon amount of overspeed."},
+{q:"The most significant effect of stone chips on a propeller is.",o:["thrust output of the propeller","structural integrity of the propeller","aerodynamic capability of the propeller"],a:1,e:"Cracks are initiated by stone chips etc."},
+{q:"Ground running an aircraft with a fixed pitch prop with its tail into wind causes the engine RPM to.",o:["increase","stay the same regardless of wind direction","decrease"],a:2,e:"A head wind on a dead engine will cause the prop to windmill. Therefore a tail wind must do the opposite."},
+{q:"Adjustments to a variable pitch propeller are.",o:["made in the air using the synchronizer","made on the ground with the engine stationary","made on the ground with the engine running"],a:1,e:"Governor spring pressure may be adjusted but only with the engine stationary!!."},
+{q:"When a propeller is removed, the securing parts are kept with.",o:["all separately in cases","the propeller","the engine"],a:2,e:"It is believed that the securing parts stay with the engine, but no reference can be found to support this."},
+{q:"During engine warm up the mixture should be at.",o:["rich, blades at feather","lean, blades at superfine","rich, blades at superfine"],a:2,e:"A&P Mechanics EA65 states that engines should not be warmed up with a lean mixture and you would not do it with the prop in feather, the engine load would be too great therefore b must be correct."},
+{q:"When unfeathering a propeller use.",o:["minimum RPM/min throttle","any RPM min throttle","maximum RPM/min throttle"],a:0,e:"A correspondent reports that for a SAAB 340 the power lever is set at ground idle(940 RPM) and the condition lever at unfeather."},
+{q:"How is the concentricity of a propeller shaft checked?",o:["Micrometer","Dial Test Indicator(DTI)","Ring gauge"],a:1,e:"CAIPs show DTI's checking concentricity of crankshafts etc."},
+{q:"Propeller slip rings should be.",o:["lubricated with silicon grease","lubricated with graphite grease","cleaned and left dry"],a:2,e:"CAIPs PL/1-4 para 3.2.8 refers."},
+{q:"A splined hub is found be loose with the.",o:["excessive spline wear","front cones bottomed against the front end of the splines","retaining nut torque loading too low"],a:1,e:"Cones used to centralise hubs on shafts. If they do not seat properly the hub cannot be held firm. See Jeppesen propellers and controls fig 5-19."},
+{q:"When measuring RPM on a supercharged engine with variable pitch.",o:["maximum boost pressure and actual air pressure is used","engine boost pressure and actual air pressure is used","zero boost pressure and actual air pressure is used"],a:2,e:"CAIPs Leaflet EL/3-2 para 9.8.3 refers to testing on the fine pitch stops and at the same manifold pressure indicated before the engine was started(IE zero boost), corrected for."},
+{q:"On propeller securing plates circlips should be.",o:["annealed and the springiness put back into the circlip before it can be used again","used once only","used again as long as the circlip springs back first time"],a:1,e:"Lycoming have issued mandatory service bulletin 240S dated 3 Feb 2003 stating that circlips, lock plates shims and retaining rings must be replaced at overhaul or removal regardless of condition."},
+{q:"The cause of propeller out-of-track vibration is.",o:["propeller blade angle too large","static imbalance","blade stiffness not exactly matched"],a:2,e:"Vibration caused by blades being out of track means that the blades do not rotate in the same plane of rotation. Variable blade stiffness could cause the blades to flex and thus cause the blades not to track in the same plane."},
+{q:"How is blending carried out on an aluminium propeller blade?",o:["By using a course file and peening","By using a needle file and finish with emery cloth","By using a scraper"],a:1,e:"Jepperson Aircraft Propellers and Controls Page 21 refers."},
+{q:"Where would you find information on RPM and Power ratings?",o:["Painted onto the propeller","Engine Log book","Etched on the Propeller"],a:1,e:"CAIPs leaflet EL/3-2 states that the reference RPM is recorded in the engine log book for power assurance checks."},
+{q:"During a test on the feathering and un-feathering systems, 1) after selecting Feather and pressing the feather button, it remained pressed for about 5 seconds then automatically deselected. 2) When un-feather was selected and the button pressed, it remained in for a short period and then autodeselected. These 2 situations would indicate.",o:["both systems are working correctly","the Feathering Pump is Unserviceable since the button did not de-press immediately","there is nothing wrong with the Feathering motor but the Un-Feathering pump is unserv"],a:0,e:"system is a hydromatic type propeller control. The feather/defeather switch is auto deselected by a pressure switch sensing the pressure build up in the hub after the desired position has been reached."},
+{q:"On a Hartzell prop with counterweights, full oil supply would indicate.",o:["on-speed condition","overspeed condition","underspeed condition"],a:1,e:"The counterweights are the clue here. This is a single acting propeller, therefore if the tank is full the spring must be fully extended to counteract an overspeed condition."},
+{q:"If a 2 blade prop is placed on a knife edge and it ends up horizontal(blades at 3 and 9 o'clock positions), it is said to be in balance.",o:["vertically","horizontally","dynamically"],a:1,e:"Jeppersen Aircraft Propellers and Controls Page 20 refers."},
+{q:"High Engine Oil pressure may be caused by.",o:["blocked scavenge filter","restricted pump operation","higher oil pressure"],a:0,e:"Restriction of flow in the circuit, assuming the pump is a full flow(gear) type, will give this indication."},
+{q:"Which of the following defects is cause for rejection of wooden propellers?",o:["An oversize hub or bolthole or elongated bolt holes","No protective coating on propeller","Solder missing from screw heads securing metal tipping"],a:0,e:"Solder or finish can be replaced elongated holes cannot."},
+{q:"Inspection of a propeller blade by dye penetrant inspection is accomplished to detect.",o:["cracks","corrosion at the blade tip","torsional stress"],a:0,e:"Dye penetrant techniques are used to detect surface cracks."},
+{q:"Which of the following is used to correct horizontal imbalance of a wooden propeller?",o:["Shellac","Brass screws","Solder"],a:2,e:"CAIPs state that adding solder to the metal tipping of the blade is the correct method for horizontal balance. Brass screws are added for vertical imbalance on the light wieght side of the hub."},
+{q:"Which of the following determines oil and grease specifications for lubrication of propellers?",o:["Propeller manufacturers","Engine Manufacturers","Airframe manufacturers"],a:0,e:"AC65-12A."},
+{q:"What type of imbalance will cause a two-bladed propeller to have a persistent tendency to come to rest in a horizontal position(with the blades parallel to the ground) while being checked on a propeller balance beam?",o:["Harmonic","Vertical","Horizontal"],a:1,e:"AC65-12A."},
+{q:"What is the purpose of an arbor used in balancing a propeller?",o:["To support the propeller on the balance knives","To mark the propeller blades where weights are to be be attached","To level the balance stand"],a:0,e:"AC65-12A."},
+{q:"The application of more protective coating on one blade than another when refinishing a wood propeller.",o:["has little or no effect on operating characteristics","may be necessary to achieve final balancing","should never be done"],a:1,e:"NIL."},
+{q:"Apparent engine roughness is often a result of propeller unbalance. The effect of an unbalanced propeller will usually be.",o:["greater at high RPM","greater at low RPM","approximately the same at all speeds"],a:0,e:"AC65-12A."},
+{q:"Propeller aerodynamic(thrust) imbalance can be largely eliminated by.",o:["correct blade contouring and angle setting","static balancing","keeping the propeller blades within the same plane of rotation"],a:0,e:"AC65-12A."},
+{q:"Propellers exposed to salt spray should be flushed with.",o:["fresh water","soapy water","stoddard solvent"],a:0,e:"AC65-12A."},
+{q:"How can a steel propeller hub be tested for cracks?",o:["By magnetic particle inspection","By anodizing","By etching"],a:0,e:"AC65-12A."},
+{q:"Which of the following defects is cause of rejection of a wood propeller?",o:["An oversize hub or bolt hole, or elongated bolt holes","Solder missing from screw heads securing metal tipping","No protective coating on propeller"],a:0,e:"AC43.13-1B."},
+{q:"Longitudinal(fore and aft) clearance of constant speed propeller blades or cuffs must be at least 1/2 inch(12.7 mm) between propeller parts and stationary parts of the aircraft. This clearance is with the propeller blades.",o:["at the lowest pitch angle","at take-off pitch(maximum thrust) angle","feathered or in the most critical pitch configuration"],a:2,e:"JAR 23."},
+{q:"When lubricating a Hartzell propeller blade with grease, to prevent damage to the blade seals, the service manual may recommend on some models to.",o:["remove the seals prior to greasing and reinstall them afterwards","remove one of the two grease nipples for the blade, and grease the blade through the remaining nipple","pump grease into both grease nipples for the blade simultaneously"],a:1,e:"NIL."},
+{q:"When running-up an engine and testing an newly installed hydromatic propeller, it is necessary to exercise the propeller by moving the governor control through its entire travel several times to.",o:["remove any entrapped air","test the maximum RPM setting of the governor","seat the blades fully against the low pitch stop"],a:0,e:"NIL."},
+{q:"What is indicated when the front cone bottoms while installing a propeller?",o:["Blade angles are incorrect","Propeller-dome combination is incorrect","Rear cone should be moved forward"],a:2,e:"AC 65-12A."},
+{q:"Which of the following statements concerning the installation of a new fixed-pitch wood propeller is true?",o:["If a separate metal hub is used, final track should be accomplished prior to installing the hub in the propeller","NAS close-tolerance bolts should be used to install the propeller","Inspect the bolts for tightness after the first flight and again after the first 25 hours of flying"],a:2,e:"AC43.13-1B."},
+{q:"If the propeller cone or hub cone seats show evidence of galling and wear, the most likely cause is.",o:["the propeller retaining nut was not tightened enough during previous operation","the front cone was not fully bottomed against the crankshaft splines during installation","the pitch change stops were located incorrectly, causing the cone seats to act as the high pitch stop"],a:0,e:"AC65-12A."},
+{q:"On aircraft equiped with hydraulically operated constant speed propellers, all ignition and magneto checking is done with the propeller in which position?",o:["Low RPM","High pitch range","High RPM"],a:2,e:"AC 65-12A."},
+{q:"Oil leakage around the rear cone of a hydromatic propeller usually indicates a defective.",o:["spider-shaft oil seal","piston gasket","dome-barrel oil seal"],a:0,e:"NIL."},
+{q:"Maximum taper contact between crankshaft and propeller hub is determined by using.",o:["a micrometer","a surface gauge","bearing blue colour transfer"],a:2,e:"NIL."},
+{q:"Propeller blade tracking is the process of determining.",o:["the plane of rotation of the propeller with respect to the aircraft longitudinal axis","that the blade angles are within specified tolerance of each other","the positions of the tips of the propeller blades relative to each other"],a:2,e:"AC65-12A."},
+{q:"In what position is the constant-speed propeller control placed to check the magnetos?",o:["Full decrease, low propeller blade pitch angle","Full increase, low propeller blade pitch angle","Full increase, high propeller blade pitch angle"],a:1,e:"AC65-12A."},
+{q:"If a flanged propeller shaft has dowel pins.",o:["the propeller can be installed in only one position","check carefully for front cone bottoming against the pins","install the propeller so that the blades are positioned for hand propping"],a:0,e:"AC65-12A."},
+{q:"Repairs of aluminium alloy adjustable pitch propellers are not permitted to be made on the.",o:["face","shank","back"],a:1,e:"AC43.13-1B."},
+{q:"Which of the following methods is used to straighten a bent aluminium propeller blade that is within repairable limits?",o:["Either hot or cold straightening, depending on the location and severity of damage","Cold straightening only","Careful heating to accomplish straightening, followed by heat treatment to store original strength"],a:1,e:"AC43.13-1B."},
+{q:"It is important that nicks in aluminium alloy propeller blades be repaired as soon as possible in order to.",o:["maintain equal aerodynamic characteristics between blades","eliminate stress concentration points","equalize the centrifugal loads between the blades"],a:1,e:"AC43.13-1B."},
+{q:"Minor surface damage located in a repairable area, but not on the leading or trailing edges of aluminium blades, may be repaired by first.",o:["filing with a half round or flat file","sanding and applying a proper filler","filing with a riffle file"],a:2,e:"NIL."},
+{q:"Minor surface damage located in a repairable area, but not on the leading or trailing edges of composite blades, may be repaired by.",o:["filing with a riffle file","sanding and applying a proper filler","filing with a half round or flat file"],a:1,e:"NIL."},
+{q:"After removal of aluminium blade damage, the affected surface should be polished with.",o:["fine steel wool","very fine sandpaper","powdered soapstone"],a:1,e:"AC43.13-1B."},
+{q:"When preparing a propeller blade for inspection it should be cleaned with.",o:["mild soap and water","steel wool","methyl ethyl ketone"],a:0,e:"AC65-12A."},
+{q:"What method would you use to inspect an aluminium propeller blade when a crack is suspected?",o:["Dye penetrant inspection","Magnetic particle inspection","A bright light and magnifying glass"],a:0,e:"AC43.13-1B."},
+{q:"Removal of propeller blade tips within the Type Certificate Data Sheet limits to correct a defect is.",o:["a major repair","permitted under the privileges and limitations of a category B1 licence","a major modification"],a:0,e:"NIL."},
+{q:"Which of the following generally renders an aluminium alloy propeller unrepairable?",o:["A transverse crack of any size","Any slag inclusions or cold shuts","Any repairs that would require shortening and re-contouring of blades"],a:0,e:"AC 43.13-1B."},
+{q:"What is the acceptable amount of cushion in a governor control lever?",o:["1/8 inch","3/8 inch","1/4 inch"],a:0,e:"NIL."}
+]
+};
+
+let currentCategory = "all";
+let currentQuestions = [];
+let userAnswers = {};
+let submitted = false;
+
+function loadCategories() {
+  const sel = document.getElementById('category');
+  sel.innerHTML = '<option value="all">📚 ทุกหมวด (ทั้งหมด)</option>';
+  Object.keys(quizData).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = `${cat} (${quizData[cat].length} ข้อ)`;
+    sel.appendChild(opt);
+  });
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  currentCategory = document.getElementById('category').value;
+  submitted = false;
+  userAnswers = {};
+  let pool = [];
+  if (currentCategory === "all") {
+    Object.keys(quizData).forEach(cat => {
+      quizData[cat].forEach(q => pool.push({...q, cat: cat}));
+    });
+  } else {
+    quizData[currentCategory].forEach(q => pool.push({...q, cat: currentCategory}));
+  }
+  pool = shuffle(pool);
+  currentQuestions = pool.map(q => {
+    const optsWithIdx = q.o.map((opt, idx) => ({text: opt, origIdx: idx}));
+    const shuffledOpts = shuffle(optsWithIdx);
+    const newCorrectIdx = shuffledOpts.findIndex(o => o.origIdx === q.a);
+    return {
+      q: q.q,
+      options: shuffledOpts.map(o => o.text),
+      correctIdx: newCorrectIdx,
+      explanation: q.e,
+      category: q.cat
+    };
+  });
+  document.getElementById('scoreBox').style.display = 'none';
+  renderQuiz();
+  updateStats();
+}
+
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  currentQuestions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = 'q-' + idx;
+    let optionsHtml = '';
+    q.options.forEach((opt, oi) => {
+      optionsHtml += `<label><input type="radio" name="q${idx}" value="${oi}" onchange="onAnswer(${idx}, ${oi})">${String.fromCharCode(65+oi)}. ${escapeHtml(opt)}</label>`;
+    });
+    div.innerHTML = `<div class="q-head">ข้อ ${idx+1}. ${escapeHtml(q.q)}</div><div class="q-category">📂 ${escapeHtml(q.category)}</div><div class="options">${optionsHtml}</div><div class="explanation hidden" id="exp-${idx}"></div>`;
+    area.appendChild(div);
+  });
+  const submitBtn = document.createElement('div');
+  submitBtn.style.textAlign = 'center';
+  submitBtn.style.margin = '20px 0';
+  submitBtn.innerHTML = `<button class="primary" onclick="submitQuiz()" style="padding: 12px 30px; font-size: 16px;">📝 ส่งคำตอบ</button><button onclick="resetQuiz()" style="padding: 12px 30px; font-size: 16px;">🔄 ทำใหม่</button>`;
+  area.appendChild(submitBtn);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function onAnswer(qIdx, optIdx) {
+  if (submitted) return;
+  userAnswers[qIdx] = optIdx;
+  updateStats();
+}
+
+function updateStats() {
+  const catName = currentCategory === "all" ? "ทุกหมวด" : currentCategory;
+  document.getElementById('catName').textContent = catName;
+  document.getElementById('totalQ').textContent = currentQuestions.length;
+  document.getElementById('answered').textContent = Object.keys(userAnswers).length;
+}
+
+function submitQuiz() {
+  if (Object.keys(userAnswers).length === 0) {
+    alert('กรุณาตอบคำถามอย่างน้อย 1 ข้อ');
+    return;
+  }
+  submitted = true;
+  let correct = 0;
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const expDiv = document.getElementById('exp-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (isCorrect) {
+      correct++;
+      div.classList.add('correct');
+    } else {
+      div.classList.add('wrong');
+    }
+    let expHtml = `<strong>✅ คำตอบที่ถูกต้อง:</strong> <span class="correct-answer">${String.fromCharCode(65+q.correctIdx)}. ${escapeHtml(q.options[q.correctIdx])}</span>`;
+    if (!isCorrect && userAns !== undefined) {
+      expHtml += `<br><strong>❌ คำตอบของคุณ:</strong> <span class="user-wrong">${String.fromCharCode(65+userAns)}. ${escapeHtml(q.options[userAns])}</span>`;
+    } else if (userAns === undefined) {
+      expHtml += `<br><strong>⚠️ ไม่ได้ตอบ</strong>`;
+    }
+    if (q.explanation && q.explanation !== "NIL") {
+      expHtml += `<br><strong>💡 คำอธิบาย:</strong> ${escapeHtml(q.explanation)}`;
+    }
+    expDiv.innerHTML = expHtml;
+    expDiv.classList.remove('hidden');
+    div.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  });
+  const total = currentQuestions.length;
+  const percent = Math.round((correct / total) * 100);
+  let colorClass = 'red';
+  if (percent >= 80) colorClass = 'green';
+  else if (percent >= 60) colorClass = 'yellow';
+  const scoreBox = document.getElementById('scoreBox');
+  scoreBox.style.display = 'block';
+  document.getElementById('scoreText').innerHTML = `<div style="font-size: 24px;">ตอบถูก <strong>${correct}</strong> จาก <strong>${total}</strong> ข้อ</div><div style="font-size: 32px; font-weight: bold;">${percent}%</div>`;
+  const fill = document.getElementById('progressFill');
+  fill.className = 'progress-fill ' + colorClass;
+  fill.style.width = percent + '%';
+  fill.textContent = percent + '%';
+  scoreBox.scrollIntoView({behavior: 'smooth'});
+}
+
+function filterQ(type) {
+  currentQuestions.forEach((q, idx) => {
+    const div = document.getElementById('q-' + idx);
+    const userAns = userAnswers[idx];
+    const isCorrect = userAns === q.correctIdx;
+    if (type === 'all') {
+      div.style.display = 'block';
+    } else if (type === 'correct' && isCorrect) {
+      div.style.display = 'block';
+    } else if (type === 'wrong' && !isCorrect) {
+      div.style.display = 'block';
+    } else {
+      div.style.display = 'none';
+    }
+  });
+}
+
+function resetQuiz() {
+  if (!confirm('ต้องการเริ่มทำใหม่หรือไม่? (คำตอบปัจจุบันจะหายไป)')) return;
+  startQuiz();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+loadCategories();
+startQuiz();
+</script>
+</body>
+</html>
